@@ -51,6 +51,6 @@ Future topics we'd like to build on:
 
 Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh designed and led the project. 
 
-Thanks to the whole WMD group @ Imperial/Yonsei for all the interesting discussions and improvements!
+Thanks to the WMD group @ Imperial/Yonsei for all the interesting discussions and improvements!
 
 
