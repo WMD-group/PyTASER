@@ -6,13 +6,7 @@ import plotter
 import numpy as np
 
 #abipy
-import abipy.data as abidata
-import abipy.abilab as abilab
-import abipy.electrons as abielectrons
-from abipy.abilab import abiopen
 from abipy.tools.numtools import gaussian
-abilab.enable_notebook()
-from abipy.abilab import AbinitInput
 
 #collections
 from collections import OrderedDict
