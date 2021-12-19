@@ -7,13 +7,7 @@ import plotter
 import numpy as np
 
 #abipy
-import abipy.data as abidata
-import abipy.abilab as abilab
-import abipy.electrons as abielectrons
-from abipy.abilab import abiopen
 from abipy.tools.numtools import gaussian
-abilab.enable_notebook()
-from abipy.abilab import AbinitInput
 
 #collections
 from collections import OrderedDict
@@ -33,7 +27,6 @@ tio2a_temp = 298
 tio2a_conc = 10e21
 bandgap = 3.1
 transitions_tio2a = [(8,11), (9,10), (4,14), (6,20), (6,8)]
-
 # TiO2 is not spin-polarised, so we use the band_occupancies method instead of band_occupancies_sppol
 
 tio2a_generator = generator.TASGenerator.from_mpid('cTHyvyRHqX34gOLMbM', 'mp-390', tio2a_temp, tio2a_conc, bandgap)
