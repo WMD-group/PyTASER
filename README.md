@@ -34,7 +34,7 @@ python3 filename.py
 # Contributing
 
 ***The library is currently undergoing some final changes before it is finalised.*** However, once it is completed, we would greatly appreciate any contributions in the form of a pull request. 
-Additionally, any test cases performed with PyTASER would be welcomed. 
+Additionally, any test cases/example spectra performed with PyTASER would be welcomed. 
 
 Future topics we'd like to build on:
 
