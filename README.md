@@ -45,6 +45,7 @@ Future topics we'd like to build on:
 * Cleaning the regions further away from the bandgap
 * Implementing the optical transition probabilities alongside the JDOS
 * Creating a kinetics plot for TAS analysis.
+* Relating spectral features with associated optical processes
 
 
 # Acknowledgements
