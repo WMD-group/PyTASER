@@ -6,9 +6,6 @@ import plotter
 #numpy
 import numpy as np
 
-#abipy
-from abipy.tools.numtools import gaussian
-
 #collections
 from collections import OrderedDict
 
@@ -20,6 +17,24 @@ from pymatgen.core import Structure
 
 #scipy
 import scipy.constants as scpc
+
+## define gaussian function
+
+def gaussian(x, width, center=0.0, height=None):
+    """
+    Returns the values of gaussian(x) where x is array-like.
+
+    Args:
+        x: Input array.
+        width: Width of the gaussian.
+        center: Center of the gaussian.
+        height: height of the gaussian. If height is None, a normalized gaussian is returned.
+    """
+    x = np.asarray(x)
+    if height is None: height = 1.0 / (width * np.sqrt(2 * np.pi))
+
+    return height * np.exp(-((x - center) / width) ** 2 / 2.)
+
 
 ## GET KPOINTS WEIGHTS FUNCTION
 def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
