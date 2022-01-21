@@ -7,12 +7,6 @@ def ev_to_lambda(ev):
     return wavelength
 
 
-def lambda_to_ev(lambda_float):
-    """Convert photon energies from a wavelength in nm to eV."""
-    electronvolts = (10e8 * (scpc.h * scpc.c)) / (lambda_float * scpc.electron_volt)
-    return electronvolts
-
-
 class Tas:
     """
     A container class for all the generated data from TASgenerator.
@@ -42,8 +36,8 @@ class Tas:
         jdos_dark_decomp,
         energy_mesh_ev,
     ):
-        self.total_TAS = total_TAS
-        self.TAS_decomp = TAS_decomp
+        self.total_tas = total_TAS
+        self.tas_decomp = TAS_decomp
         self.jdos_light_tot = jdos_light_total
         self.jdos_light_decomp = jdos_light_decomp
         self.jdos_dark_tot = jdos_dark_total

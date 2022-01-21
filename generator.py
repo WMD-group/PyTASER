@@ -232,11 +232,11 @@ def set_bandgap(bandstructure, dos, bandgap):
     return new_bandstructure, new_dos
 
 
-def JDOS_simple(
+def jdos_simple(
     bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2, sppol=False
 ):
     """
-    Similar to JDOS_simple, but also accounts for Spin.down transitions (spin polarisation).
+    Similar to jdos_simple, but also accounts for Spin.down transitions (spin polarisation).
 
     Args:
         bs: bandstructure object
@@ -530,9 +530,9 @@ class TASGenerator:
 
         Returns:
             TAS class containing the following inputs:
-                TAS_cumulative: overall deltaT TAS spectrum for a material under the
+                tas_cumulative: overall deltaT TAS spectrum for a material under the
                     specified conditions
-                TAS_if: deltaT TAS spectrum across the energy mesh for a specific band
+                tas_if: deltaT TAS spectrum across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
                 jdos_light_cumulative: overall JDOS (pump-on) for a material under the
                     specified conditions
@@ -548,9 +548,9 @@ class TASGenerator:
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = OrderedDict()
         jdos_dark_if = OrderedDict()
-        TAS_if = OrderedDict()
+        tas_if = OrderedDict()
         # denom_TAS_if = OrderedDict()
-        TAS_cumulative = np.zeros(len(energy_mesh_ev))
+        tas_cumulative = np.zeros(len(energy_mesh_ev))
         jdos_dark_cumulative = np.zeros(len(energy_mesh_ev))
         jdos_light_cumulative = np.zeros(len(energy_mesh_ev))
         # denom_TAS_cumulative = np.zeros(len(energy_mesh_ev))
@@ -558,7 +558,7 @@ class TASGenerator:
             for i in self.band_index:
                 for f in self.band_index:
                     if f > i:
-                        jd_light = JDOS_simple(
+                        jd_light = jdos_simple(
                             self.bs,
                             f,
                             i,
@@ -567,7 +567,7 @@ class TASGenerator:
                             self.kpoint_index,
                             self.kpoint_weights,
                         )
-                        jd_dark = JDOS_simple(
+                        jd_dark = jdos_simple(
                             self.bs,
                             f,
                             i,
@@ -581,8 +581,8 @@ class TASGenerator:
                         jdos_light_if[(i, f)] = jd_light
                         jdos_dark_cumulative += jd_dark
                         jdos_light_cumulative += jd_light
-                        TAS_if[(i, f)] = tas
-                        TAS_cumulative += tas
+                        tas_if[(i, f)] = tas
+                        tas_cumulative += tas
                         # denom_TAS_if[(i,f, 'spin = up')] = tas/jd_light
                         # denom_TAS_cumulative = tas/jd_light
 
@@ -590,7 +590,7 @@ class TASGenerator:
             for i in self.band_index:
                 for f in self.band_index:
                     if f > i:
-                        jd_light = JDOS_simple(
+                        jd_light = jdos_simple(
                             self.bs,
                             f,
                             i,
@@ -599,7 +599,7 @@ class TASGenerator:
                             self.kpoint_index,
                             self.kpoint_weights,
                         )
-                        jd_dark = JDOS_simple(
+                        jd_dark = jdos_simple(
                             self.bs,
                             f,
                             i,
@@ -613,15 +613,15 @@ class TASGenerator:
                         jdos_light_if[(i, f, "spin = up")] = jd_light
                         jdos_dark_cumulative += jd_dark
                         jdos_light_cumulative += jd_light
-                        TAS_if[(i, f, "spin = up")] = tas
-                        TAS_cumulative += tas
+                        tas_if[(i, f, "spin = up")] = tas
+                        tas_cumulative += tas
                         # denom_TAS_if[(i,f, 'spin = up')] = tas/jd_light
                         # denom_TAS_cumulative = tas/jd_light
 
             for i in self.band_index_down:
                 for f in self.band_index_down:
                     if f > i:
-                        jd_light_down = JDOS_simple(
+                        jd_light_down = jdos_simple(
                             self.bs,
                             f,
                             i,
@@ -631,7 +631,7 @@ class TASGenerator:
                             self.kpoint_weights,
                             sppol=True,
                         )
-                        jd_dark_down = JDOS_simple(
+                        jd_dark_down = jdos_simple(
                             self.bs,
                             f,
                             i,
@@ -646,14 +646,14 @@ class TASGenerator:
                         jdos_light_if[(i, f, "spin = down")] = jd_light_down
                         jdos_dark_cumulative += jd_dark_down
                         jdos_light_cumulative += jd_light_down
-                        TAS_if[(i, f, "spin = down")] = tas_down
-                        TAS_cumulative += tas_down
+                        tas_if[(i, f, "spin = down")] = tas_down
+                        tas_cumulative += tas_down
                         # denom_TAS_if[(i,f, 'spin = down')] = tas_down/jd_light_down
                         # denom_TAS_cumulative = tas_down/jd_light_down
 
         return Tas(
-            TAS_cumulative,
-            TAS_if,
+            tas_cumulative,
+            tas_if,
             jdos_light_cumulative,
             jdos_light_if,
             jdos_dark_cumulative,

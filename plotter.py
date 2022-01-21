@@ -30,9 +30,9 @@ class TASPlotter:
     """
 
     def __init__(self, container, bandgap_ev, material_name, temp, conc):
-        self.tas_tot = container.total_TAS
+        self.tas_tot = container.total_tas
         # self.denom_tas_tot = container.denom_total_TAS
-        self.tas_decomp = container.TAS_decomp
+        self.tas_decomp = container.tas_decomp
         # self.denom_tas_decomp = container.denom_TAS_decomp
         self.jdos_light_tot = container.jdos_light_tot
         self.jdos_light_decomp = container.jdos_light_decomp
