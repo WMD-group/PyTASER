@@ -22,7 +22,6 @@ PyTASER is currently compatible with Python 3.9+ and relies on a number of open-
 * [numpy](https://numpy.org/), [scipy](https://scipy.org/) for data structures and unit conversion
 * [matplotlib](https://matplotlib.org/), [plotly](https://plotly.com/) for plotting the spectra
 
-
 # Visualisation 
 
 Once the library is installed, please setup a file as done in the examples provided. Then just run it as a python file:

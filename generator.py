@@ -1,24 +1,13 @@
-import TAS
-import plotter
-
-## IMPORTS
-
-#numpy
-import numpy as np
-
-#collections
 from collections import OrderedDict
 
-#pymatgen
-from pymatgen.ext.matproj import MPRester
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.dos import f0, FermiDos
+import numpy as np
 from pymatgen.core import Structure
+from pymatgen.electronic_structure.core import Spin
+from pymatgen.electronic_structure.dos import FermiDos, f0
+from pymatgen.ext.matproj import MPRester
 
-#scipy
-import scipy.constants as scpc
+from tas import Tas
 
-## define gaussian function
 
 def gaussian(x, width, center=0.0, height=None):
     """
@@ -31,12 +20,12 @@ def gaussian(x, width, center=0.0, height=None):
         height: height of the gaussian. If height is None, a normalized gaussian is returned.
     """
     x = np.asarray(x)
-    if height is None: height = 1.0 / (width * np.sqrt(2 * np.pi))
+    if height is None:
+        height = 1.0 / (width * np.sqrt(2 * np.pi))
 
-    return height * np.exp(-((x - center) / width) ** 2 / 2.)
+    return height * np.exp(-(((x - center) / width) ** 2) / 2.0)
 
 
-## GET KPOINTS WEIGHTS FUNCTION
 def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
     """
     Function to calculate the kpoint_weights for non-magnetic materials (non-metals).
@@ -44,7 +33,8 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
     Args:
         bandstructure: PMG bandstructure object
         time_reversal:
-        symprec: Symmetry precision in Angstrom.(Lower value is more precise, but computationally more expensive)
+        symprec: Symmetry precision in Angstrom.(Lower value is more precise, but
+            computationally more expensive)
     Returns:
         k-point_weights
     """
@@ -62,24 +52,21 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
     return weights
 
 
-def get_kpoints_from_bandstructure(bandstructure, cartesian=False, sort=False):
+def get_kpoints_from_bandstructure(bandstructure, cartesian=False):
     if cartesian:
         kpoints = np.array([k.cart_coords for k in bandstructure.kpoints])
     else:
         kpoints = np.array([k.frac_coords for k in bandstructure.kpoints])
 
-    if sort:
-        return sort_kpoints(kpoints)
-
     return kpoints
 
 
 def expand_kpoints(
-        structure,
-        kpoints,
-        symprec=0.01,
-        return_mapping=False,
-        time_reversal=True,
+    structure,
+    kpoints,
+    symprec=0.01,
+    return_mapping=False,
+    time_reversal=True,
 ):
     kpoints = np.array(kpoints).round(8)
 
@@ -179,9 +166,9 @@ def get_mesh_from_kpoint_diff(kpoints, ktol=1e-5):
 
 
 def get_reciprocal_point_group_operations(
-        structure: Structure,
-        symprec: float = 0.01,
-        time_reversal: bool = True,
+    structure: Structure,
+    symprec: float = 0.01,
+    time_reversal: bool = True,
 ):
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -209,24 +196,19 @@ def get_reciprocal_point_group_operations(
     return rotations[sort_idx], translations[sort_idx], is_tr[sort_idx]
 
 
-## EXAMPLE OF HOW TO USE THE FUNCTION
-# from pymatgen.ext.matproj import MPRester
-# mpr = MPRester(api_key = 'cTHyvyRHqX34gOLMbM')
-# bandstructure = mpr.get_bandstructure_by_material_id("mp-2657", line_mode=False)
-# get_kpoint_weights(bandstructure)
-
-## SHIFT BANDGAP
-# redefine the bandstructure and dos to account for DFT underestimated bandgaps (full credit to Alex!!)
-
 def set_bandgap(bandstructure, dos, bandgap):
     """
-    Shifts all bands of a material to correct the DFT-underestimated bandgap according to the inputted experimental bandgap.
+    Shifts all bands of a material to correct the DFT-underestimated bandgap according to
+    the input experimental bandgap.
+
     Args:
         bandstructure: PMG bandstructure object
         dos: PMG dos object
         bandgap: experimental bandgap from literature (float)
+
     Returns:
-        new bandstructure and dos objects for the same material, but with corrected bandgap.
+        new bandstructure and dos objects for the same material, but with corrected
+        bandgap.
     """
     from copy import deepcopy
 
@@ -253,11 +235,11 @@ def set_bandgap(bandstructure, dos, bandgap):
     for spin in dos.densities.keys():
         dens = np.zeros_like(dos.energies)
         if shift > 0:
-            dens[:fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
-            dens[fermi_idx + shift:] = dos.densities[spin][fermi_idx:-shift]
+            dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
+            dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
         else:
-            dens[abs(shift):fermi_idx] = dos.densities[spin][:fermi_idx + shift]
-            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift:]
+            dens[abs(shift) : fermi_idx] = dos.densities[spin][: fermi_idx + shift]
+            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
         new_dos.densities[spin] = dens
 
     new_bandstructure.efermi = midgap
@@ -265,10 +247,13 @@ def set_bandgap(bandstructure, dos, bandgap):
 
     return new_bandstructure, new_dos
 
-#JDOS SIMPLE ITERATOR
-def JDOS_simple(bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2, sppol=False):
+
+def jdos_simple(
+    bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2, sppol=False
+):
     """
-    Similar to JDOS_simple, but also accounts for Spin.down transitions (spin polarisation).
+    Similar to jdos_simple, but also accounts for Spin.down transitions (spin polarisation).
+
     Args:
         bs: bandstructure object
         f: final band
@@ -279,8 +264,10 @@ def JDOS_simple(bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2,
         kweights: k-point weights
         gaussian_width: width of gaussian plot.
         sppol: bool identifying the material as spin polarised.
+
     Returns:
-        Cumulative JDOS value for a specific i->f transition, with consideration of partial occupancy and spin polarisation.
+        Cumulative JDOS value for a specific i->f transition, with consideration of
+        partial occupancy and spin polarisation.
     """
 
     jdos = np.zeros(len(energies))
@@ -293,8 +280,12 @@ def JDOS_simple(bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2,
             init_occ = occs[i][k]
             k_weight = kweights[k]
             # factor_old = k_weight * init_occ * (1 - final_occ)  THIS IS THE OLD EQUATION THAT WE USED.
-            factor = k_weight * ((init_occ*(1 - final_occ))-(final_occ*(1 - init_occ)))
-            jdos += factor * gaussian(energies, gaussian_width, center=final_energy - init_energy)
+            factor = k_weight * (
+                (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
+            )
+            jdos += factor * gaussian(
+                energies, gaussian_width, center=final_energy - init_energy
+            )
 
     # Doesn't consider Spin.up -> Spin.down transitions (or vice-versa)
     else:
@@ -306,21 +297,26 @@ def JDOS_simple(bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2,
             init_occ = occs[i][k]
             k_weight = kweights[k]
             factor = k_weight * init_occ * (1 - final_occ)
-            jdos += factor * gaussian(energies, gaussian_width, center=final_energy - init_energy)
+            jdos += factor * gaussian(
+                energies, gaussian_width, center=final_energy - init_energy
+            )
 
     return jdos
 
 
 class TASGenerator:
     """
-    Class to generate a TAS spectrum (decomposed and cumulative) from a bandstructure and dos object.
+    Class to generate a TAS spectrum (decomposed and cumulative) from a bandstructure and
+    dos object.
+
     Args:
         bs: Pymatgen-based bandstructure object
         kpoint_weights: kpoint weights either found by the function or inputted.
         dos:Pymatgen-based dos object
         bandgap: Experimental or Inputted  bandgap of a material.
         temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
-        conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent). Inversely proportional to pump-probe time delay.
+        conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
+            Inversely proportional to pump-probe time delay.
 
     Attributes:
         bs: Pymatgen-based bandstructure object
@@ -336,24 +332,29 @@ class TASGenerator:
         band_index: Ordered list index of all bands that are spin-up bands
         kpoint_index: Ordered list index of all kpoints in spin-up bands
         sppol: Boolean determining whether material is spin-polarised or not.
-        band_index_down: Ordered list index of all bands that are spin-down. (Only relevant if material is spin-polarised)
-        kpoint_index_down: Ordered list index of all kpoints in spin-down. (Only relevant if material is spin-polarised)
+        band_index_down: Ordered list index of all bands that are spin-down. (Only
+            relevant if material is spin-polarised)
+        kpoint_index_down: Ordered list index of all kpoints in spin-down. (Only
+            relevant if material is spin-polarised)
         occs_light: Occupancies of spin-up bands for a pump-on system, across all kpoints
         occs_dark: Occupancies of spin-up bands for a pump-off system, across all kpoints
-        occs_light_down: Occupancies of spin-down bands for a pump-on system, across all kpoints
-        occs_dark_down: Occupancies of spin-down bands for a pump-off system, across all kpoints
+        occs_light_down: Occupancies of spin-down bands for a pump-on system, across all
+            kpoints
+        occs_dark_down: Occupancies of spin-down bands for a pump-off system, across all
+            kpoints
     """
+
     def __init__(self, bs, kpoint_weights, dos, bandgap, temp, conc):
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = dos
         self.bg = bandgap
-        self.c_min_energy = bs.get_cbm()['energy']
-        self.v_max_energy = bs.get_vbm()['energy']
+        self.c_min_energy = bs.get_cbm()["energy"]
+        self.v_max_energy = bs.get_vbm()["energy"]
         self.bg_centre = (self.c_min_energy + self.v_max_energy) / 2
         self.number_bands = bs.nb_bands
-        self.c_min_index = bs.get_cbm()['band_index']
-        self.v_max_index = bs.get_vbm()['band_index']
+        self.c_min_index = bs.get_cbm()["band_index"]
+        self.v_max_index = bs.get_vbm()["band_index"]
 
         band_index = []
         for band_indices, band_values in enumerate(self.bs.bands[Spin.up]):
@@ -376,7 +377,9 @@ class TASGenerator:
         band_index_down = []
         kpoint_index_down = []
         if self.sppol == True:
-            for band_indices_down, band_values_down in enumerate(self.bs.bands[Spin.down]):
+            for band_indices_down, band_values_down in enumerate(
+                self.bs.bands[Spin.down]
+            ):
                 band_index_down += [band_indices_down]
             for k_indices_down, k_values_down in enumerate(self.bs.bands[Spin.down][0]):
                 kpoint_index_down += [k_indices_down]
@@ -388,27 +391,33 @@ class TASGenerator:
         light_occs_down = None
         dark_occs_down = None
         if self.sppol == True:
-            light_occs = TASGenerator.band_occupancies_sppol(self,temp, conc, dark = False)[0]
-            light_occs_down = TASGenerator.band_occupancies_sppol(self,temp, conc, dark=False)[1]
-            dark_occs = TASGenerator.band_occupancies_sppol(self,temp, conc)[0]
-            dark_occs_down = TASGenerator.band_occupancies_sppol(self,temp, conc)[1]
+            light_occs = TASGenerator.band_occupancies_sppol(
+                self, temp, conc, dark=False
+            )[0]
+            light_occs_down = TASGenerator.band_occupancies_sppol(
+                self, temp, conc, dark=False
+            )[1]
+            dark_occs = TASGenerator.band_occupancies_sppol(self, temp, conc)[0]
+            dark_occs_down = TASGenerator.band_occupancies_sppol(self, temp, conc)[1]
         elif self.sppol == False:
-            light_occs = TASGenerator.band_occupancies(self,temp, conc, dark=False)
-            dark_occs = TASGenerator.band_occupancies(self,temp, conc)
-        self.occs_light= light_occs
+            light_occs = TASGenerator.band_occupancies(self, temp, conc, dark=False)
+            dark_occs = TASGenerator.band_occupancies(self, temp, conc)
+        self.occs_light = light_occs
         self.occs_dark = dark_occs
         self.occs_light_down = light_occs_down
         self.occs_dark_down = dark_occs_down
 
-
-    def band_occupancies(self, temp, conc, dark = True):
+    def band_occupancies(self, temp, conc, dark=True):
         """
         Gives band occupancies for a typical non spin-polarised system.
 
         Args:
-            temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
-            conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent). Inversely proportional to pump-probe time delay.
+            temp: Temperature (K) of material we wish to investigate (affects the FD
+                distribution)
+            conc: Carrier concentration (cm^-3) of holes and electrons (both are
+                equivalent). Inversely proportional to pump-probe time delay.
             dark: Bool; dark = True indicates pump is on.
+
         Returns:
             occs: Band occupancies for all bands for a material, across all k-points.
         """
@@ -423,12 +432,13 @@ class TASGenerator:
 
         else:
             fermidos = FermiDos(self.dos)
-            #quasi-electron fermi level
+            # quasi-electron fermi level
             q_fermi_e = fermidos.get_fermi(-conc, temp)
-            #quasi-hole fermi level
+            # quasi-hole fermi level
             q_fermi_h = fermidos.get_fermi(conc, temp)
 
-            #   Calculate the occupancies at the initial and final energy according to the Fermi-Dirac distribution
+            # Calculate the occupancies at the initial and final energy according to the
+            # Fermi-Dirac distribution
             # q-e-f
             electron_occs = f0(self.bs.bands[Spin.up], q_fermi_e, temp)
             # q-h-f
@@ -444,28 +454,31 @@ class TASGenerator:
 
         return occs
 
-    def band_occupancies_sppol(self, temp, conc, dark = True):
+    def band_occupancies_sppol(self, temp, conc, dark=True):
         """
         Gives band occupancies for a spin-polarised system.
 
         Args:
-            temp: Temperature of material we wish to investigate (affects the FD distribution)
-            conc: Carrier concentration of holes and electrons (both are the same). Inversely proportional to pump-probe time delay.
+            temp: Temperature of material we wish to investigate (affects the FD
+                distribution)
+            conc: Carrier concentration of holes and electrons (both are the same).
+                Inversely proportional to pump-probe time delay.
             dark: Bool; dark = True indicates pump is on.
+
         Returns:
             occs: Band occupancies for all spin-up bands, across all k-points.
             occs_down: Band occupancies for the spin-down bands, across all k-points
         """
 
-        # THIS FUNCTION IS ONLY TO BE USED FOR SPIN POLARISED SYSTEMS. IF NOT SPPOL, CALL THE OTHER FUNCTION.
+        # THIS FUNCTION IS ONLY TO BE USED FOR SPIN POLARISED SYSTEMS. IF NOT SPPOL, CALL
+        # THE OTHER FUNCTION.
 
         #   Calculate the quasi-Fermi levels
-        fermidos  = FermiDos(self.dos)
+        fermidos = FermiDos(self.dos)
         #   quasi-electron fermi level
         q_fermi_e = fermidos.get_fermi(-conc, temp)
         #   quasi-hole fermi level
         q_fermi_h = fermidos.get_fermi(conc, temp)
-
 
         if dark == True:
             # DARK
@@ -477,7 +490,7 @@ class TASGenerator:
             occs[hole_mask] = 1
             occs[elec_mask] = 0
 
-            #DOWN
+            # DOWN
             hole_mask_down = self.bs.bands[Spin.down] < self.bg_centre
             elec_mask_down = self.bs.bands[Spin.down] > self.bg_centre
 
@@ -488,7 +501,8 @@ class TASGenerator:
 
         else:
             # LIGHT
-            #   Calculate the occupancies at the initial and final energy according to the Fermi-Dirac distribution
+            # Calculate the occupancies at the initial and final energy according to the
+            # Fermi-Dirac distribution
             # q-e-f
             electron_occs = f0(self.bs.bands[Spin.up], q_fermi_e, temp)
             # q-h-f
@@ -517,10 +531,9 @@ class TASGenerator:
             occs_down[hole_mask_down] = hole_occs_down[hole_mask_down]
             occs_down[elec_mask_down] = electron_occs_down[elec_mask_down]
 
-
         return occs, occs_down
 
-    def generate_tas(self, energy_min, energy_max, gaussian_width = 0.2, step = 0.1):
+    def generate_tas(self, energy_min, energy_max, gaussian_width=0.2, step=0.1):
 
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
@@ -533,21 +546,27 @@ class TASGenerator:
 
         Returns:
             TAS class containing the following inputs:
-                TAS_cumulative: overall deltaT TAS spectrum for a material under the specified conditions
-                TAS_if: deltaT TAS spectrum across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
-                jdos_light_cumulative: overall JDOS (pump-on) for a material under the specified conditions
-                jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
-                jdos_dark_cumulative: overall JDOS (pump-off) for a material under the specified conditions
-                jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
+                tas_cumulative: overall deltaT TAS spectrum for a material under the
+                    specified conditions
+                tas_if: deltaT TAS spectrum across the energy mesh for a specific band
+                    transition i (initial) -> f (final) [dict]
+                jdos_light_cumulative: overall JDOS (pump-on) for a material under the
+                    specified conditions
+                jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
+                    transition i (initial) -> f (final) [dict]
+                jdos_dark_cumulative: overall JDOS (pump-off) for a material under the
+                    specified conditions
+                jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
+                    transition i (initial) -> f (final) [dict]
                 energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
         """
 
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = OrderedDict()
         jdos_dark_if = OrderedDict()
-        TAS_if = OrderedDict()
+        tas_if = OrderedDict()
         # denom_TAS_if = OrderedDict()
-        TAS_cumulative = np.zeros(len(energy_mesh_ev))
+        tas_cumulative = np.zeros(len(energy_mesh_ev))
         jdos_dark_cumulative = np.zeros(len(energy_mesh_ev))
         jdos_light_cumulative = np.zeros(len(energy_mesh_ev))
         # denom_TAS_cumulative = np.zeros(len(energy_mesh_ev))
@@ -555,15 +574,31 @@ class TASGenerator:
             for i in self.band_index:
                 for f in self.band_index:
                     if f > i:
-                        jd_light = JDOS_simple(self.bs, f, i, self.occs_light, energy_mesh_ev, self.kpoint_index, self.kpoint_weights)
-                        jd_dark = JDOS_simple(self.bs, f, i, self.occs_dark, energy_mesh_ev, self.kpoint_index, self.kpoint_weights)
+                        jd_light = jdos_simple(
+                            self.bs,
+                            f,
+                            i,
+                            self.occs_light,
+                            energy_mesh_ev,
+                            self.kpoint_index,
+                            self.kpoint_weights,
+                        )
+                        jd_dark = jdos_simple(
+                            self.bs,
+                            f,
+                            i,
+                            self.occs_dark,
+                            energy_mesh_ev,
+                            self.kpoint_index,
+                            self.kpoint_weights,
+                        )
                         tas = jd_light - jd_dark
                         jdos_dark_if[(i, f)] = jd_dark
                         jdos_light_if[(i, f)] = jd_light
                         jdos_dark_cumulative += jd_dark
                         jdos_light_cumulative += jd_light
-                        TAS_if[(i, f)] = tas
-                        TAS_cumulative += tas
+                        tas_if[(i, f)] = tas
+                        tas_cumulative += tas
                         # denom_TAS_if[(i,f, 'spin = up')] = tas/jd_light
                         # denom_TAS_cumulative = tas/jd_light
 
@@ -571,55 +606,99 @@ class TASGenerator:
             for i in self.band_index:
                 for f in self.band_index:
                     if f > i:
-                        jd_light = JDOS_simple(self.bs, f, i, self.occs_light, energy_mesh_ev, self.kpoint_index, self.kpoint_weights)
-                        jd_dark = JDOS_simple(self.bs, f, i, self.occs_dark, energy_mesh_ev, self.kpoint_index, self.kpoint_weights)
+                        jd_light = jdos_simple(
+                            self.bs,
+                            f,
+                            i,
+                            self.occs_light,
+                            energy_mesh_ev,
+                            self.kpoint_index,
+                            self.kpoint_weights,
+                        )
+                        jd_dark = jdos_simple(
+                            self.bs,
+                            f,
+                            i,
+                            self.occs_dark,
+                            energy_mesh_ev,
+                            self.kpoint_index,
+                            self.kpoint_weights,
+                        )
                         tas = jd_light - jd_dark
-                        jdos_dark_if[(i, f, 'spin = up')] = jd_dark
-                        jdos_light_if[(i, f, 'spin = up')] = jd_light
+                        jdos_dark_if[(i, f, "spin = up")] = jd_dark
+                        jdos_light_if[(i, f, "spin = up")] = jd_light
                         jdos_dark_cumulative += jd_dark
                         jdos_light_cumulative += jd_light
-                        TAS_if[(i, f, 'spin = up')] = tas
-                        TAS_cumulative += tas
+                        tas_if[(i, f, "spin = up")] = tas
+                        tas_cumulative += tas
                         # denom_TAS_if[(i,f, 'spin = up')] = tas/jd_light
                         # denom_TAS_cumulative = tas/jd_light
 
             for i in self.band_index_down:
                 for f in self.band_index_down:
                     if f > i:
-                        jd_light_down = JDOS_simple(self.bs, f, i, self.occs_light_down, energy_mesh_ev,
-                                                       self.kpoint_index_down, self.kpoint_weights, sppol=True)
-                        jd_dark_down = JDOS_simple(self.bs, f, i, self.occs_dark_down, energy_mesh_ev,
-                                                      self.kpoint_index_down, self.kpoint_weights, sppol=True)
+                        jd_light_down = jdos_simple(
+                            self.bs,
+                            f,
+                            i,
+                            self.occs_light_down,
+                            energy_mesh_ev,
+                            self.kpoint_index_down,
+                            self.kpoint_weights,
+                            sppol=True,
+                        )
+                        jd_dark_down = jdos_simple(
+                            self.bs,
+                            f,
+                            i,
+                            self.occs_dark_down,
+                            energy_mesh_ev,
+                            self.kpoint_index_down,
+                            self.kpoint_weights,
+                            sppol=True,
+                        )
                         tas_down = jd_light_down - jd_dark_down
-                        jdos_dark_if[(i, f, 'spin = down')] = jd_dark_down
-                        jdos_light_if[(i, f, 'spin = down')] = jd_light_down
+                        jdos_dark_if[(i, f, "spin = down")] = jd_dark_down
+                        jdos_light_if[(i, f, "spin = down")] = jd_light_down
                         jdos_dark_cumulative += jd_dark_down
                         jdos_light_cumulative += jd_light_down
-                        TAS_if[(i, f, 'spin = down')] = tas_down
-                        TAS_cumulative += tas_down
+                        tas_if[(i, f, "spin = down")] = tas_down
+                        tas_cumulative += tas_down
                         # denom_TAS_if[(i,f, 'spin = down')] = tas_down/jd_light_down
                         # denom_TAS_cumulative = tas_down/jd_light_down
 
-        return TAS.tas(TAS_cumulative, TAS_if, jdos_light_cumulative, jdos_light_if, jdos_dark_cumulative, jdos_dark_if, energy_mesh_ev)
-
+        return Tas(
+            tas_cumulative,
+            tas_if,
+            jdos_light_cumulative,
+            jdos_light_if,
+            jdos_dark_cumulative,
+            jdos_dark_if,
+            energy_mesh_ev,
+        )
 
     @classmethod
-    def from_mpid(cls,api,mpid,temperature, concentration, bg = None):
+    def from_mpid(cls, api, mpid, temperature, concentration, bg=None):
         """
-        Import the desired bandstructure and dos objects from the Materials Project database.
+        Import the desired bandstructure and dos objects from the Materials Project
+        database.
 
         Args:
             mpid: The Materials Project ID of the desired material.
-            temperature:Temperature (K) of material we wish to investigate (affects the FD distribution)
-            concentration: Carrier concentration (cm^-3) of holes and electrons (both are equivalent). Inversely proportional to pump-probe time delay.
-            bg: The experimental bandgap (eV) of the material to be implemented. If the user wants to use the DFT-calculated bandgap, omit.
+            temperature:Temperature (K) of material we wish to investigate (affects the
+                FD distribution)
+            concentration: Carrier concentration (cm^-3) of holes and electrons (both are
+                equivalent). Inversely proportional to pump-probe time delay.
+            bg: The experimental bandgap (eV) of the material to be implemented. If the
+                user wants to use the DFT-calculated bandgap, omit.
 
         Returns:
-            A TASGenerator class with a uniform mode bandstructure & dos object, k-weights and a corrected bandgap.
+            A TASGenerator class with a uniform mode bandstructure & dos object, k-weights
+            and a corrected bandgap.
         """
         mpr = MPRester(api_key=api)
         mp_dos = mpr.get_dos_by_material_id(mpid)
-        mp_bs= mpr.get_bandstructure_by_material_id(mpid, line_mode = False)
+        mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
         if bg is None:
             bg = mp_bs.get_band_gap()["energy"]
         else:
