@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
 
-
 def ev_to_lambda(ev):
     """Convert photon energies from eV to a wavelength in nm."""
     wavelength = ((scpc.h * scpc.c) / (ev * scpc.electron_volt)) * 10e8

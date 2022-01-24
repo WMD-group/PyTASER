@@ -1,10 +1,4 @@
-import scipy.constants as scpc
-
-
-def ev_to_lambda(ev):
-    """Convert photon energies from eV to a wavelength in nm."""
-    wavelength = ((scpc.h * scpc.c) / (ev * scpc.electron_volt)) * 10e8
-    return wavelength
+from pytaser.plotter import ev_to_lambda
 
 
 class Tas:
