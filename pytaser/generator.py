@@ -230,7 +230,6 @@ def set_bandgap(bandstructure, dos, bandgap):
     fermi_idx = np.argmin(np.abs(dos.energies - midgap))
     de = np.diff(dos.energies).mean()
     shift = int(scissor / 2 // de)
-    print(shift)
     new_dos = deepcopy(dos)
     for spin in dos.densities.keys():
         dens = np.zeros_like(dos.energies)
