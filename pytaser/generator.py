@@ -248,11 +248,11 @@ def set_bandgap(bandstructure, dos, bandgap):
     return new_bandstructure, new_dos
 
 
-def jdos_simple(
+def jdos(
     bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2, sppol=False
 ):
     """
-    Similar to jdos_simple, but also accounts for Spin.down transitions (spin polarisation).
+    Similar to jdos, but also accounts for Spin.down transitions (spin polarisation).
 
     Args:
         bs: bandstructure object
@@ -574,7 +574,7 @@ class TASGenerator:
             for i in self.band_index:
                 for f in self.band_index:
                     if f > i:
-                        jd_light = jdos_simple(
+                        jd_light = jdos(
                             self.bs,
                             f,
                             i,
@@ -583,7 +583,7 @@ class TASGenerator:
                             self.kpoint_index,
                             self.kpoint_weights,
                         )
-                        jd_dark = jdos_simple(
+                        jd_dark = jdos(
                             self.bs,
                             f,
                             i,
@@ -606,7 +606,7 @@ class TASGenerator:
             for i in self.band_index:
                 for f in self.band_index:
                     if f > i:
-                        jd_light = jdos_simple(
+                        jd_light = jdos(
                             self.bs,
                             f,
                             i,
@@ -615,7 +615,7 @@ class TASGenerator:
                             self.kpoint_index,
                             self.kpoint_weights,
                         )
-                        jd_dark = jdos_simple(
+                        jd_dark = jdos(
                             self.bs,
                             f,
                             i,
@@ -637,7 +637,7 @@ class TASGenerator:
             for i in self.band_index_down:
                 for f in self.band_index_down:
                     if f > i:
-                        jd_light_down = jdos_simple(
+                        jd_light_down = jdos(
                             self.bs,
                             f,
                             i,
@@ -647,7 +647,7 @@ class TASGenerator:
                             self.kpoint_weights,
                             sppol=True,
                         )
-                        jd_dark_down = jdos_simple(
+                        jd_dark_down = jdos(
                             self.bs,
                             f,
                             i,
