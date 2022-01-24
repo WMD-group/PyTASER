@@ -5,11 +5,11 @@ fe2o3_temp = 298
 fe2o3_conc = 10e21
 bandgap = 2.2  # based on https://aip.scitation.org/doi/full/10.1063/1.2177426
 transitions_fe2o3 = [
-    (8, 11, "spin = down"),
-    (9, 10, "spin = up"),
-    (4, 14, "spin = up"),
-    (6, 20, "spin = down"),
-    (6, 28, "spin = up"),
+    (8, 11, "down"),
+    (9, 10, "up"),
+    (4, 14, "up"),
+    (6, 20, "down"),
+    (6, 28, "up"),
 ]
 
 # Fe2O3 is  spin-polarised, so we must define whether the relevant transitions we want to

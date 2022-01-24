@@ -598,7 +598,7 @@ class TASGenerator:
                         jdos_light_cumulative += jd_light
                         tas_if[(i, f)] = tas
                         tas_cumulative += tas
-                        # denom_TAS_if[(i,f, 'spin = up')] = tas/jd_light
+                        # denom_TAS_if[(i,f, "up")] = tas/jd_light
                         # denom_TAS_cumulative = tas/jd_light
 
         elif self.sppol == True:
@@ -624,13 +624,13 @@ class TASGenerator:
                             self.kpoint_weights,
                         )
                         tas = jd_light - jd_dark
-                        jdos_dark_if[(i, f, "spin = up")] = jd_dark
-                        jdos_light_if[(i, f, "spin = up")] = jd_light
+                        jdos_dark_if[(i, f, "up")] = jd_dark
+                        jdos_light_if[(i, f, "up")] = jd_light
                         jdos_dark_cumulative += jd_dark
                         jdos_light_cumulative += jd_light
-                        tas_if[(i, f, "spin = up")] = tas
+                        tas_if[(i, f, "up")] = tas
                         tas_cumulative += tas
-                        # denom_TAS_if[(i,f, 'spin = up')] = tas/jd_light
+                        # denom_TAS_if[(i,f, "up")] = tas/jd_light
                         # denom_TAS_cumulative = tas/jd_light
 
             for i in self.band_index_down:
@@ -657,13 +657,13 @@ class TASGenerator:
                             sppol=True,
                         )
                         tas_down = jd_light_down - jd_dark_down
-                        jdos_dark_if[(i, f, "spin = down")] = jd_dark_down
-                        jdos_light_if[(i, f, "spin = down")] = jd_light_down
+                        jdos_dark_if[(i, f, "down")] = jd_dark_down
+                        jdos_light_if[(i, f, "down")] = jd_light_down
                         jdos_dark_cumulative += jd_dark_down
                         jdos_light_cumulative += jd_light_down
-                        tas_if[(i, f, "spin = down")] = tas_down
+                        tas_if[(i, f, "down")] = tas_down
                         tas_cumulative += tas_down
-                        # denom_TAS_if[(i,f, 'spin = down')] = tas_down/jd_light_down
+                        # denom_TAS_if[(i,f, "down")] = tas_down/jd_light_down
                         # denom_TAS_cumulative = tas_down/jd_light_down
 
         return Tas(

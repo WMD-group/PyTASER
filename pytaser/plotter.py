@@ -61,7 +61,7 @@ class TASPlotter:
                 in the plot alongside the total plot. If material is not spin-polarised,
                 only write the bands involved [(1,6),(2,7),(8,9)...] If spin-polarised,
                 include the type of spin involved in transition
-                [(1,6, 'spin = down'),(2,7, 'spin = down'),(8,9, 'spin = up')...]
+                [(1,6, "down"),(2,7, "down"),(8,9, "up")...]
             xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
             xmin: Minimum energy point in mesh (float)
             xmax: Maximum energy point in mesh (float)
