@@ -39,7 +39,6 @@ setup(
         "scipy",
         "matplotlib",
         "pymatgen>=2017.12.30",
-        "plotly",
     ],
     },
     data_files=["LICENSE"],
