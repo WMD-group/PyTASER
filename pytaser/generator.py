@@ -248,11 +248,9 @@ def set_bandgap(bandstructure, dos, bandgap):
 
 
 def jdos(
-    bs, f, i, occs, energies, k_index, kweights, gaussian_width=0.2, sppol=False
+    bs, f, i, occs, energies, k_index, kweights, gaussian_width, sppol=False
 ):
     """
-    Similar to jdos, but also accounts for Spin.down transitions (spin polarisation).
-
     Args:
         bs: bandstructure object
         f: final band
@@ -581,6 +579,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
+                            gaussian_width
                         )
                         jd_dark = jdos(
                             self.bs,
@@ -590,6 +589,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
+                            gaussian_width
                         )
                         tas = jd_light - jd_dark
                         jdos_dark_if[(i, f)] = jd_dark
@@ -613,6 +613,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
+                            gaussian_width
                         )
                         jd_dark = jdos(
                             self.bs,
@@ -622,6 +623,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
+                            gaussian_width
                         )
                         tas = jd_light - jd_dark
                         jdos_dark_if[(i, f, "up")] = jd_dark
@@ -644,6 +646,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index_down,
                             self.kpoint_weights,
+                            gaussian_width
                             sppol=True,
                         )
                         jd_dark_down = jdos(
@@ -654,6 +657,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index_down,
                             self.kpoint_weights,
+                            gaussian_width
                             sppol=True,
                         )
                         tas_down = jd_light_down - jd_dark_down
