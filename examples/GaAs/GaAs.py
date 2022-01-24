@@ -1,5 +1,5 @@
-import generator
-import plotter
+from pytaser import generator
+from pytaser import plotter
 
 gaas_temp = 298
 gaas_conc = 10e21

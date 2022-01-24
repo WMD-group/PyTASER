@@ -6,7 +6,7 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
 
-from tas import Tas
+from pytaser.tas import Tas
 
 
 def gaussian(x, width, center=0.0, height=None):

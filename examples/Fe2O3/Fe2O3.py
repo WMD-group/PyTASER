@@ -1,5 +1,5 @@
-import generator
-import plotter
+from pytaser import generator
+from pytaser import plotter
 
 fe2o3_temp = 298
 fe2o3_conc = 10e21

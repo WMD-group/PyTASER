@@ -1,5 +1,5 @@
-import generator
-import plotter
+from pytaser import generator
+from pytaser import plotter
 
 tio2r_temp = 298
 tio2r_conc = 10e21
