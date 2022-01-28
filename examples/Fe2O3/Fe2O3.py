@@ -19,7 +19,7 @@ fe2o3_generator = generator.TASGenerator.from_mpid(
     "mp-565814", fe2o3_temp, fe2o3_conc, bandgap, api_key=api_key
 )
 fe2o3_tas = fe2o3_generator.generate_tas(energy_min=0.0, energy_max=10.0)
-fe2o3_plotter = plotter.TASPlotter(fe2o3_tas, bandgap, "Fe2O3", fe2o3_temp, fe2o3_conc)
+fe2o3_plotter = plotter.TASPlotter(fe2o3_tas, bandgap, material_name = "Fe2O3", temp = fe2o3_temp, conc = fe2o3_conc)
 plot_fe2o3 = fe2o3_plotter.get_plot(
     transitions_fe2o3, xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)"
 )
