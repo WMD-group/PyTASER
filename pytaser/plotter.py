@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
 
+
 def ev_to_lambda(ev):
     """Convert photon energies from eV to a wavelength in nm."""
     wavelength = ((scpc.h * scpc.c) / (ev * scpc.electron_volt)) * 10e8
@@ -27,7 +28,9 @@ class TASPlotter:
         conc: Number of charge carriers (#electrons = #holes, assumes no recombination) [optional, for labelling]
     """
 
-    def __init__(self, container, bandgap_ev = None, material_name = None, temp = None, conc = None):
+    def __init__(
+        self, container, bandgap_ev=None, material_name=None, temp=None, conc=None
+    ):
         self.tas_tot = container.total_tas
         # self.denom_tas_tot = container.denom_total_TAS
         self.tas_decomp = container.tas_decomp

@@ -1,7 +1,7 @@
 from pytaser import generator
 from pytaser import plotter
 
-api_key = None # Use your API key here
+api_key = None  # Use your API key here
 fe2o3_temp = 298
 fe2o3_conc = 10e21
 bandgap = 2.2  # based on https://aip.scitation.org/doi/full/10.1063/1.2177426

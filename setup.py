@@ -40,6 +40,5 @@ setup(
         "matplotlib",
         "pymatgen>=2017.12.30",
     ],
-    },
     data_files=["LICENSE"],
 )
