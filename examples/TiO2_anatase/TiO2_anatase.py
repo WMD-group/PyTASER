@@ -1,5 +1,4 @@
-from pytaser import generator
-from pytaser import plotter
+from pytaser import generator, plotter
 
 api_key = None  # Use your API key here
 tio2a_temp = 298
