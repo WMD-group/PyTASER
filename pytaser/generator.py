@@ -247,9 +247,7 @@ def set_bandgap(bandstructure, dos, bandgap):
     return new_bandstructure, new_dos
 
 
-def jdos(
-    bs, f, i, occs, energies, k_index, kweights, gaussian_width, sppol=False
-):
+def jdos(bs, f, i, occs, energies, k_index, kweights, gaussian_width, sppol=False):
     """
     Args:
         bs: bandstructure object
@@ -579,7 +577,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
-                            gaussian_width
+                            gaussian_width,
                         )
                         jd_dark = jdos(
                             self.bs,
@@ -589,7 +587,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
-                            gaussian_width
+                            gaussian_width,
                         )
                         tas = jd_light - jd_dark
                         jdos_dark_if[(i, f)] = jd_dark
@@ -613,7 +611,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
-                            gaussian_width
+                            gaussian_width,
                         )
                         jd_dark = jdos(
                             self.bs,
@@ -623,7 +621,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index,
                             self.kpoint_weights,
-                            gaussian_width
+                            gaussian_width,
                         )
                         tas = jd_light - jd_dark
                         jdos_dark_if[(i, f, "up")] = jd_dark
@@ -646,7 +644,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index_down,
                             self.kpoint_weights,
-                            gaussian_width
+                            gaussian_width=gaussian_width,
                             sppol=True,
                         )
                         jd_dark_down = jdos(
@@ -657,7 +655,7 @@ class TASGenerator:
                             energy_mesh_ev,
                             self.kpoint_index_down,
                             self.kpoint_weights,
-                            gaussian_width
+                            gaussian_width=gaussian_width,
                             sppol=True,
                         )
                         tas_down = jd_light_down - jd_dark_down
@@ -681,7 +679,7 @@ class TASGenerator:
         )
 
     @classmethod
-    def from_mpid(cls, api_key = None, mpid, temperature, concentration, bg=None):
+    def from_mpid(cls, mpid, temperature, concentration, bg=None, api_key=None):
         """
         Import the desired bandstructure and dos objects from the Materials Project
         database.
@@ -699,10 +697,7 @@ class TASGenerator:
             A TASGenerator class with a uniform mode bandstructure & dos object, k-weights
             and a corrected bandgap.
         """
-        if api_key is None:
-            mpr = MPRester()
-        else:
-            mpr = MPRester(api_key = api_key)
+        mpr = MPRester(api_key=api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
         if bg is None:

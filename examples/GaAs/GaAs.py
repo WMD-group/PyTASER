@@ -1,7 +1,7 @@
 from pytaser import generator
 from pytaser import plotter
 
-api_key = None # Use your API key here
+api_key = None  # Use your API key here
 gaas_temp = 298
 gaas_conc = 10e21
 bandgap = 1.46
