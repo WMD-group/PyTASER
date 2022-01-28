@@ -681,7 +681,7 @@ class TASGenerator:
         )
 
     @classmethod
-    def from_mpid(cls, api, mpid, temperature, concentration, bg=None):
+    def from_mpid(cls, api_key = None, mpid, temperature, concentration, bg=None):
         """
         Import the desired bandstructure and dos objects from the Materials Project
         database.
@@ -699,7 +699,9 @@ class TASGenerator:
             A TASGenerator class with a uniform mode bandstructure & dos object, k-weights
             and a corrected bandgap.
         """
-        mpr = MPRester(api_key=api)
+        mpr = MPRester()
+        if api_key != None:
+            mpr = MPRester(api_key = api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
         if bg is None:
