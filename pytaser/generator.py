@@ -699,8 +699,9 @@ class TASGenerator:
             A TASGenerator class with a uniform mode bandstructure & dos object, k-weights
             and a corrected bandgap.
         """
-        mpr = MPRester()
-        if api_key != None:
+        if api_key is None:
+            mpr = MPRester()
+        else:
             mpr = MPRester(api_key = api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
