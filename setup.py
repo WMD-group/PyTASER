@@ -2,10 +2,9 @@
 PyTASER: Post-DFT TAS spectrum classification tool.
 """
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-
-with open("README.md", "r") as file:
+with open("README.md") as file:
     long_description = file.read()
 
 setup(
