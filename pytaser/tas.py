@@ -37,4 +37,3 @@ class Tas:
         self.jdos_dark_tot = jdos_dark_total
         self.jdos_dark_decomp = jdos_dark_decomp
         self.energy_mesh_ev = energy_mesh_ev
-        self.wavelength_mesh = ev_to_lambda(self.energy_mesh_ev)
