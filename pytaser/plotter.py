@@ -176,7 +176,7 @@ class TASPlotter:
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
 
-        if (material_name != None) and (temp != None) and (conc != None):
+        if (self.material_name != None) and (self.temp != None) and (self.conc != None):
             plt.title(
                 abs_label
                 + " spectrum of "

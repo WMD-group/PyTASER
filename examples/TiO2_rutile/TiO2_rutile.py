@@ -11,7 +11,7 @@ tio2r_generator = generator.TASGenerator.from_mpid(
 )
 tio2r_tas = tio2r_generator.generate_tas(energy_min=0.0, energy_max=10.0)
 tio2r_plotter = plotter.TASPlotter(
-    tio2r_tas, bandgap, "TiO2 (rutile)", tio2r_temp, tio2r_conc
+    tio2r_tas, bandgap, material_name = "TiO2 (rutile)", temp = tio2r_temp, conc = tio2r_conc
 )
 plot_tio2r = tio2r_plotter.get_plot(
     transitions_tio2r, xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)"
