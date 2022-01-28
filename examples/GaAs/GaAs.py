@@ -10,7 +10,9 @@ GaAs_generator = generator.TASGenerator.from_mpid(
     "mp-2534", gaas_temp, gaas_conc, bandgap, api_key=api_key
 )
 GaAs_tas = GaAs_generator.generate_tas(energy_min=0.0, energy_max=10.0)
-GaAs_plotter = plotter.TASPlotter(GaAs_tas, bandgap, material_name = "GaAs", temp = gaas_temp, conc = gaas_conc)
+GaAs_plotter = plotter.TASPlotter(
+    GaAs_tas, bandgap, material_name="GaAs", temp=gaas_temp, conc=gaas_conc
+)
 plot_gaas = GaAs_plotter.get_plot(
     transitions_gaas, xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)"
 )
