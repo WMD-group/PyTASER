@@ -8,7 +8,7 @@ bandgap = 3.1
 transitions_tio2a = [(8, 11), (9, 10), (4, 14), (6, 20), (6, 8)]
 
 tio2a_generator = generator.TASGenerator.from_mpid(
-    api_key, "mp-390", tio2a_temp, tio2a_conc, bandgap
+    "mp-390", tio2a_temp, tio2a_conc, bandgap, api_key=api_key
 )
 tio2a_tas = tio2a_generator.generate_tas(energy_min=0.0, energy_max=10.0)
 tio2a_plotter = plotter.TASPlotter(
