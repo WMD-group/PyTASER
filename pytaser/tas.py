@@ -1,6 +1,3 @@
-from pytaser.plotter import ev_to_lambda
-
-
 class Tas:
     """
     A container class for all the generated data from TASgenerator.
