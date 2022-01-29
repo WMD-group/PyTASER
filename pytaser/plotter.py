@@ -32,9 +32,7 @@ class TASPlotter:
         self, container, bandgap_ev=None, material_name=None, temp=None, conc=None
     ):
         self.tas_tot = container.total_tas
-        # self.denom_tas_tot = container.denom_total_TAS
         self.tas_decomp = container.tas_decomp
-        # self.denom_tas_decomp = container.denom_TAS_decomp
         self.jdos_light_tot = container.jdos_light_tot
         self.jdos_light_decomp = container.jdos_light_decomp
         self.jdos_dark_tot = container.jdos_dark_tot
@@ -70,7 +68,6 @@ class TASPlotter:
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
             ymax: Maximum absorption point. Default is 1.15 * maximum point.
             yaxis: Measurement method of absorption (JDOS or deltaT) (string)
-                [deltaT/T is currently being worked on.]
 
         Returns:
             Matplotlib pyplot of the desired spectrum, with labelled units.
@@ -88,14 +85,6 @@ class TASPlotter:
             bg = self.bandgap_ev
             plt.xlabel("Energy (eV)")
 
-        # plt.plot(energy_mesh, self.tas_tot, label='total TAS', color='black', lw=2.5)
-
-        # if relevant_transitions is None:
-        #     pass
-        # else:
-        #     for transition in relevant_transitions:
-        #         plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
-
         y_axis_max = 0.15
         y_axis_min = -0.15
         abs_label = ""
@@ -112,19 +101,6 @@ class TASPlotter:
             if relevant_transitions is not None:
                 for transition in relevant_transitions:
                     plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
-
-        ######### deltaT/T IS CURRENTLY NON-FUNCTIONING - we encounter a 'divide by `zero error' ###########
-        # elif yaxis == "TAS (deltaT/T)":
-        #     abs_label = 'ΔT/T (a.u.)'
-        # #   the denominator refers to JDOS light.
-        #     plt.plot(energy_mesh, self.denom_tas_tot, label='total TAS', color='black', lw=2.5)
-        #
-        #     y_axis_max = 1.15 * max(self.denom_tas_tot)
-        #     y_axis_min = 1.15 * min(self.denom_tas_tot)
-        #
-        #     if relevant_transitions is not None:
-        #         for transition in relevant_transitions:
-        #             plt.plot(energy_mesh, self.denom_tas_decomp[transition], label=transition)
 
         elif yaxis == "JDOS":
             abs_label = "JDOS (a.u.)"
