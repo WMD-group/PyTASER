@@ -11,7 +11,7 @@ tio2a_generator = generator.TASGenerator.from_mpid(
 )
 tio2a_tas = tio2a_generator.generate_tas(energy_min=0.0, energy_max=10.0)
 tio2a_plotter = plotter.TASPlotter(
-    tio2a_tas, bandgap, material_name = "TiO2 (anatase)", temp = tio2a_temp, conc = tio2a_conc
+    tio2a_tas, bandgap, material_name="TiO2 (anatase)", temp=tio2a_temp, conc=tio2a_conc
 )
 plot_tio2a = tio2a_plotter.get_plot(
     transitions_tio2a, xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)"
