@@ -108,6 +108,22 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
     return jdos
 
 
+def get_cbm_vbm_index(bs):
+    """
+    Args:
+        bs: bandstructure object
+
+    Returns:
+        Valence and Conduction band as an index number for different spins.
+    """
+    vbm_index = {}
+    cbm_index = {}
+    for spin, spin_bands in bs.bands.items():
+        vbm_index[spin] = np.where(np.all(spin_bands <= bs.efermi, axis=1))[0].max()
+        cbm_index[spin] = vbm_index[spin] + 1
+    return vbm_index, cbm_index
+
+
 class TASGenerator:
     """
     Class to generate a TAS spectrum (decomposed and cumulative) from a bandstructure and
@@ -143,6 +159,8 @@ class TASGenerator:
 
         self.occs_light = TASGenerator.band_occupancies(self, temp, conc, dark=False)
         self.occs_dark = TASGenerator.band_occupancies(self, temp, conc)
+        self.vb = get_cbm_vbm_index(self.bs)[0]
+        self.cb = get_cbm_vbm_index(self.bs)[1]
 
     def band_occupancies(self, temp, conc, dark=True):
         """
@@ -258,11 +276,22 @@ class TASGenerator:
                         jdos_light_cumulative += jd_light
                         tas_cumulative += tas
 
+                        new_i = 0
+                        new_f = 0
+                        if i <= self.vb[spin]:
+                            new_i = (i - self.vb[spin]) - 1
+                        elif i > self.vb[spin]:
+                            new_i = (i - self.cb[spin]) + 1
+                        if f <= self.vb[spin]:
+                            new_f = (f - self.vb[spin]) - 1
+                        elif f > self.vb[spin]:
+                            new_f = (f - self.cb[spin]) + 1
+
                         if self.bs.is_spin_polarized:
                             spin_str = "up" if spin == Spin.up else "down"
-                            key = (i, f, spin_str)
+                            key = (new_i, new_f, spin_str)
                         else:
-                            key = (i, f)
+                            key = (new_i, new_f)
 
                         jdos_dark_if[key] = jd_dark
                         jdos_light_if[key] = jd_light

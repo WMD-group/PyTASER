@@ -29,7 +29,7 @@ class TASPlotter:
     """
 
     def __init__(
-        self, container, bandgap_ev=None, material_name=None, temp=None, conc=None
+            self, container, sppol=False, bandgap_ev=None, material_name=None, temp=None, conc=None
     ):
         self.tas_tot = container.total_tas
         self.tas_decomp = container.tas_decomp
@@ -38,6 +38,7 @@ class TASPlotter:
         self.jdos_dark_tot = container.jdos_dark_tot
         self.jdos_dark_decomp = container.jdos_dark_decomp
         self.energy_mesh_ev = container.energy_mesh_ev
+        self.spin_pol = sppol
         self.bandgap_ev = bandgap_ev
         self.material_name = material_name
         self.temp = temp
@@ -46,22 +47,23 @@ class TASPlotter:
         self.energy_mesh_lambda = ev_to_lambda(self.energy_mesh_ev)
 
     def get_plot(
-        self,
-        relevant_transitions=None,
-        xaxis="wavelength",
-        xmin=None,
-        xmax=None,
-        ymin=None,
-        ymax=None,
-        yaxis="TAS (deltaT)",
+            self,
+            relevant_transitions="auto",
+            xaxis="wavelength",
+            xmin=None,
+            xmax=None,
+            ymin=None,
+            ymax=None,
+            yaxis="TAS (deltaT)",
     ):
         """
         Args:
             relevant_transitions: List containing individual transitions to be displayed
                 in the plot alongside the total plot. If material is not spin-polarised,
-                only write the bands involved [(1,6),(2,7),(8,9)...] If spin-polarised,
+                only write the bands involved [(-1,6),(2,7),(-8,-5)...] If spin-polarised,
                 include the type of spin involved in transition
-                [(1,6, "down"),(2,7, "down"),(8,9, "up")...]
+                [(-1,6, "down"),(2,7, "down"),(-8,-5, "up")...]
+                Default is 'auto' mode, which shows [(-1,+1), (-2,+2), (-3, +3)] from the Spin.up channel.
             xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
             xmin: Minimum energy point in mesh (float)
             xmax: Maximum energy point in mesh (float)
@@ -98,7 +100,15 @@ class TASPlotter:
             y_axis_max = 1.15 * max(self.tas_tot)
             y_axis_min = 1.15 * min(self.tas_tot)
 
-            if relevant_transitions is not None:
+            if relevant_transitions == "auto" and (self.spin_pol == False):
+                transitions_list = [(-1, 1), (-2, 2), (-3, 3)]
+                for transition in transitions_list:
+                    plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
+            elif relevant_transitions == "auto" and (self.spin_pol == True):
+                transitions_list = [(-1, 1, "up"), (-2, 2, "up"), (-3, 3, "up")]
+                for transition in transitions_list:
+                    plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
+            else:
                 for transition in relevant_transitions:
                     plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
 
