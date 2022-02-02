@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
+import heapq
 
 
 def ev_to_lambda(ev):
@@ -29,7 +30,7 @@ class TASPlotter:
     """
 
     def __init__(
-            self, container, sppol=False, bandgap_ev=None, material_name=None, temp=None, conc=None
+            self, container, bandgap_ev=None, material_name=None, temp=None, conc=None
     ):
         self.tas_tot = container.total_tas
         self.tas_decomp = container.tas_decomp
@@ -38,7 +39,6 @@ class TASPlotter:
         self.jdos_dark_tot = container.jdos_dark_tot
         self.jdos_dark_decomp = container.jdos_dark_decomp
         self.energy_mesh_ev = container.energy_mesh_ev
-        self.spin_pol = sppol
         self.bandgap_ev = bandgap_ev
         self.material_name = material_name
         self.temp = temp
@@ -63,7 +63,8 @@ class TASPlotter:
                 only write the bands involved [(-1,6),(2,7),(-8,-5)...] If spin-polarised,
                 include the type of spin involved in transition
                 [(-1,6, "down"),(2,7, "down"),(-8,-5, "up")...]
-                Default is 'auto' mode, which shows [(-1,+1), (-2,+2), (-3, +3)] from the Spin.up channel.
+                Default is 'auto' mode, which shows the band transitions with the 3 highest
+                absorption values (overall across all k-points).
             xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
             xmin: Minimum energy point in mesh (float)
             xmax: Maximum energy point in mesh (float)
@@ -100,14 +101,12 @@ class TASPlotter:
             y_axis_max = 1.15 * max(self.tas_tot)
             y_axis_min = 1.15 * min(self.tas_tot)
 
-            if relevant_transitions == "auto" and (self.spin_pol == False):
-                transitions_list = [(-1, 1), (-2, 2), (-3, 3)]
+            if relevant_transitions == "auto":
+                abs_tas = {key: np.max(abs(val)) for key, val in self.tas_decomp.items()}
+                transitions_list = heapq.nlargest(3, abs_tas, key=abs_tas.get)
                 for transition in transitions_list:
                     plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
-            elif relevant_transitions == "auto" and (self.spin_pol == True):
-                transitions_list = [(-1, 1, "up"), (-2, 2, "up"), (-3, 3, "up")]
-                for transition in transitions_list:
-                    plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
+
             else:
                 for transition in relevant_transitions:
                     plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
@@ -131,7 +130,20 @@ class TASPlotter:
                 lw=1.5,
             )
 
-            if relevant_transitions is not None:
+            if relevant_transitions == "auto":
+
+                abs_jd_light = {key: np.max(abs(val)) for key, val in self.jdos_light_decomp.items()}
+                jd_l_transitions = heapq.nlargest(2, abs_jd_light, key=abs_jd_light.get)
+                for transition in jd_l_transitions:
+                    plt.plot(energy_mesh, self.jdos_light_decomp[transition], label=str(transition)+"(light)")
+
+                # Only showing the top 2 contributing JDOS transitions to avoid clutter in the plot.
+                abs_jd_dark = {key: np.max(abs(val)) for key, val in self.jdos_dark_decomp.items()}
+                jd_d_transitions = heapq.nlargest(2, abs_jd_dark, key=abs_jd_dark.get)
+                for transition in jd_d_transitions:
+                    plt.plot(energy_mesh, self.jdos_dark_decomp[transition], label=str(transition)+"(dark)")
+
+            else:
                 for transition in relevant_transitions:
                     plt.plot(
                         energy_mesh,
