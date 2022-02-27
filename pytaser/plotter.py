@@ -95,10 +95,10 @@ class TASPlotter:
         abs_label = ""
         xmin_ind = None
         if xmin is not None:
-            xmin_ind = energy_mesh.where(energy_mesh=xmin)
+            xmin_ind = np.where(energy_mesh == xmin)
         xmax_ind = None
         if xmax is not None:
-            xmax_ind = energy_mesh.where(energy_mesh=xmax) + 1
+            xmax_ind = np.where(energy_mesh == xmax) + 1
 
         if yaxis == "TAS (deltaT)":
             abs_label = "ΔT (a.u.)"
@@ -146,13 +146,13 @@ class TASPlotter:
                 roundup_jd = int(np.ceil(len(abs_jd_light) * transition_cutoff))
                 jd_l_transitions = heapq.nlargest(roundup_jd, abs_jd_light, key=abs_jd_light.get)
                 for transition in jd_l_transitions:
-                    plt.plot(energy_mesh, self.jdos_light_decomp[transition], label=str(transition)+"(light)")
+                    plt.plot(energy_mesh, self.jdos_light_decomp[transition], label=str(transition) + "(light)")
 
                 abs_jd_dark = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_dark_decomp.items()}
                 roundup_jd_dark = int(np.ceil(len(abs_jd_dark) * transition_cutoff))
                 jd_d_transitions = heapq.nlargest(roundup_jd_dark, abs_jd_dark, key=abs_jd_dark.get)
                 for transition in jd_d_transitions:
-                    plt.plot(energy_mesh, self.jdos_dark_decomp[transition], label=str(transition)+"(dark)")
+                    plt.plot(energy_mesh, self.jdos_dark_decomp[transition], label=str(transition) + "(dark)")
 
             else:
                 for transition in relevant_transitions:
