@@ -50,6 +50,7 @@ class TASPlotter:
             self,
             relevant_transitions="auto",
             xaxis="wavelength",
+            transition_cutoff=0.03,
             xmin=None,
             xmax=None,
             ymin=None,
@@ -66,6 +67,7 @@ class TASPlotter:
                 Default is 'auto' mode, which shows the band transitions with the 3 highest
                 absorption values (overall across all k-points).
             xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
+            transition_cutoff: The percentage of  contributing individual band transitions to be viewed in the auto mode. Default is set at top 3% of transitions.
             xmin: Minimum energy point in mesh (float)
             xmax: Maximum energy point in mesh (float)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
@@ -91,6 +93,13 @@ class TASPlotter:
         y_axis_max = 0.15
         y_axis_min = -0.15
         abs_label = ""
+        xmin_ind = None
+        if xmin is not None:
+            xmin_ind = energy_mesh.index(xmin)
+        xmax_ind = None
+        if xmax is not None:
+            xmax_ind = energy_mesh.index(xmax) + 1
+
         if yaxis == "TAS (deltaT)":
             abs_label = "ΔT (a.u.)"
 
@@ -102,8 +111,9 @@ class TASPlotter:
             y_axis_min = 1.15 * min(self.tas_tot)
 
             if relevant_transitions == "auto":
-                abs_tas = {key: np.max(abs(val)) for key, val in self.tas_decomp.items()}
-                transitions_list = heapq.nlargest(3, abs_tas, key=abs_tas.get)
+                abs_tas = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
+                roundup = int(np.ceil(len(abs_tas) * transition_cutoff))
+                transitions_list = heapq.nlargest(roundup, abs_tas, key=abs_tas.get)
                 for transition in transitions_list:
                     plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
 
@@ -132,14 +142,15 @@ class TASPlotter:
 
             if relevant_transitions == "auto":
 
-                abs_jd_light = {key: np.max(abs(val)) for key, val in self.jdos_light_decomp.items()}
-                jd_l_transitions = heapq.nlargest(2, abs_jd_light, key=abs_jd_light.get)
+                abs_jd_light = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_light_decomp.items()}
+                roundup_jd = int(np.ceil(len(abs_jd_light) * transition_cutoff))
+                jd_l_transitions = heapq.nlargest(roundup_jd, abs_jd_light, key=abs_jd_light.get)
                 for transition in jd_l_transitions:
                     plt.plot(energy_mesh, self.jdos_light_decomp[transition], label=str(transition)+"(light)")
 
-                # Only showing the top 2 contributing JDOS transitions to avoid clutter in the plot.
-                abs_jd_dark = {key: np.max(abs(val)) for key, val in self.jdos_dark_decomp.items()}
-                jd_d_transitions = heapq.nlargest(2, abs_jd_dark, key=abs_jd_dark.get)
+                abs_jd_dark = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_dark_decomp.items()}
+                roundup_jd_dark = int(np.ceil(len(abs_jd_dark) * transition_cutoff))
+                jd_d_transitions = heapq.nlargest(roundup_jd_dark, abs_jd_dark, key=abs_jd_dark.get)
                 for transition in jd_d_transitions:
                     plt.plot(energy_mesh, self.jdos_dark_decomp[transition], label=str(transition)+"(dark)")
 
