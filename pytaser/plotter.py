@@ -68,8 +68,8 @@ class TASPlotter:
                 absorption values (overall across all k-points).
             xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
             transition_cutoff: The percentage of  contributing individual band transitions to be viewed in the auto mode. Default is set at top 3% of transitions.
-            xmin: Minimum energy point in mesh (float)
-            xmax: Maximum energy point in mesh (float)
+            xmin: Minimum energy point in mesh (float64)
+            xmax: Maximum energy point in mesh (float64)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
             ymax: Maximum absorption point. Default is 1.15 * maximum point.
             yaxis: Measurement method of absorption (JDOS or deltaT) (string)
@@ -95,10 +95,10 @@ class TASPlotter:
         abs_label = ""
         xmin_ind = None
         if xmin is not None:
-            xmin_ind = (np.where(np.round(energy_mesh,2) == xmin))[0][0]
+            xmin_ind = (np.where(np.round(energy_mesh,1) == xmin))[0][0]
         xmax_ind = None
         if xmax is not None:
-            xmax_ind = (np.where(np.round(energy_mesh,2) == xmax))[0][0] + 1
+            xmax_ind = (np.where(np.round(energy_mesh,1) == xmax))[0][0] + 1
 
         if yaxis == "TAS (deltaT)":
             abs_label = "ΔT (a.u.)"
