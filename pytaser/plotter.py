@@ -93,12 +93,14 @@ class TASPlotter:
         y_axis_max = 0.15
         y_axis_min = -0.15
         abs_label = ""
-        xmin_ind = None
+
+        xmin_ind = 0
+        xmax_ind = -1
         if xmin is not None:
-            xmin_ind = (np.where(np.round(energy_mesh,1) == xmin))[0][0]
-        xmax_ind = None
+            xmin_ind = np.abs(energy_mesh - xmin).argmin()
+
         if xmax is not None:
-            xmax_ind = (np.where(np.round(energy_mesh,1) == xmax))[0][0] + 1
+            xmax_ind = np.abs(energy_mesh - xmax).argmin()
 
         if yaxis == "TAS (deltaT)":
             abs_label = "ΔT (a.u.)"
