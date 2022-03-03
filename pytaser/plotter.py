@@ -113,9 +113,15 @@ class TASPlotter:
             y_axis_min = 1.15 * min(self.tas_tot)
 
             if relevant_transitions == "auto":
-                abs_tas = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
-                roundup = int(np.ceil(len(abs_tas) * transition_cutoff))
-                transitions_list = heapq.nlargest(roundup, abs_tas, key=abs_tas.get)
+                abs_tas = []
+                for key,val in self.tas_decomp.items():
+                    print(val)
+                    print(val[xmin_ind:xmax_ind])
+                    print(type(val))
+                    abs_tas += [{key: np.max(abs(val[xmin_ind:xmax_ind]))}]
+                # abs_tas = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
+                roundup = int(np.ceil(len(abs_tas[0]) * transition_cutoff))
+                transitions_list = heapq.nlargest(roundup, abs_tas[0], key=abs_tas[0].get)
                 for transition in transitions_list:
                     plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
 
