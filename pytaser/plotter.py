@@ -118,6 +118,7 @@ class TASPlotter:
                     print('val=', val)
                     print('xmin_ind=', xmin_ind)
                     print('xmax_ind=', xmax_ind )
+                    print('energy_mesh=',energy_mesh)
                     print('energy_mesh[xmin_ind:xmax_ind]=', energy_mesh[xmin_ind:xmax_ind])
                     print('val[xmin_ind:xmax_ind]=',val[xmin_ind:xmax_ind])
                     print('type(val)=', type(val))
