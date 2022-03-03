@@ -80,27 +80,31 @@ class TASPlotter:
         energy_mesh = 0
         bg = 0
         plt.figure(figsize=(15, 10))
+
+        xmin_ind = 0
+        xmax_ind = -1
+
         if xaxis == "wavelength":
             energy_mesh = self.energy_mesh_lambda
+            if xmin is not None:
+                xmax_ind = np.abs(energy_mesh - xmin).argmin()
+            if xmax is not None:
+                xmin_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap_lambda
             plt.xlabel("Wavelengths (nm)")
 
         elif xaxis == "electronvolts":
             energy_mesh = self.energy_mesh_ev
+            if xmin is not None:
+                xmin_ind = np.abs(energy_mesh - xmin).argmin()
+            if xmax is not None:
+                xmax_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap_ev
             plt.xlabel("Energy (eV)")
 
         y_axis_max = 0.15
         y_axis_min = -0.15
         abs_label = ""
-
-        xmin_ind = 0
-        xmax_ind = -1
-        if xmin is not None:
-            xmin_ind = np.abs(energy_mesh - xmin).argmin()
-
-        if xmax is not None:
-            xmax_ind = np.abs(energy_mesh - xmax).argmin()
 
         if yaxis == "TAS (deltaT)":
             abs_label = "ΔT (a.u.)"
