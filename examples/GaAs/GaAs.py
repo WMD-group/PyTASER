@@ -14,6 +14,6 @@ GaAs_plotter = plotter.TASPlotter(
     GaAs_tas, bandgap, material_name="GaAs", temp=gaas_temp, conc=gaas_conc
 )
 plot_gaas = GaAs_plotter.get_plot(
-    xaxis="wavelength", transition_cutoff=0.03, xmin=350, xmax=1000, yaxis="TAS (deltaT)"
+    xaxis="wavelength", transition_cutoff=0.4, xmin=350, xmax=1000, yaxis="TAS (deltaT)"
 )
 plot_gaas.show()
