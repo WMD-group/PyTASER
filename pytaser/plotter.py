@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
-import heapq
 
 
 def ev_to_lambda(ev):
@@ -67,7 +66,8 @@ class TASPlotter:
                 Default is 'auto' mode, which shows the band transitions with the 3 highest
                 absorption values (overall across all k-points).
             xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
-            transition_cutoff: The percentage of  contributing individual band transitions to be viewed in the auto mode. Default is set at top 3% of transitions.
+            transition_cutoff: The minimum height of the band transition as a percentage threshold compared to the most
+                contributing transition. Default is set at 3%.
             xmin: Minimum energy point in mesh (float64)
             xmax: Maximum energy point in mesh (float64)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
@@ -102,45 +102,45 @@ class TASPlotter:
             bg = self.bandgap_ev
             plt.xlabel("Energy (eV)")
 
-        y_axis_max = 0.15
-        y_axis_min = -0.15
+        if xmin < np.min(energy_mesh):
+                raise ValueError("Plotting region xmin value is smaller than energy mesh minimum.")
+
+        if xmax > np.max(energy_mesh):
+                raise ValueError("Plotting region xmax value is larger than energy mesh maximum.")
+
         abs_label = ""
 
         if yaxis == "TAS (deltaT)":
             abs_label = "ΔT (a.u.)"
 
             plt.plot(
-                energy_mesh, self.tas_tot, label="total TAS", color="black", lw=2.5
+                energy_mesh[xmin_ind:xmax_ind], self.tas_tot[xmin_ind:xmax_ind], label="total TAS", color="black", lw=2.5
             )
 
-            y_axis_max = 1.15 * max(self.tas_tot)
-            y_axis_min = 1.15 * min(self.tas_tot)
-
             if relevant_transitions == "auto":
-                abs_tas = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
-                roundup = int(np.ceil(len(abs_tas) * transition_cutoff))
-                transitions_list = heapq.nlargest(roundup, abs_tas, key=abs_tas.get)
-                for transition in transitions_list:
-                    plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
+
+                max_abs_vals = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
+                max_val = np.max(max_abs_vals.values())
+                for transition, value in max_abs_vals.items():
+                    if value >= (max_val*transition_cutoff):
+                        plt.plot(energy_mesh[xmin_ind:xmax_ind], self.tas_decomp[transition][xmin_ind:xmax_ind], label=transition)
 
             else:
                 for transition in relevant_transitions:
-                    plt.plot(energy_mesh, self.tas_decomp[transition], label=transition)
+                    plt.plot(energy_mesh[xmin_ind:xmax_ind], self.tas_decomp[transition][xmin_ind:xmax_ind], label=transition)
 
         elif yaxis == "JDOS":
             abs_label = "JDOS (a.u.)"
-            y_axis_max = 1.15 * max(self.jdos_light_tot)
-            y_axis_min = 1.15 * min(self.jdos_light_tot)
             plt.plot(
-                energy_mesh,
-                self.jdos_light_tot,
+                energy_mesh[xmin_ind:xmax_ind],
+                self.jdos_light_tot[xmin_ind:xmax_ind],
                 label="JDOS (light)",
                 color="black",
                 lw=1.5,
             )
             plt.plot(
-                energy_mesh,
-                self.jdos_dark_tot,
+                energy_mesh[xmin_ind:xmax_ind],
+                self.jdos_dark_tot[xmin_ind:xmax_ind],
                 label="JDOS (dark)",
                 color="blue",
                 lw=1.5,
@@ -148,32 +148,32 @@ class TASPlotter:
 
             if relevant_transitions == "auto":
 
-                abs_jd_light = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_light_decomp.items()}
-                roundup_jd = int(np.ceil(len(abs_jd_light) * transition_cutoff))
-                jd_l_transitions = heapq.nlargest(roundup_jd, abs_jd_light, key=abs_jd_light.get)
-                for transition in jd_l_transitions:
-                    plt.plot(energy_mesh, self.jdos_light_decomp[transition], label=str(transition) + "(light)")
+                max_abs_vals_jd_light = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_light_decomp.items()}
+                max_val_jd_light = np.max(max_abs_vals_jd_light.values())
+                for transition, value in max_abs_vals_jd_light:
+                    if value >= (max_val_jd_light*transition_cutoff):
+                        plt.plot(energy_mesh[xmin_ind:xmax_ind], self.jdos_light_decomp[transition][xmin_ind:xmax_ind], label=str(transition) + "(light)")
+                        plt.plot(energy_mesh[xmin_ind:xmax_ind], self.jdos_dark_decomp[transition][xmin_ind:xmax_ind], label=str(transition) + "(dark)")
 
-                abs_jd_dark = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_dark_decomp.items()}
-                roundup_jd_dark = int(np.ceil(len(abs_jd_dark) * transition_cutoff))
-                jd_d_transitions = heapq.nlargest(roundup_jd_dark, abs_jd_dark, key=abs_jd_dark.get)
-                for transition in jd_d_transitions:
-                    plt.plot(energy_mesh, self.jdos_dark_decomp[transition], label=str(transition) + "(dark)")
+                # abs_jd_dark = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_dark_decomp.items()}
+                # for transition in jd_d_transitions:
+                #     plt.plot(energy_mesh[xmin_ind:xmax_ind], self.jdos_dark_decomp[transition][xmin_ind:xmax_ind], label=str(transition) + "(dark)")
 
             else:
                 for transition in relevant_transitions:
                     plt.plot(
-                        energy_mesh,
-                        self.jdos_light_decomp[transition],
+                        energy_mesh[xmin_ind:xmax_ind],
+                        self.jdos_light_decomp[transition][xmin_ind:xmax_ind],
                         label=str(transition) + " (light)",
                     )
                     plt.plot(
-                        energy_mesh,
-                        self.jdos_dark_decomp[transition],
+                        energy_mesh[xmin_ind:xmax_ind],
+                        self.jdos_dark_decomp[transition][xmin_ind:xmax_ind],
                         label=str(transition) + " (dark)",
                     )
 
         plt.ylabel(abs_label)
+        y_axis_min,y_axis_max = plt.gca().get_ylim()
 
         if ymax is None:
             ymax = y_axis_max
