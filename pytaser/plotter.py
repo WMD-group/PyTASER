@@ -115,9 +115,12 @@ class TASPlotter:
             if relevant_transitions == "auto":
                 abs_tas = []
                 for key,val in self.tas_decomp.items():
-                    print(val)
-                    print(val[xmin_ind:xmax_ind])
-                    print(type(val))
+                    print('val=', val)
+                    print('xmin_ind=', xmin_ind)
+                    print('xmax_ind=', xmax_ind )
+                    print('energy_mesh[xmin_ind:xmax_ind]=', energy_mesh[xmin_ind:xmax_ind])
+                    print('val[xmin_ind:xmax_ind]=',val[xmin_ind:xmax_ind])
+                    print('type(val)=', type(val))
                     abs_tas += [{key: np.max(abs(val[xmin_ind:xmax_ind]))}]
                 # abs_tas = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
                 roundup = int(np.ceil(len(abs_tas[0]) * transition_cutoff))
