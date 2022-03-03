@@ -279,11 +279,11 @@ class TASGenerator:
                         new_i = 0
                         new_f = 0
                         if i <= self.vb[spin]:
-                            new_i = (i - self.vb[spin]) - 1
+                            new_i = (i - self.vb[spin])
                         elif i > self.vb[spin]:
                             new_i = (i - self.cb[spin]) + 1
                         if f <= self.vb[spin]:
-                            new_f = (f - self.vb[spin]) - 1
+                            new_f = (f - self.vb[spin])
                         elif f > self.vb[spin]:
                             new_f = (f - self.cb[spin]) + 1
 
