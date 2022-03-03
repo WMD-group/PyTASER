@@ -119,10 +119,10 @@ class TASPlotter:
                     print('xmin_ind=', xmin_ind)
                     print('xmax_ind=', xmax_ind )
                     print('energy_mesh=',energy_mesh)
-                    print('energy_mesh[xmin_ind:xmax_ind]=', energy_mesh[xmin_ind:xmax_ind])
-                    print('val[xmin_ind:xmax_ind]=',val[xmin_ind:xmax_ind])
+                    print('energy_mesh[xmin_ind:xmax_ind]=', energy_mesh[xmax_ind:xmin_ind])
+                    print('val[xmin_ind:xmax_ind]=',val[xmax_ind:xmin_ind])
                     print('type(val)=', type(val))
-                    abs_tas += [{key: np.max(abs(val[xmin_ind:xmax_ind]))}]
+                    abs_tas += [{key: np.max(abs(val[xmax_ind:xmin_ind]))}]
                 # abs_tas = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
                 roundup = int(np.ceil(len(abs_tas[0]) * transition_cutoff))
                 transitions_list = heapq.nlargest(roundup, abs_tas[0], key=abs_tas[0].get)
