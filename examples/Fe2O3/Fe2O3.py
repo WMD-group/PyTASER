@@ -12,8 +12,8 @@ bandgap = 2.2  # based on https://aip.scitation.org/doi/full/10.1063/1.2177426
 #     (6, 28, "up"),
 # ]
 
-# Fe2O3 is  spin-polarised, so we must define whether the relevant transitions we want to
-# see are for spin-up or spin-down
+# Fe2O3 is  spin-polarised, so we must define any relevant transitions we want to
+# see as spin-up or spin-down
 
 fe2o3_generator = generator.TASGenerator.from_mpid(
     "mp-565814", fe2o3_temp, fe2o3_conc, bandgap, api_key=api_key
@@ -23,6 +23,6 @@ fe2o3_plotter = plotter.TASPlotter(
     fe2o3_tas, bandgap, material_name="Fe2O3", temp=fe2o3_temp, conc=fe2o3_conc
 )
 plot_fe2o3 = fe2o3_plotter.get_plot(
-    xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)"
+    xaxis="wavelength", transition_cutoff=0.03, xmin=350, xmax=1400, yaxis="TAS (deltaT)"
 )
 plot_fe2o3.show()
