@@ -19,7 +19,7 @@ Installation method to be updated here
 PyTASER is currently compatible with Python 3.9+ and relies on a number of open-source python packages, specifically:
 
 * [pymatgen](https://pymatgen.org/index.html) 
-* [numpy](https://numpy.org/), [scipy](https://scipy.org/), [heapq](https://docs.python.org/3/library/heapq.html#module-heapq) for data structures and unit conversion and sorting
+* [numpy](https://numpy.org/), [scipy](https://scipy.org/) for data structures and unit conversion
 * [matplotlib](https://matplotlib.org/) for plotting the spectra
 
 # Visualisation 
