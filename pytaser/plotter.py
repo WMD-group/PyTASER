@@ -150,7 +150,7 @@ class TASPlotter:
 
                 max_abs_vals_jd_light = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.jdos_light_decomp.items()}
                 max_val_jd_light = max(max_abs_vals_jd_light.values())
-                for transition_jd, value_jd in max_abs_vals_jd_light:
+                for transition_jd, value_jd in max_abs_vals_jd_light.items():
                     if value_jd >= (max_val_jd_light*transition_cutoff):
                         plt.plot(energy_mesh[xmin_ind:xmax_ind], self.jdos_light_decomp[transition_jd][xmin_ind:xmax_ind], label=str(transition_jd) + "(light)")
                         plt.plot(energy_mesh[xmin_ind:xmax_ind], self.jdos_dark_decomp[transition_jd][xmin_ind:xmax_ind], label=str(transition_jd) + "(dark)")
