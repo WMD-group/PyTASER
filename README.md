@@ -11,11 +11,21 @@ PyTASER is a Python (3.9+) library and set of command-line tools for classifying
 
 # Installation
 
-The recommended way to install PyTASER is in a conda environment. 
+To install the module with pip (recommended): 
 
 ```
-Installation method to be updated here
+pip install --user pytaser
 ```
+To install directly from the git repository:
+```
+pip install --user git+https://github.com/WMD-group/PyTASER
+```
+To do a manual build and installation:
+```
+python3 setup.py build
+python3 setup.py install --user
+```
+
 PyTASER is currently compatible with Python 3.9+ and relies on a number of open-source python packages, specifically:
 
 * [pymatgen](https://pymatgen.org/index.html) 
