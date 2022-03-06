@@ -1,5 +1,7 @@
 # PyTASER
 
+[Official Documentation](file:///Users/savyaaggarwal/Desktop/INTERNSHIPS/urop_1/pytaser/PyTASER/docs/build/html/introduction.html)
+
 PyTASER is a Python (3.9+) library and set of command-line tools for classifying spectral features in bulk materials, post-DFT. The goal of this library is to provide simulated TAS spectra, for qualitative comparison with experimental spectra. This will simplify the complex and tedious processes of TAS prep and analysis, especially for pristine materials. The main features include:
 
 * An interactive TAS spectrum for a pristine semiconducting material
