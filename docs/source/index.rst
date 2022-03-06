@@ -11,7 +11,10 @@ Welcome to PyTASER's documentation!
    :caption: Contents:
 
    introduction
+   contributing
+   license
    API reference <pytaser>
+   PyTASER on GitHub <https://github.com/WMD-group/PyTASER>
 
 Indices and tables
 ==================

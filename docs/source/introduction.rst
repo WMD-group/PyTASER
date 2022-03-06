@@ -9,36 +9,41 @@ PyTASER is a Python (3.9+) library and set of command-line tools for classifying
 * Spectra in different conditions: temperature, carrier concentrations (analogous to pump-probe time delay) 
 * Partial occupancies of valence and conduction bands, using the Fermi-Dirac distribution for different Quasi-Fermi levels. 
 * Consideration of both non-magnetic and magnetic materials. 
-* Capability to input DFT-calculated bandstructure and dos inputs, with primary support for the [Materials Project](https://materialsproject.org/).
+* Capability to input DFT-calculated bandstructure and dos inputs, with primary support for the `Materials Project
+<https://materialsproject.org/>`__.
 
 Installation
 ============
 
 To install the module with pip *(recommended)*: 
 
-..code:: python
-	
-  ```
-  pip install --user pytaser
-  ```
+..code::
+
+	```pip install --user pytaser```
+
+
 To install directly from the git repository:
-```
-pip install --user git+https://github.com/WMD-group/PyTASER
-```
+
+..code::
+
+	`pip install --user git+https://github.com/WMD-group/PyTASER`
+
+
 To do a manual build and installation:
-```
-python3 setup.py build
-python3 setup.py install --user
-```
+
+..code::
+
+	`python3 setup.py build
+	python3 setup.py install --user`
 
 Dependencies
 ============
 
 PyTASER is currently compatible with Python 3.9+ and relies on a number of open-source python packages, specifically:
 
-* [pymatgen](https://pymatgen.org/index.html) 
-* [numpy](https://numpy.org/), [scipy](https://scipy.org/) for data structures and unit conversion
-* [matplotlib](https://matplotlib.org/) for plotting the spectra
+* `pymatgen <https://pymatgen.org/index.html>`__
+* `numpy <https://numpy.org/>`__, 'scipy <https://scipy.org/>`__ for data structures and unit conversion
+* `matplotlib <https://matplotlib.org/>`__ for plotting the spectra
 
 Visualisation 
 =============
