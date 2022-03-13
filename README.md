@@ -1,6 +1,10 @@
+[![Documentation Status](https://readthedocs.org/projects/pytaser/badge/?version=latest)](https://pytaser.readthedocs.io/en/latest/?badge=latest)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # PyTASER
 
-[Official Documentation](file:///Users/savyaaggarwal/Desktop/INTERNSHIPS/urop_1/pytaser/PyTASER/docs/build/html/introduction.html)
+[Documentation](https://pytaser.readthedocs.io/en/latest/)
 
 PyTASER is a Python (3.9+) library and set of command-line tools for classifying spectral features in bulk materials, post-DFT. The goal of this library is to provide simulated TAS spectra, for qualitative comparison with experimental spectra. This will simplify the complex and tedious processes of TAS prep and analysis, especially for pristine materials. The main features include:
 
@@ -63,5 +67,3 @@ Future topics we'd like to build on:
 Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh designed and led the project. 
 
 Thanks to the WMD group @ Imperial/Yonsei for all the interesting discussions and improvements!
-
-
