@@ -13,9 +13,9 @@ PyTASER is a Python (3.9+) library and set of command-line tools for simulating 
 Background
 ===========
 
-TAS is a powerful tool to characterise the excited states of materials. It can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination. 
+TAS is a powerful pump-probe tool to characterise the excited states of materials. It can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination. 
 
-The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goals here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation back to the ground state.
+The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goal here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation of the excited state back to the ground state.
 
 Installation
 ============
