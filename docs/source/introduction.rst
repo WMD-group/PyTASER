@@ -2,15 +2,20 @@
 Introduction
 ============
 
-PyTASER is a Python (3.9+) library and set of command-line tools for classifying spectral features in bulk materials, post-DFT. The goal of this library is to provide simulated TAS spectra, for qualitative comparison with experimental spectra. This will simplify the complex and tedious processes of TAS prep and analysis, especially for pristine materials. The main features include:
+PyTASER is a Python (3.9+) library and set of command-line tools for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
 
-* An interactive TAS spectrum for a pristine semiconducting material
-* Isolated spectra for individual band transitions from the overall TAS spectrum for the material.
-* Spectra in different conditions: temperature, carrier concentrations (analogous to pump-probe time delay) 
-* Partial occupancies of valence and conduction bands, using the Fermi-Dirac distribution for different Quasi-Fermi levels. 
-* Consideration of both non-magnetic and magnetic materials. 
-* Capability to input DFT-calculated bandstructure and dos inputs, with primary support for the `Materials Project
-<https://materialsproject.org/>`__.
+* An interactive TAS spectrum for a pristine semiconducting crystal
+* Isolated spectra for individual band transitions
+* Spectra for different conditions: temperature and carrier concentrations 
+* Consideration of non-magnetic and magnetic materials
+* Capability to input calculated bandstructure and density of states inputs with support for https://materialsproject.org.
+
+Background
+===========
+
+TAS is a powerful tool to characterise the excited states of materials. It can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination. 
+
+The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goals here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation back to the ground state.
 
 Installation
 ============
