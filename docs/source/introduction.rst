@@ -61,26 +61,20 @@ python3 filename.py
 Contributing
 ============
 
-***The library is currently undergoing some final changes before it is finalised.*** However, once it is completed, we would greatly appreciate any contributions in the form of a pull request. 
-Additionally, any test cases/example spectra performed with PyTASER would be welcomed. Please feel free to reach out to us if there are any questions or suggestions. 
+We appreciate any contributions in the form of a pull request. 
+Additional test cases/example spectra performed with PyTASER would be welcomed. 
+Please feel free to reach out to us if there are any questions or suggestions. 
 
-Future topics we'd like to build on:
+Future topics we plan to build on:
 
-* Direct conversion between carrier concentrations and pump-probe time delay (for more quantitative simulated-experimental comparisons)
-* Incorporating spin-change processes (e.g. moving from Spin.up to Spin.down and vice-versa) for spin-polarised systems
+* Direct treatment of pump-probe time delay
+* Incorporating spin-flip processes for spin-polarised systems
 * Incorporating finite-temperature effects (particularly indirect bandgaps & phonons, and defects)
-* Incorporating more complex optical processes (e.g. Stimulated Emission)
+* Incorporating more complex optical processes (e.g. stimulated emission)
 * Cleaning regions further away from the bandgap
-* Implementing optical transition probabilities alongside the JDOS
-* Creating a similarly-obtained kinetics plot for TAS analysis.
-* Relating spectral features with associated optical processes
-
+* Implementing optical transition probabilities
 
 Acknowledgements
 ================
 
-Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh designed and led the project. 
-
-Thanks to the WMD group @ Imperial/Yonsei for all the interesting discussions and improvements!
-
-
+Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh helped to design the project. Thanks to group members at Imperial College and Yonsei University for all the interesting discussions and improvements!
