@@ -1,15 +1,20 @@
+[![Documentation Status](https://readthedocs.org/projects/pytaser/badge/?version=latest)](https://pytaser.readthedocs.io/en/latest/?badge=latest)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # PyTASER
 
-[Official Documentation](file:///Users/savyaaggarwal/Desktop/INTERNSHIPS/urop_1/pytaser/PyTASER/docs/build/html/introduction.html)
+***The library is undergoing changes before it is released*** 
 
-PyTASER is a Python (3.9+) library and set of command-line tools for classifying spectral features in bulk materials, post-DFT. The goal of this library is to provide simulated TAS spectra, for qualitative comparison with experimental spectra. This will simplify the complex and tedious processes of TAS prep and analysis, especially for pristine materials. The main features include:
+[Documentation](https://pytaser.readthedocs.io/en/latest/)
 
-* An interactive TAS spectrum for a pristine semiconducting material
-* Isolated spectra for individual band transitions from the overall TAS spectrum for the material.
-* Spectra in different conditions: temperature, carrier concentrations (analogous to pump-probe time delay) 
-* Partial occupancies of valence and conduction bands, using the Fermi-Dirac distribution for different Quasi-Fermi levels. 
-* Consideration of both non-magnetic and magnetic materials. 
-* Capability to input DFT-calculated bandstructure and dos inputs, with primary support for the [Materials Project](https://materialsproject.org/).
+PyTASER is a Python (3.9+) library and set of command-line tools for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
+
+* An interactive TAS spectrum for a pristine semiconducting crystal
+* Isolated spectra for individual band transitions
+* Spectra for different conditions: temperature and carrier concentrations 
+* Consideration of non-magnetic and magnetic materials
+* Capability to input calculated bandstructure and density of states inputs with support for the [Materials Project](https://materialsproject.org/)
 
 # Installation
 
@@ -43,25 +48,19 @@ python3 filename.py
 
 # Contributing
 
-***The library is currently undergoing some final changes before it is finalised.*** However, once it is completed, we would greatly appreciate any contributions in the form of a pull request. 
-Additionally, any test cases/example spectra performed with PyTASER would be welcomed. Please feel free to reach out to us if there are any questions or suggestions. 
+We appreciate any contributions in the form of a pull request. 
+Additional test cases/example spectra performed with PyTASER would be welcomed. 
+Please feel free to reach out to us if there are any questions or suggestions. 
 
-Future topics we'd like to build on:
+Future topics we plan to build on:
 
-* Direct conversion between carrier concentrations and pump-probe time delay (for more quantitative simulated-experimental comparisons)
-* Incorporating spin-change processes (e.g. moving from Spin.up to Spin.down and vice-versa) for spin-polarised systems
+* Direct treatment of pump-probe time delay
+* Incorporating spin-flip processes for spin-polarised systems
 * Incorporating finite-temperature effects (particularly indirect bandgaps & phonons, and defects)
-* Incorporating more complex optical processes (e.g. Stimulated Emission)
+* Incorporating more complex optical processes (e.g. stimulated emission)
 * Cleaning regions further away from the bandgap
-* Implementing optical transition probabilities alongside the JDOS
-* Creating a similarly-obtained kinetics plot for TAS analysis.
-* Relating spectral features with associated optical processes
-
+* Implementing optical transition probabilities
 
 # Acknowledgements
 
-Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh designed and led the project. 
-
-Thanks to the WMD group @ Imperial/Yonsei for all the interesting discussions and improvements!
-
-
+Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh helped to design the project. Thanks to group members at Imperial College and Yonsei University for all the interesting discussions and improvements!

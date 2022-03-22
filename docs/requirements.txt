@@ -1,0 +1,12 @@
+# File: docs/requirements.txt
+
+# Defining the exact version will make sure things don't break
+sphinx==4.2.0
+sphinx_rtd_theme==1.0.0
+readthedocs-sphinx-search==0.1.1
+sphinx_copybutton
+sphinx_toggleprompt
+sphinx_minipres
+sphinx_tabs
+sphinx_togglebutton
+sphinx-autobuild
