@@ -1,28 +1,15 @@
-from pytaser import generator, plotter
+from pytaser.generator import TASGenerator
+from pytaser.plotter import TASPlotter
 
 api_key = None  # Use your API key here
-fe2o3_temp = 298
-fe2o3_conc = 10e21
+temp = 298
+conc = 10e21
 bandgap = 2.2  # based on https://aip.scitation.org/doi/full/10.1063/1.2177426
-# transitions_fe2o3 = [
-#     (8, 11, "down"),
-#     (9, 10, "up"),
-#     (4, 14, "up"),
-#     (6, 20, "down"),
-#     (6, 28, "up"),
-# ]
 
-# Fe2O3 is  spin-polarised, so we must define any relevant transitions we want to
-# see as spin-up or spin-down
-
-fe2o3_generator = generator.TASGenerator.from_mpid(
-    "mp-565814", fe2o3_temp, fe2o3_conc, bandgap, api_key=api_key
+generator = TASGenerator.from_mpid("mp-565814", bandgap, api_key=api_key)
+tas = generator.generate_tas(temp, conc)
+plotter = TASPlotter(
+    tas, bandgap_ev=bandgap, material_name="Fe2O3", temp=temp, conc=conc
 )
-fe2o3_tas = fe2o3_generator.generate_tas(energy_min=0.0, energy_max=10.0)
-fe2o3_plotter = plotter.TASPlotter(
-    fe2o3_tas, bandgap, material_name="Fe2O3", temp=fe2o3_temp, conc=fe2o3_conc
-)
-plot_fe2o3 = fe2o3_plotter.get_plot(
-    xaxis="wavelength", transition_cutoff=0.03, xmin=350, xmax=1400, yaxis="TAS (deltaT)"
-)
-plot_fe2o3.show()
+plt = plotter.get_plot(xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)")
+plt.show()
