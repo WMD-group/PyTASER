@@ -79,7 +79,7 @@ class TASPlotter:
         """
         energy_mesh = 0
         bg = 0
-        plt.figure(figsize=(15, 10))
+        plt.figure(figsize=(8, 5))
 
         xmin_ind = 0
         xmax_ind = -1
