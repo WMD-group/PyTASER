@@ -91,7 +91,7 @@ class TASPlotter:
             if xmax is not None:
                 xmin_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap_lambda
-            plt.xlabel("Wavelengths (nm)")
+            plt.xlabel("Wavelength (nm)")
 
         elif xaxis == "electronvolts":
             energy_mesh = self.energy_mesh_ev
