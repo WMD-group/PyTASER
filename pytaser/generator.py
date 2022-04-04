@@ -134,9 +134,6 @@ class TASGenerator:
         kpoint_weights: kpoint weights either found by the function or inputted.
         dos: Pymatgen-based dos object
         bandgap: Experimental or Inputted  bandgap of a material.
-        temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
-        conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
-            Inversely proportional to pump-probe time delay.
 
     Attributes:
         bs: Pymatgen-based bandstructure object
@@ -144,11 +141,9 @@ class TASGenerator:
         dos: Pymatgen-based dos object
         bg: Experimental or Inputted bandgap of a material.
         bg_centre: Energy (eV) of the bandgap centre.
-        occs_light: Occupancies of the bands for a pump-on system, across all kpoints
-        occs_dark: Occupancies of the bands for a pump-off system, across all kpoints
     """
 
-    def __init__(self, bs, kpoint_weights, dos, bandgap, temp, conc):
+    def __init__(self, bs, kpoint_weights, dos, bandgap):
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = dos
@@ -157,8 +152,6 @@ class TASGenerator:
         if float(bandgap) < 0.01:
             raise ValueError("Bandgap is smaller than 0.01 eV; cannot compute TAS")
 
-        self.occs_light = TASGenerator.band_occupancies(self, temp, conc, dark=False)
-        self.occs_dark = TASGenerator.band_occupancies(self, temp, conc)
         self.vb = get_cbm_vbm_index(self.bs)[0]
         self.cb = get_cbm_vbm_index(self.bs)[1]
 
@@ -212,12 +205,15 @@ class TASGenerator:
 
         return occs
 
-    def generate_tas(self, energy_min, energy_max, gaussian_width=0.2, step=0.1):
+    def generate_tas(self, temp, conc, energy_min=0, energy_max=5, gaussian_width=0.2, step=0.05):
 
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
 
         Args:
+            temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
+            conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
+                Inversely proportional to pump-probe time delay.
             energy_min: Minimum band transition energy to consider for energy mesh (eV)
             energy_max: Maximum band transition energy to consider for energy mesh (eV)
             gaussian_width: Width of gaussian curve
@@ -239,6 +235,8 @@ class TASGenerator:
                     transition i (initial) -> f (final) [dict]
                 energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
         """
+        occs_light = self.band_occupancies(temp, conc, dark=False)
+        occs_dark = self.band_occupancies(temp, conc)
 
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
@@ -255,7 +253,7 @@ class TASGenerator:
                             self.bs,
                             f,
                             i,
-                            self.occs_light[spin],
+                            occs_light[spin],
                             energy_mesh_ev,
                             self.kpoint_weights,
                             gaussian_width,
@@ -265,7 +263,7 @@ class TASGenerator:
                             self.bs,
                             f,
                             i,
-                            self.occs_dark[spin],
+                            occs_dark[spin],
                             energy_mesh_ev,
                             self.kpoint_weights,
                             gaussian_width,
@@ -308,17 +306,13 @@ class TASGenerator:
         )
 
     @classmethod
-    def from_mpid(cls, mpid, temperature, concentration, bg=None, api_key=None):
+    def from_mpid(cls, mpid, bg=None, api_key=None):
         """
         Import the desired bandstructure and dos objects from the Materials Project
         database.
 
         Args:
             mpid: The Materials Project ID of the desired material.
-            temperature:Temperature (K) of material we wish to investigate (affects the
-                FD distribution)
-            concentration: Carrier concentration (cm^-3) of holes and electrons (both are
-                equivalent). Inversely proportional to pump-probe time delay.
             bg: The experimental bandgap (eV) of the material to be implemented. If the
                 user wants to use the DFT-calculated bandgap, omit.
 
@@ -334,4 +328,4 @@ class TASGenerator:
         else:
             mp_bs, mp_dos = set_bandgap(mp_bs, mp_dos, bg)
         kweights = get_kpoint_weights(mp_bs)
-        return TASGenerator(mp_bs, kweights, mp_dos, bg, temperature, concentration)
+        return TASGenerator(mp_bs, kweights, mp_dos, bg)

@@ -1,19 +1,15 @@
-from pytaser import generator, plotter
+from pytaser.generator import TASGenerator
+from pytaser.plotter import TASPlotter
 
 api_key = None  # Use your API key here
-tio2r_temp = 298
-tio2r_conc = 10e21
+temp = 298
+conc = 10e21
 bandgap = 3.1
-# transitions_tio2r = [(8, 11), (9, 10), (4, 14), (6, 20), (6, 28)]
 
-tio2r_generator = generator.TASGenerator.from_mpid(
-    "mp-2657", tio2r_temp, tio2r_conc, bandgap, api_key=api_key
+generator = TASGenerator.from_mpid("mp-2657", bandgap, api_key=api_key)
+tas = generator.generate_tas(temp, conc)
+plotter = TASPlotter(
+    tas, bandgap_ev=bandgap, material_name="TiO2 (rutile)", temp=temp, conc=conc
 )
-tio2r_tas = tio2r_generator.generate_tas(energy_min=0.0, energy_max=10.0)
-tio2r_plotter = plotter.TASPlotter(
-    tio2r_tas, bandgap, material_name="TiO2 (rutile)", temp=tio2r_temp, conc=tio2r_conc
-)
-plot_tio2r = tio2r_plotter.get_plot(
-    xaxis="wavelength", transition_cutoff=0.03, xmin=350, xmax=1400, yaxis="TAS (deltaT)"
-)
-plot_tio2r.show()
+plt = plotter.get_plot(xaxis="wavelength", xmin=350, xmax=1400, yaxis="TAS (deltaT)")
+plt.show()

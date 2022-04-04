@@ -46,15 +46,15 @@ class TASPlotter:
         self.energy_mesh_lambda = ev_to_lambda(self.energy_mesh_ev)
 
     def get_plot(
-            self,
-            relevant_transitions="auto",
-            xaxis="wavelength",
-            transition_cutoff=0.03,
-            xmin=None,
-            xmax=None,
-            ymin=None,
-            ymax=None,
-            yaxis="TAS (deltaT)",
+        self,
+        relevant_transitions="auto",
+        xaxis="wavelength",
+        transition_cutoff=0.03,
+        xmin=None,
+        xmax=None,
+        ymin=None,
+        ymax=None,
+        yaxis="TAS (deltaT)",
     ):
         """
         Args:
