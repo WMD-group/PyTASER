@@ -109,7 +109,7 @@ class TASPlotter:
             if (xmin < np.min(energy_mesh)):
                 raise ValueError("Plotting region xmin value is smaller than energy mesh minimum. Please specify in "
                                  "same units as xaxis")
-            if (xmin > np.min(energy_mesh)):
+            if (xmin > np.max(energy_mesh)):
                 raise ValueError("Plotting region xmin value is larger than energy mesh maximum. Please specify in "
                                  "same units as xaxis")
 
