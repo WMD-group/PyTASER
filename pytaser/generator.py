@@ -63,7 +63,7 @@ def set_bandgap(bandstructure, dos, bandgap):
         dens = np.zeros_like(dos.energies)
         if shift > 0:
             dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
-            dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
+            dens[fermi_idx + shift:] = dos.densities[spin][fermi_idx:-shift]
         else:
             dens[abs(shift) : fermi_idx] = dos.densities[spin][: fermi_idx + shift]
             dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
@@ -205,7 +205,8 @@ class TASGenerator:
 
         return occs
 
-    def generate_tas(self, temp, conc, energy_min=0, energy_max=5, gaussian_width=0.2, step=0.05):
+    def generate_tas(self, temp, conc, energy_min=0, energy_max=5, gaussian_width=0.1, step=0.01, light_occs=None,
+                     dark_occs=None):
 
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
@@ -218,6 +219,8 @@ class TASGenerator:
             energy_max: Maximum band transition energy to consider for energy mesh (eV)
             gaussian_width: Width of gaussian curve
             step: Interval between energy points in the energy mesh.
+            light_occs: Optional input parameter for occupancies of material under light [dict]
+            dark_occs: Optional input parameter for occupancies of material in dark [dict]
 
         Returns:
             TAS class containing the following inputs:
@@ -235,8 +238,12 @@ class TASGenerator:
                     transition i (initial) -> f (final) [dict]
                 energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
         """
-        occs_light = self.band_occupancies(temp, conc, dark=False)
-        occs_dark = self.band_occupancies(temp, conc)
+        occs_light = light_occs
+        occs_dark = dark_occs
+        if light_occs is None:
+            occs_light = self.band_occupancies(temp, conc, dark=False)
+        if dark_occs is None:
+            occs_dark = self.band_occupancies(temp, conc)
 
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
@@ -315,6 +322,7 @@ class TASGenerator:
             mpid: The Materials Project ID of the desired material.
             bg: The experimental bandgap (eV) of the material to be implemented. If the
                 user wants to use the DFT-calculated bandgap, omit.
+            api_key: The user's Materials Project API key.
 
         Returns:
             A TASGenerator class with a uniform mode bandstructure & dos object, k-weights
