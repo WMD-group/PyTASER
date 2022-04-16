@@ -139,8 +139,9 @@ class TASGenerator:
         bs: Pymatgen-based bandstructure object
         kpoint_weights: kpoint weights either found by the function or inputted
         dos: Pymatgen-based dos object
-        bg: Experimental or Inputted bandgap of a material.
         bg_centre: Energy (eV) of the bandgap centre.
+        vb  Spin dict detailing the valence band maxima
+        cb: Spin dict detailing the conduction band minima
     """
 
     def __init__(self, bs, kpoint_weights, dos, bandgap):
@@ -151,6 +152,10 @@ class TASGenerator:
 
         if float(bandgap) < 0.01:
             raise ValueError("Bandgap is smaller than 0.01 eV; cannot compute TAS")
+
+        # if (round(self.bs.get_band_gap()['energy'], 2) =! round(bandgap,2): self.bs, self.dos = set_bandgap(bs,
+        # dos, bandgap) I'm not sure this is needed. Do we want to edit the bs, dos if the user inputs a different
+        # 'bandgap' to what is actually defined by their bs?
 
         self.vb = get_cbm_vbm_index(self.bs)[0]
         self.cb = get_cbm_vbm_index(self.bs)[1]
@@ -245,6 +250,7 @@ class TASGenerator:
         if dark_occs is None:
             occs_dark = self.band_occupancies(temp, conc)
 
+        bandgap_ev = round(self.bs.get_band_gap()['energy'],2)
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
         jdos_dark_if = {}
@@ -310,6 +316,7 @@ class TASGenerator:
             jdos_dark_cumulative,
             jdos_dark_if,
             energy_mesh_ev,
+            bandgap_ev
         )
 
     @classmethod

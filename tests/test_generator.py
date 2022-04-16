@@ -4,7 +4,7 @@ from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
 from pytaser import generator
 from generator import TASGenerator
-from monty.serialisation import loadfn
+from monty.serialization import loadfn
 
 sil_orig = [loadfn("data_sil/sil_bs.json"), loadfn("data_sil/sil_dos.json")]
 sil_new = [loadfn("data_sil/sil_new_bs.json"), loadfn("data_sil/sil_new_dos.json")]
@@ -87,7 +87,7 @@ def test_band_occupancies(object, l_occ_inp):
 @pytest.mark.parametrize("dark_occs", sil_dark_occs)
 @pytest.mark.parametrize("example_tas", basic_sil_tas_class)
 def test_generate_tas(object, light_occs, dark_occs, example_tas):
-    # must use something with fewer bands than silicon. Si has 96, must be using something with ~30 bands. if i am
+    # must use something with fewer bands than silicon. Si has 96, must be using something with ~30 bands. if
     # implementing an input for the occupancies, they must be a dict form rather than array. it has to match the
     # output from the band_occupancies method.
     temp, conc = 298, 10e21
@@ -98,7 +98,13 @@ def test_generate_tas(object, light_occs, dark_occs, example_tas):
 
     tas_class = object.generate_tas(temp, conc, energy_min, energy_max, gaussian_width, step, light_occs, dark_occs)
 
-    assert tas_class == example_tas
+    assert tas_class.total_tas == example_tas.total_tas
+    assert tas_class.tas_decomp == example_tas.tas_decomp
+    assert tas_class.jdos_light_tot == example_tas.jdos_light_tot
+    assert tas_class.jdos_dark_tot == example_tas.jdos_dark_tot
+    assert tas_class.energy_mesh_ev == example_tas.energy_mesh_ev
+    assert tas_class.bandgap_ev == example_tas.bandgap_ev
+
     assert tas_class.total_tas == (tas_class.jdos_light_tot - tas_class.jdos_dark_tot)
 
     number_combinations_if = int((object.bs.nb_bands * (object.bs.nb_bands - 1)) / 2)
