@@ -7,11 +7,11 @@ from pytaser.tas import Tas
 from monty.serialization import loadfn
 
 tas_obj = loadfn('data_sil/example_tas.yaml')
-plotter_obj = loadfn()
-max_lambda = loadfn()
-max_val_lambda = loadfn()
-cutoffs = loadfn()
-transition_energies = loadfn()
+plotter_obj = loadfn('data_sil/example_plotter.yaml')
+max_lambda = loadfn('data_sil/max_abs_vals.yaml')
+max_val_lambda = loadfn('data_sil/max_val_lambda.json')
+cutoffs = loadfn('data_sil/cutoff_list.json')
+transition_energies = loadfn('data_sil/relevant_transition_energies.json')
 
 
 def test_ev_to_lambda():
@@ -50,7 +50,7 @@ def test_get_plot(tas_object, example_plotter_obj, example_max_lambda, example_m
     transition_cutoff = 0.75
     cutoff_list = []
     for transition, value in max_abs_vals_lambda.items():
-        if value >= (max_val * transition_cutoff):
+        if value >= (max_val_lambda * transition_cutoff):
             cutoff_list += [value]
     assert max_abs_vals_lambda == example_max_lambda
     assert max_val_lambda == example_max_val_lambda
