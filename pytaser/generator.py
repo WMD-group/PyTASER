@@ -63,7 +63,7 @@ def set_bandgap(bandstructure, dos, bandgap):
         dens = np.zeros_like(dos.energies)
         if shift > 0:
             dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
-            dens[fermi_idx + shift:] = dos.densities[spin][fermi_idx:-shift]
+            dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
         else:
             dens[abs(shift) : fermi_idx] = dos.densities[spin][: fermi_idx + shift]
             dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
@@ -133,29 +133,24 @@ class TASGenerator:
         bs: Pymatgen-based bandstructure object
         kpoint_weights: kpoint weights either found by the function or inputted.
         dos: Pymatgen-based dos object
-        bandgap: Experimental or Inputted  bandgap of a material.
 
     Attributes:
-        bs: Pymatgen-based bandstructure object
-        kpoint_weights: kpoint weights either found by the function or inputted
+        bs: Pymatgen bandstructure object
+        kpoint_weights: k-point weights (degeneracies).
         dos: Pymatgen-based dos object
         bg_centre: Energy (eV) of the bandgap centre.
-        vb  Spin dict detailing the valence band maxima
+        vb: Spin dict detailing the valence band maxima.
         cb: Spin dict detailing the conduction band minima
     """
 
-    def __init__(self, bs, kpoint_weights, dos, bandgap):
+    def __init__(self, bs, kpoint_weights, dos):
         self.bs = bs
         self.kpoint_weights = kpoint_weights
-        self.dos = dos
+        self.dos = FermiDos(dos)
         self.bg_centre = (bs.get_cbm()["energy"] + bs.get_vbm()["energy"]) / 2
 
-        if float(bandgap) < 0.01:
-            raise ValueError("Bandgap is smaller than 0.01 eV; cannot compute TAS")
-
-        # if (round(self.bs.get_band_gap()['energy'], 2) =! round(bandgap,2): self.bs, self.dos = set_bandgap(bs,
-        # dos, bandgap) I'm not sure this is needed. Do we want to edit the bs, dos if the user inputs a different
-        # 'bandgap' to what is actually defined by their bs?
+        if self.bs.is_metal():
+            raise ValueError("System is metallic, cannot compute TAS")
 
         self.vb = get_cbm_vbm_index(self.bs)[0]
         self.cb = get_cbm_vbm_index(self.bs)[1]
@@ -175,9 +170,8 @@ class TASGenerator:
             A dictionary of {Spin: occs} for all bands across all k-points.
         """
         # Calculate the quasi-Fermi levels
-        fermidos = FermiDos(self.dos)
-        q_fermi_e = fermidos.get_fermi(-conc, temp)  # quasi-electron fermi level
-        q_fermi_h = fermidos.get_fermi(conc, temp)  # quasi-hole fermi level
+        q_fermi_e = self.dos.get_fermi(-conc, temp)  # quasi-electron fermi level
+        q_fermi_h = self.dos.get_fermi(conc, temp)  # quasi-hole fermi level
 
         occs = {}
         if dark:
@@ -210,8 +204,17 @@ class TASGenerator:
 
         return occs
 
-    def generate_tas(self, temp, conc, energy_min=0, energy_max=5, gaussian_width=0.1, step=0.01, light_occs=None,
-                     dark_occs=None):
+    def generate_tas(
+        self,
+        temp,
+        conc,
+        energy_min=0,
+        energy_max=5,
+        gaussian_width=0.1,
+        step=0.01,
+        light_occs=None,
+        dark_occs=None,
+    ):
 
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
@@ -250,7 +253,7 @@ class TASGenerator:
         if dark_occs is None:
             occs_dark = self.band_occupancies(temp, conc)
 
-        bandgap_ev = round(self.bs.get_band_gap()['energy'],2)
+        bandgap_ev = round(self.bs.get_band_gap()["energy"], 2)
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
         jdos_dark_if = {}
@@ -290,11 +293,11 @@ class TASGenerator:
                         new_i = 0
                         new_f = 0
                         if i <= self.vb[spin]:
-                            new_i = (i - self.vb[spin])
+                            new_i = i - self.vb[spin]
                         elif i > self.vb[spin]:
                             new_i = (i - self.cb[spin]) + 1
                         if f <= self.vb[spin]:
-                            new_f = (f - self.vb[spin])
+                            new_f = f - self.vb[spin]
                         elif f > self.vb[spin]:
                             new_f = (f - self.cb[spin]) + 1
 
@@ -316,7 +319,7 @@ class TASGenerator:
             jdos_dark_cumulative,
             jdos_dark_if,
             energy_mesh_ev,
-            bandgap_ev
+            bandgap_ev,
         )
 
     @classmethod
@@ -327,20 +330,17 @@ class TASGenerator:
 
         Args:
             mpid: The Materials Project ID of the desired material.
-            bg: The experimental bandgap (eV) of the material to be implemented. If the
-                user wants to use the DFT-calculated bandgap, omit.
+            bg: The experimental bandgap (eV) of the material. If None, the band gap
+                of the MP calculation will be used.
             api_key: The user's Materials Project API key.
 
         Returns:
-            A TASGenerator class with a uniform mode bandstructure & dos object, k-weights
-            and a corrected bandgap.
+            A TASGenerator object.
         """
         mpr = MPRester(api_key=api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
-        if bg is None:
-            bg = mp_bs.get_band_gap()["energy"]
-        else:
+        if bg is not None:
             mp_bs, mp_dos = set_bandgap(mp_bs, mp_dos, bg)
         kweights = get_kpoint_weights(mp_bs)
-        return TASGenerator(mp_bs, kweights, mp_dos, bg)
+        return TASGenerator(mp_bs, kweights, mp_dos)
