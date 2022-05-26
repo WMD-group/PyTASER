@@ -68,7 +68,7 @@ class TASPlotter:
                 [(-1,6, "down"),(2,7, "down"),(-8,-5, "up")...]
                 Default is 'auto' mode, which shows the band transitions with the 3 highest
                 absorption values (overall across all k-points).
-            xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
+            xaxis: Units for the energy mesh. Either in wavelengths or energy.
             transition_cutoff: The minimum height of the band transition as a percentage threshold compared to the most
                 contributing transition. Default is set at 3%.
             xmin: Minimum energy point in mesh (float64)
@@ -96,7 +96,7 @@ class TASPlotter:
             bg = self.bandgap_lambda
             plt.xlabel("Wavelength (nm)")
 
-        elif xaxis == "electronvolts":
+        elif xaxis == "energy":
             energy_mesh = self.energy_mesh_ev
             if xmin is not None:
                 xmin_ind = np.abs(energy_mesh - xmin).argmin()
