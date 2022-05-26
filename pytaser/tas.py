@@ -1,6 +1,6 @@
 class Tas:
     """
-    A container class for all the generated data from TASgenerator.
+    A container class for the data from TASgenerator.
 
     Args:
         total_tas: overall TAS spectrum for a material under the specified conditions
