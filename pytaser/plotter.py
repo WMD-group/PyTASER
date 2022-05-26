@@ -57,7 +57,7 @@ class TASPlotter:
             xmax=None,
             ymin=None,
             ymax=None,
-            yaxis="TAS (deltaT)",
+            yaxis="tas"
     ):
         """
         Args:
@@ -75,7 +75,7 @@ class TASPlotter:
             xmax: Maximum energy point in mesh (float64)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
             ymax: Maximum absorption point. Default is 1.15 * maximum point.
-            yaxis: Measurement method of absorption (JDOS or deltaT) (string)
+            yaxis: Measurement method of absorption (jdos or tas) (string)
 
         Returns:
             Matplotlib pyplot of the desired spectrum, with labelled units.
@@ -123,7 +123,7 @@ class TASPlotter:
 
         abs_label = ""
 
-        if yaxis == "TAS (deltaT)":
+        if yaxis == "tas":
             abs_label = "ΔT (a.u.)"
 
             plt.plot(
@@ -145,7 +145,7 @@ class TASPlotter:
                     plt.plot(energy_mesh[xmin_ind:xmax_ind], self.tas_decomp[transition][xmin_ind:xmax_ind],
                              label=transition)
 
-        elif yaxis == "JDOS":
+        elif yaxis == "jdos":
             abs_label = "JDOS (a.u.)"
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
