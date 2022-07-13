@@ -57,7 +57,7 @@ class TASPlotter:
             xmax=None,
             ymin=None,
             ymax=None,
-            yaxis="TAS (deltaT)",
+            yaxis="tas"
     ):
         """
         Args:
@@ -68,14 +68,14 @@ class TASPlotter:
                 [(-1,6, "down"),(2,7, "down"),(-8,-5, "up")...]
                 Default is 'auto' mode, which shows the band transitions with the 3 highest
                 absorption values (overall across all k-points).
-            xaxis: Units for the energy mesh. Either in wavelengths or electronvolts.
+            xaxis: Units for the energy mesh. Either in wavelengths or energy.
             transition_cutoff: The minimum height of the band transition as a percentage threshold compared to the most
                 contributing transition. Default is set at 3%.
             xmin: Minimum energy point in mesh (float64)
             xmax: Maximum energy point in mesh (float64)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
             ymax: Maximum absorption point. Default is 1.15 * maximum point.
-            yaxis: Measurement method of absorption (JDOS or deltaT) (string)
+            yaxis: Measurement method of absorption (jdos or tas) (string)
 
         Returns:
             Matplotlib pyplot of the desired spectrum, with labelled units.
@@ -96,7 +96,7 @@ class TASPlotter:
             bg = self.bandgap_lambda
             plt.xlabel("Wavelength (nm)")
 
-        elif xaxis == "electronvolts":
+        elif xaxis == "energy":
             energy_mesh = self.energy_mesh_ev
             if xmin is not None:
                 xmin_ind = np.abs(energy_mesh - xmin).argmin()
@@ -123,7 +123,7 @@ class TASPlotter:
 
         abs_label = ""
 
-        if yaxis == "TAS (deltaT)":
+        if yaxis == "tas":
             abs_label = "ΔT (a.u.)"
 
             plt.plot(
@@ -145,7 +145,7 @@ class TASPlotter:
                     plt.plot(energy_mesh[xmin_ind:xmax_ind], self.tas_decomp[transition][xmin_ind:xmax_ind],
                              label=transition)
 
-        elif yaxis == "JDOS":
+        elif yaxis == "jdos":
             abs_label = "JDOS (a.u.)"
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
