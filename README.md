@@ -4,17 +4,19 @@
 
 # PyTASER
 
+![](PyTASER.png)
+
 ***The library is undergoing changes before it is released*** 
 
 [Documentation](https://pytaser.readthedocs.io/en/latest/)
 
 PyTASER is a Python (3.9+) library and set of command-line tools for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
 
-* An interactive TAS spectrum for a pristine semiconducting crystal
-* Isolated spectra for individual band transitions
-* Spectra for different conditions: temperature and carrier concentrations 
+* A TAS spectrum for a pristine semiconducting crystal
+* Components from individual band-to-band transitions
+* Spectra for different conditions: temperature and carrier concentrations
 * Consideration of non-magnetic and magnetic materials
-* Capability to input calculated bandstructure and density of states inputs with support for the [Materials Project](https://materialsproject.org/)
+* Capability to input calculated bandstructure and density of states inputs with support for the [Materials Project](https://materialsproject.org)
 
 # Installation
 
@@ -54,13 +56,13 @@ Please feel free to reach out to us if there are any questions or suggestions.
 
 Future topics we plan to build on:
 
+* Implementing optical transition probabilities
+* Incorporating finite-temperature effects (particularly for indirect bandgaps)
+* Description of more complex optical processes (e.g. stimulated emission)
 * Direct treatment of pump-probe time delay
 * Incorporating spin-flip processes for spin-polarised systems
-* Incorporating finite-temperature effects (particularly indirect bandgaps & phonons, and defects)
-* Incorporating more complex optical processes (e.g. stimulated emission)
-* Cleaning regions further away from the bandgap
-* Implementing optical transition probabilities
+* Description of defective crystals 
 
 # Acknowledgements
 
-Developed by Savyasanchi Aggarwal, Alex Ganose and Liam Harnett-Caulfield. Aron Walsh helped to design the project. Thanks to group members at Imperial College and Yonsei University for all the interesting discussions and improvements!
+The project was the focus of a [UROP](https://www.imperial.ac.uk/urop/) by @savya10, supervised by @utf and @aronwalsh, with on-going developments and testing from @youngwonwoo.
