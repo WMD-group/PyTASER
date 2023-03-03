@@ -1,0 +1,8 @@
+pytest
+numpy
+monty
+pymatgen
+matplotlib
+scipy
+setuptools
+deepdiff

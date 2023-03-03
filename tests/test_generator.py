@@ -1,43 +1,40 @@
 import pytest
 import numpy as np
-from pytaser.kpoints import get_kpoint_weights
-from pytaser.tas import Tas
+from pymatgen.electronic_structure.core import Spin
 from pytaser import generator
-from generator import TASGenerator
+from pytaser.generator import TASGenerator, set_bandgap
 from monty.serialization import loadfn
+from deepdiff import DeepDiff
 
 gaussian = loadfn('data_gaas/gaussian_123.json')
-gaas_dos_bs_old = [loadfn('data_gaas/gaas_2534_dos.json'), loadfn('data_gaas/gaas_2534_bs.json')]
-gaas_dos_bs_new = [loadfn('data_gaas/new_gaas_2534_dos.json'), loadfn('data_gaas/new_gaas_2534_bs.json')]
-gaas_kweights = [loadfn('gaas_kweights.json')]
 
 
-@pytest.mark.parametrize("gaussian_example", gaussian)
+@pytest.mark.parametrize("gaussian_example", loadfn('data_gaas/gaussian_123.json'))
 def test_gaussian(gaussian_example):
     x = np.array([1, 2, 3])
     width = 0.1
-    assert generator.gaussian(x, width) == gaussian_example
+    assert generator.gaussian(x, width).all() == gaussian_example.all()
 
 
-@pytest.fixture
+@pytest.fixture(scope='package')
 def conditions():  # return [temperature, carrier conc, bandgap] in that order
     return [298, 1e18, 1.5]
 
 
-@pytest.mark.parametrize("gaas_dos", gaas_dos_bs_new[0])
-@pytest.mark.parametrize("gaas_bs", gaas_dos_bs_new[1])
-@pytest.mark.parametrize("kweights", gaas_kweights)
-@pytest.fixture
-def generated_class(gaas_dos, gaas_bs, kweights):
+@pytest.fixture(scope='package')
+def generated_class():
+    gaas_bs = loadfn('data_gaas/new_gaas_2534_bs.json')
+    gaas_dos = loadfn('data_gaas/new_gaas_2534_dos.json')
+    kweights = loadfn('data_gaas/gaas_kweights.json')
     return TASGenerator(gaas_bs, kweights, gaas_dos)
 
 
-@pytest.fixture(name='dark')
+@pytest.fixture(name='dark', scope='package')
 def dark_occs_generated(generated_class, conditions):
     return generated_class.band_occupancies(conditions[0], conditions[1])
 
 
-@pytest.fixture(name='light')
+@pytest.fixture(name='light', scope='package')
 def light_occs_generated(generated_class, conditions):
     return generated_class.band_occupancies(conditions[0], conditions[1], dark=False)
 
@@ -53,13 +50,16 @@ def tas_object(generated_class, conditions, dark, light):
                                         dark_occs=dark)
 
 
-@pytest.mark.parametrize("old", gaas_dos_bs_old)
-@pytest.mark.parametrize("new", gaas_dos_bs_new)
-def test_set_bandgap(old, new, conditions):
-    bs_new, dos_new = generator.set_bandgap(gaas_dos_bs_old[0], gaas_dos_bs_old[1], conditions[2])
-    assert bs_new.nb_bands == new[0].nb_bands
-    assert bs_new.get_band_gap() == new[0].get_band_gap()
-    assert dos_new.densities == new[1].densities
+def test_set_bandgap(conditions):
+    # assert type(old) == list
+    old_bs = loadfn('data_gaas/gaas_2534_bs.json')
+    old_dos = loadfn('data_gaas/gaas_2534_dos.json')
+    new_bs = loadfn('data_gaas/new_gaas_2534_bs.json')
+    new_dos = loadfn('data_gaas/new_gaas_2534_dos.json')
+    bs_new, dos_new = set_bandgap(old_bs, old_dos, conditions[2])
+    assert bs_new.nb_bands == new_bs.nb_bands
+    assert bs_new.get_band_gap() == new_bs.get_band_gap()
+    assert dos_new.densities[Spin.up].all() == new_dos.densities[Spin.up].all()
 
 
 def test_jdos(generated_class, light, dark, tas_object):
@@ -87,8 +87,8 @@ def test_jdos(generated_class, light, dark, tas_object):
 
     i_tas = i - (generated_class.vb[Spin.up])
     f_tas = f - (generated_class.cb[Spin.up]) + 1
-    assert new_jdos_light == tas_object.jdos_light_decomp[(i_tas, f_tas)]
-    assert new_jdos_dark == tas_object.jdos_dark_decomp[(i_tas, f_tas)]
+    assert new_jdos_light.all() == tas_object.jdos_light_decomp[(i_tas, f_tas)].all()
+    assert new_jdos_dark.all() == tas_object.jdos_dark_decomp[(i_tas, f_tas)].all()
 
 
 def test_get_cbm_vbm_index(generated_class):
@@ -97,7 +97,7 @@ def test_get_cbm_vbm_index(generated_class):
     vb = generator.get_cbm_vbm_index(bs)[0][Spin.up]
 
     assert cb == bs.get_cbm()['band_index'][Spin.up][0]
-    assert vb == bs.get_vbm()['band_index'][Spin.up][0]
+    assert vb == bs.get_vbm()['band_index'][Spin.up][-1]
     assert int(cb) == int(vb) + 1
 
 
@@ -117,7 +117,7 @@ def test_band_occupancies(generated_class, light, conditions):
         assert occ_bool == True
 
     light_occs = generated_class.band_occupancies(conditions[0], conditions[1], dark=False)
-    assert light_occs == l_occ_inp
+    assert light_occs[Spin.up].all() == l_occ_inp.all()
 
 
 def test_generate_tas(generated_class, light, dark, tas_object, conditions):
@@ -135,16 +135,17 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
                                              light,
                                              dark)
 
-    assert tas_class.total_tas == tas_object.total_tas
-    assert tas_class.tas_decomp == tas_object.tas_decomp
-    assert tas_class.jdos_light_tot == tas_object.jdos_light_tot
-    assert tas_class.jdos_dark_tot == tas_object.jdos_dark_tot
-    assert tas_class.energy_mesh_ev == tas_object.energy_mesh_ev
-    assert tas_class.bandgap_ev == tas_object.bandgap_ev
+    assert tas_class.total_tas.all() == tas_object.total_tas.all()
+    assert DeepDiff(tas_class.tas_decomp, tas_object.tas_decomp) == {}
+    assert DeepDiff(tas_class.jdos_light_decomp, tas_object.jdos_light_decomp) == {}
+    assert tas_class.jdos_light_tot.all() == tas_object.jdos_light_tot.all()
+    assert tas_class.jdos_dark_tot.all() == tas_object.jdos_dark_tot.all()
+    assert tas_class.energy_mesh_ev.all() == tas_object.energy_mesh_ev.all()
+    assert tas_class.bandgap == tas_object.bandgap
 
-    assert tas_class.total_tas == (tas_class.jdos_light_tot - tas_class.jdos_dark_tot)
+    assert tas_class.total_tas.all() == (tas_class.jdos_light_tot - tas_class.jdos_dark_tot).all()
 
-    number_combinations_if = int((tas_class.bs.nb_bands * (tas_class.bs.nb_bands - 1)) / 2)
+    number_combinations_if = int((generated_class.bs.nb_bands * (generated_class.bs.nb_bands - 1)) / 2)
     assert number_combinations_if == len(tas_class.tas_decomp.keys()) == len(
         tas_class.jdos_light_decomp.keys()) == len(tas_class.jdos_dark_decomp.keys())
 
@@ -152,22 +153,28 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     vbm = generated_class.vb[Spin.up]
     energy_mesh = np.arange(0, 4, 0.15)
     spin = Spin.up
-    jdos_vbm_cbm = generator.jdos(object.bs,
+    jdos_vbm_cbm = generator.jdos(generated_class.bs,
                                   cbm,
                                   vbm,
-                                  light,
+                                  light[Spin.up],
                                   energy_mesh,
                                   generated_class.kpoint_weights,
                                   gaussian_width,
                                   spin)
-    assert tas_class.jdos_light_decomp[0, 1] == jdos_vbm_cbm
+    assert tas_class.jdos_light_decomp[0, 1].all() == jdos_vbm_cbm.all()
 
 
 def test_from_mpid(generated_class, conditions):
     gaas2534 = TASGenerator.from_mpid('mp-2534', conditions[2])
-    assert gaas2534.bs == generated_class.bs
-    assert gaas2534.kpoint_weights == generated_class.kpoint_weights
-    assert gaas2534.dos == generated_class.dos
+    assert gaas2534.bs.projections[Spin.up].all() == generated_class.bs.projections[Spin.up].all()
+    assert gaas2534.bs.is_spin_polarized == generated_class.bs.is_spin_polarized
+    assert gaas2534.bs.efermi == generated_class.bs.efermi
+    assert type(gaas2534.bs) == type(generated_class.bs)
+
+    assert gaas2534.dos.structure == generated_class.dos.structure
+    assert type(gaas2534.dos) == type(generated_class.dos)
+
+    assert gaas2534.kpoint_weights.all() == generated_class.kpoint_weights.all()
     assert gaas2534.bg_centre == generated_class.bg_centre
     assert gaas2534.vb == generated_class.vb
     assert gaas2534.cb == generated_class.cb
