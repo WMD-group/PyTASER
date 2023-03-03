@@ -21,8 +21,8 @@ def test_lamda_to_ev():
     assert round(lambda_to_ev(input_lamda), 2) == 2.5
 
 
-@pytest.fixture
 # import the tas_object and conditions globally from test_generator
+@pytest.fixture
 def plotter_gaas(tas_object, conditions):
     return TASPlotter(tas_object, bandgap_ev=conditions[2], material_name='GaAs', temp=conditions[0],
                       conc=conditions[1])
@@ -30,7 +30,9 @@ def plotter_gaas(tas_object, conditions):
 
 def test_cutoff_transitions(plotter_gaas):
     highest_transitions = [(-2, 1), (-1, 1), (0, 1)]
+    highest_transitions.sort()
     relevant_transitions = plotter.cutoff_transitions(plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1)
+    relevant_transitions.sort()
     assert relevant_transitions == highest_transitions
     # make sure when testing that highest_transitions is any order - we want to just make sure it is in the list.
 

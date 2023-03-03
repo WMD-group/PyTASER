@@ -42,13 +42,13 @@ def light_occs_generated(generated_class, conditions):
     return generated_class.band_occupancies(conditions[0], conditions[1], dark=False)
 
 
-@pytest.fixture
+@pytest.fixture(scope='package')
 def tas_object(generated_class, conditions, dark, light):
     return generated_class.generate_tas(conditions[0],
                                         conditions[1],
                                         energy_min=0,
                                         energy_max=4,
-                                        step= 0.15,
+                                        step=0.15,
                                         light_occs=light,
                                         dark_occs=dark)
 
@@ -68,22 +68,22 @@ def test_jdos(generated_class, light, dark, tas_object):
     f = (generated_class.cb[Spin.up]) + 1
     energy_mesh = np.arange(0, 4, 0.15)
     new_jdos_light = generator.jdos(generated_class.bs,
-                              f,
-                              i,
-                              light[Spin.up],
-                              energy_mesh,
-                              kweights=generated_class.kpoint_weights,
-                              gaussian_width=0.1,
-                              spin=Spin.up)
+                                    f,
+                                    i,
+                                    light[Spin.up],
+                                    energy_mesh,
+                                    kweights=generated_class.kpoint_weights,
+                                    gaussian_width=0.1,
+                                    spin=Spin.up)
 
     new_jdos_dark = generator.jdos(generated_class.bs,
-                              f,
-                              i,
-                              dark[Spin.up],
-                              energy_mesh,
-                              kweights=generated_class.kpoint_weights,
-                              gaussian_width=0.1,
-                              spin=Spin.up)
+                                   f,
+                                   i,
+                                   dark[Spin.up],
+                                   energy_mesh,
+                                   kweights=generated_class.kpoint_weights,
+                                   gaussian_width=0.1,
+                                   spin=Spin.up)
 
     i_tas = i - (generated_class.vb[Spin.up])
     f_tas = f - (generated_class.cb[Spin.up]) + 1
@@ -163,7 +163,7 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     assert tas_class.jdos_light_decomp[0, 1] == jdos_vbm_cbm
 
 
-def test_from_mpid(generated_class,conditions):
+def test_from_mpid(generated_class, conditions):
     gaas2534 = TASGenerator.from_mpid('mp-2534', conditions[2])
     assert gaas2534.bs == generated_class.bs
     assert gaas2534.kpoint_weights == generated_class.kpoint_weights
