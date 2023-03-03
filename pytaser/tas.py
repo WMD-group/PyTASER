@@ -15,6 +15,7 @@ class Tas:
         jdos_dark_decomp: JDOS (pump-off) across the energy mesh for a specific band
             transition i (initial) -> f (final) [dict]
         energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
+        bandgap_ev: Bandgap of the system in electronvolts.
     """
 
     def __init__(

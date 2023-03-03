@@ -5,13 +5,10 @@ from pytaser import plotter
 from pytaser.plotter import TASPlotter
 from pytaser.tas import Tas
 from monty.serialization import loadfn
+import os
 
-tas_obj = loadfn('data_sil/example_tas.yaml')
-plotter_obj = loadfn('data_sil/example_plotter.yaml')
-max_lambda = loadfn('data_sil/max_abs_vals.yaml')
-max_val_lambda = loadfn('data_sil/max_val_lambda.json')
-cutoffs = loadfn('data_sil/cutoff_list.json')
-transition_energies = loadfn('data_sil/relevant_transition_energies.json')
+_file_path = os.path.dirname(__file__)
+_DATA_DIR = os.path.join(_file_path, "data_gaas")
 
 
 def test_ev_to_lambda():
@@ -24,41 +21,100 @@ def test_lamda_to_ev():
     assert round(lambda_to_ev(input_lamda), 2) == 2.5
 
 
-@pytest.mark.parametrize("tas_object", tas_obj)
-@pytest.mark.parametrize("example_plotter_obj", plotter_obj)
-@pytest.mark.parametrize("example_max_lambda", max_lambda)
-@pytest.mark.parametrize("example_max_val_lambda", max_val_lambda)
-@pytest.mark.parametrize("example_cutoffs", cutoffs)
-@pytest.mark.parametrize("example_transition_energies", transition_energies)
-def test_get_plot(tas_object, example_plotter_obj, example_max_lambda, example_max_val_lambda, example_cutoffs,
-                  example_transition_energies):
+@pytest.fixture
+# import the tas_object and conditions globally from test_generator
+def plotter_gaas(tas_object, conditions):
+    return TASPlotter(tas_object, bandgap_ev=conditions[2], material_name='GaAs', temp=conditions[0],
+                      conc=conditions[1])
 
-    # testing the attributes of the TASPlotter object
-    plotter_obj = TASPlotter(tas_object)
-    assert plotter_obj.bandgap_ev == example_plotter_obj.bandgap_ev
-    assert plotter_obj.bandgap_lambda == plotter.ev_to_lambda(plotter_obj.bandgap_ev)
-    assert plotter_obj.energy_mesh_lambda == plotter.ev_to_lambda(plotter_obj.energy_mesh_ev)
 
-    # testing the relevant_transitions = "auto" feature in get_plot()
-    xmin_lambda = 750
-    xmax_lambda = 4000
-    xmax_ind_lambda = np.abs(plotter_obj.energy_mesh_lambda - xmin_lambda).argmin()
-    xmin_ind_lambda = np.abs(plotter_obj.energy_mesh_lambda - xmax_lambda).argmin()
-    max_abs_vals_lambda = {key: np.max(abs(val[xmin_ind_lambda:xmax_ind_lambda])) for key, val in
-                           self.tas_decomp.items()}
-    max_val_lambda = max(max_abs_vals_lambda.values())
-    transition_cutoff = 0.75
-    cutoff_list = []
-    for transition, value in max_abs_vals_lambda.items():
-        if value >= (max_val_lambda * transition_cutoff):
-            cutoff_list += [value]
-    assert max_abs_vals_lambda == example_max_lambda
-    assert max_val_lambda == example_max_val_lambda
-    assert len(cutoff_list) == len(example_cutoffs)
+def test_cutoff_transitions(plotter_gaas):
+    highest_transitions = [(-2, 1), (-1, 1), (0, 1)]
+    relevant_transitions = plotter.cutoff_transitions(plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1)
+    assert relevant_transitions == highest_transitions
+    # make sure when testing that highest_transitions is any order - we want to just make sure it is in the list.
 
-    # testing the relevant transitions maps correctly
-    transition_array = [(-3, -1), (-1, 0), (0, 1), (1, 3)]
-    relevant_transition_energies = []
-    for transition in transition_array:
-        relevant_transition_energies += [tas_object.tas_decomp[transition][xmin_ind_lambda:xmax_ind_lambda]]
-    assert relevant_transition_energies == example_transition_energies
+
+def test_get_plot(plotter_gaas):
+    assert plotter_gaas.bandgap_lambda == plotter.ev_to_lambda(plotter_gaas.bandgap_ev)
+    assert plotter_gaas.energy_mesh_lambda == plotter.ev_to_lambda(plotter_gaas.energy_mesh_ev)
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="tas_ev_gaas.png",
+    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_ev(plotter_gaas):
+    """Test get_plot() TAS function for GaAs with a 25% cutoff and a electronvolts xaxis"""
+    fig = plotter_gaas.get_plot(relevant_transitions="auto",
+                                xaxis="energy",
+                                transition_cutoff=0.75,
+                                xmin=None,
+                                xmax=None,
+                                ymin=None,
+                                ymax=None,
+                                yaxis="tas"
+                                )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="tas_lambda_gaas.png",
+    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_lambda(plotter_gaas):
+    """Test get_plot() TAS function for GaAs with a 25% cutoff and a wavelength xaxis"""
+    fig = plotter_gaas.get_plot(relevant_transitions="auto",
+                                xaxis="wavelength",
+                                transition_cutoff=0.75,
+                                xmin=None,
+                                xmax=1200,
+                                ymin=None,
+                                ymax=None,
+                                yaxis="tas"
+                                )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_ev_gaas.png",
+    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_ev(plotter_gaas):
+    """Test get_plot() JDOS function for GaAs with a 25% cutoff and a electronvolts xaxis"""
+    fig = plotter_gaas.get_plot(relevant_transitions="auto",
+                                xaxis="energy",
+                                transition_cutoff=0.75,
+                                xmin=None,
+                                xmax=None,
+                                ymin=None,
+                                ymax=None,
+                                yaxis="jdos"
+                                )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_lambda_gaas.png",
+    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_lambda(plotter_gaas):
+    """Test get_plot() JDOS function for GaAs with a 25% cutoff and a wavelength xaxis"""
+    fig = plotter_gaas.get_plot(relevant_transitions="auto",
+                                xaxis="wavelength",
+                                transition_cutoff=0.75,
+                                xmin=None,
+                                xmax=1200,
+                                ymin=None,
+                                ymax=None,
+                                yaxis="jdos"
+                                )
+    return fig

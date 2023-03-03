@@ -63,10 +63,10 @@ def set_bandgap(bandstructure, dos, bandgap):
         dens = np.zeros_like(dos.energies)
         if shift > 0:
             dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
-            dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
+            dens[fermi_idx + shift:] = dos.densities[spin][fermi_idx:-shift]
         else:
-            dens[abs(shift) : fermi_idx] = dos.densities[spin][: fermi_idx + shift]
-            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
+            dens[abs(shift): fermi_idx] = dos.densities[spin][: fermi_idx + shift]
+            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift:]
         new_dos.densities[spin] = dens
 
     new_bandstructure.efermi = midgap
@@ -100,7 +100,7 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         init_occ = occs[i][k]
         k_weight = kweights[k]
         factor = k_weight * (
-            (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
+                (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
         )
         jdos += factor * gaussian(
             energies, gaussian_width, center=final_energy - init_energy
@@ -201,19 +201,18 @@ class TASGenerator:
                 spin_occs[elec_mask] = electron_occs[elec_mask]
 
                 occs[spin] = spin_occs
-
         return occs
 
     def generate_tas(
-        self,
-        temp,
-        conc,
-        energy_min=0,
-        energy_max=5,
-        gaussian_width=0.1,
-        step=0.01,
-        light_occs=None,
-        dark_occs=None,
+            self,
+            temp,
+            conc,
+            energy_min=0,
+            energy_max=5,
+            gaussian_width=0.1,
+            step=0.01,
+            light_occs=None,
+            dark_occs=None,
     ):
 
         """
@@ -245,6 +244,7 @@ class TASGenerator:
                 jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
                 energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
+                bandgap_ev: Bandgap of the system, in eV, rounded to 2 decimal points.
         """
         occs_light = light_occs
         occs_dark = dark_occs
@@ -325,7 +325,7 @@ class TASGenerator:
     @classmethod
     def from_mpid(cls, mpid, bg=None, api_key=None):
         """
-        Import the desired bandstructure and dos objects from the Materials Project
+        Import the desired bandstructure and dos objects from the legacy Materials Project
         database.
 
         Args:

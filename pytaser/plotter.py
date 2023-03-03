@@ -15,6 +15,18 @@ def lambda_to_ev(lambda_float):
     return electronvolts
 
 
+def cutoff_transitions(dictionary, cutoff, ind_xmin, ind_xmax):
+    """Output a list of transitions from a dict corresponding to those that fall within a percentage threshold of the
+    maximum value transition. """
+    max_abs_val = {key: np.max(abs(val[ind_xmin:ind_xmax])) for key, val in dictionary.items()}
+    max_val = max(max_abs_val.values())
+    relevant_transition_list = []
+    for transition, value in max_abs_val.items():
+        if value >= (max_val * cutoff):
+            relevant_transition_list += [transition]
+    return relevant_transition_list
+
+
 class TASPlotter:
     """
     Class to generate a matplotlib plot of the TAS or JDOS spectra, with a specific energy
@@ -66,11 +78,10 @@ class TASPlotter:
                 only write the bands involved [(-1,6),(2,7),(-8,-5)...] If spin-polarised,
                 include the type of spin involved in transition
                 [(-1,6, "down"),(2,7, "down"),(-8,-5, "up")...]
-                Default is 'auto' mode, which shows the band transitions with the 3 highest
-                absorption values (overall across all k-points).
+                Default is 'auto' mode, which shows all band transitions above the transition_cutoff.
             xaxis: Units for the energy mesh. Either in wavelengths or energy.
-            transition_cutoff: The minimum height of the band transition as a percentage threshold compared to the most
-                contributing transition. Default is set at 3%.
+            transition_cutoff: The minimum height of the band transition as a percentage threshold of the most
+                contributing transition (Across all kpoints, within the energy range specified). Default is 3%.
             xmin: Minimum energy point in mesh (float64)
             xmax: Maximum energy point in mesh (float64)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
@@ -133,12 +144,10 @@ class TASPlotter:
 
             if relevant_transitions == "auto":
 
-                max_abs_vals = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in self.tas_decomp.items()}
-                max_val = max(max_abs_vals.values())
-                for transition, value in max_abs_vals.items():
-                    if value >= (max_val * transition_cutoff):
-                        plt.plot(energy_mesh[xmin_ind:xmax_ind], self.tas_decomp[transition][xmin_ind:xmax_ind],
-                                 label=transition)
+                relevant_transition_list = cutoff_transitions(self.tas_decomp, transition_cutoff, xmin_ind, xmax_ind)
+                for transition in relevant_transition_list:
+                    plt.plot(energy_mesh[xmin_ind:xmax_ind], self.tas_decomp[transition][xmin_ind:xmax_ind],
+                             label=transition)
 
             else:
                 for transition in relevant_transitions:
@@ -164,17 +173,15 @@ class TASPlotter:
 
             if relevant_transitions == "auto":
 
-                max_abs_vals_jd_light = {key: np.max(abs(val[xmin_ind:xmax_ind])) for key, val in
-                                         self.jdos_light_decomp.items()}
-                max_val_jd_light = max(max_abs_vals_jd_light.values())
-                for transition_jd, value_jd in max_abs_vals_jd_light.items():
-                    if value_jd >= (max_val_jd_light * transition_cutoff):
-                        plt.plot(energy_mesh[xmin_ind:xmax_ind],
-                                 self.jdos_light_decomp[transition_jd][xmin_ind:xmax_ind],
-                                 label=str(transition_jd) + "(light)")
-                        plt.plot(energy_mesh[xmin_ind:xmax_ind],
-                                 self.jdos_dark_decomp[transition_jd][xmin_ind:xmax_ind],
-                                 label=str(transition_jd) + "(dark)")
+                relevant_transition_list = cutoff_transitions(self.jdos_light_decomp, transition_cutoff, xmin_ind,
+                                                              xmax_ind)
+                for transition_jd in relevant_transition_list:
+                    plt.plot(energy_mesh[xmin_ind:xmax_ind],
+                             self.jdos_light_decomp[transition_jd][xmin_ind:xmax_ind],
+                             label=str(transition_jd) + "(light)")
+                    plt.plot(energy_mesh[xmin_ind:xmax_ind],
+                             self.jdos_dark_decomp[transition_jd][xmin_ind:xmax_ind],
+                             label=str(transition_jd) + "(dark)")
 
             else:
                 for transition in relevant_transitions:
@@ -208,14 +215,14 @@ class TASPlotter:
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
 
-        if (self.material_name != None) and (self.temp != None) and (self.conc != None):
+        if (self.material_name is not None) and (self.temp is not None) and (self.conc is not None):
             plt.title(
                 abs_label
                 + " spectrum of "
                 + self.material_name
                 + " at T = "
                 + str(self.temp)
-                + " K, n = "
+                + " K, n = $cm^{-3}$"
                 + str(self.conc)
             )
 

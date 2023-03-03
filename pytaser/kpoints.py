@@ -1,5 +1,6 @@
 import numpy as np
 from pymatgen.core import Structure
+from pymatgen.electronic_structure import BandstructureSymmLine
 
 
 def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
@@ -14,6 +15,9 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
     Returns:
         k-point_weights
     """
+    if isinstance(bandstructure, BandstructureSymmLine):
+        raise TypeError("This bandstructure object uses a line-mode kpoint mesh instead of a uniform mesh. Kpoint "
+                        "weighting is not possible")
 
     kpoints = get_kpoints_from_bandstructure(bandstructure)
     _, _, _, _, _, kp_mapping = expand_kpoints(
