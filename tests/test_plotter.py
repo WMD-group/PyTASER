@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from pytaser.kpoints import get_kpoint_weights
 from pytaser import plotter
-from pytaser.plotter import TASPlotter
+from pytaser.plotter import TASPlotter, ev_to_lambda, lambda_to_ev
 from pytaser.tas import Tas
 from monty.serialization import loadfn
 import os
@@ -21,13 +21,6 @@ def test_lamda_to_ev():
     assert round(lambda_to_ev(input_lamda), 2) == 2.5
 
 
-# import the tas_object and conditions globally from test_generator
-@pytest.fixture
-def plotter_gaas(tas_object, conditions):
-    return TASPlotter(tas_object, bandgap_ev=conditions[2], material_name='GaAs', temp=conditions[0],
-                      conc=conditions[1])
-
-
 def test_cutoff_transitions(plotter_gaas):
     highest_transitions = [(-2, 1), (-1, 1), (0, 1)]
     highest_transitions.sort()
@@ -39,8 +32,10 @@ def test_cutoff_transitions(plotter_gaas):
 
 def test_get_plot(plotter_gaas):
     assert plotter_gaas.bandgap_lambda == plotter.ev_to_lambda(plotter_gaas.bandgap_ev)
-    assert plotter_gaas.energy_mesh_lambda == plotter.ev_to_lambda(plotter_gaas.energy_mesh_ev)
+    assert plotter_gaas.energy_mesh_lambda.all() == plotter.ev_to_lambda(plotter_gaas.energy_mesh_ev).all()
 
+#to run the following image comparison tests and see relative differences, use the CLI
+# "<pytest --mpl --mpl-generate-summary=html test_plotter.py>"
 
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
