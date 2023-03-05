@@ -17,7 +17,6 @@ def test_gaussian(gaussian_example):
 
 
 def test_set_bandgap(conditions):
-    # assert type(old) == list
     old_bs = loadfn('data_gaas/gaas_2534_bs.json')
     old_dos = loadfn('data_gaas/gaas_2534_dos.json')
     new_bs = loadfn('data_gaas/new_gaas_2534_bs.json')
