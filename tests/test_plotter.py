@@ -1,10 +1,6 @@
 import pytest
-import numpy as np
-from pytaser.kpoints import get_kpoint_weights
 from pytaser import plotter
-from pytaser.plotter import TASPlotter, ev_to_lambda, lambda_to_ev
-from pytaser.tas import Tas
-from monty.serialization import loadfn
+from pytaser.plotter import ev_to_lambda, lambda_to_ev
 import os
 
 _file_path = os.path.dirname(__file__)
