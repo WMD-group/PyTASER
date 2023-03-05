@@ -27,7 +27,6 @@ def test_cutoff_transitions(plotter_gaas):
     relevant_transitions = plotter.cutoff_transitions(plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1)
     relevant_transitions.sort()
     assert relevant_transitions == highest_transitions
-    # make sure when testing that highest_transitions is any order - we want to just make sure it is in the list.
 
 
 def test_get_plot(plotter_gaas):
@@ -40,7 +39,6 @@ def test_get_plot(plotter_gaas):
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
     filename="tas_ev_gaas.png",
-    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_ev(plotter_gaas):
@@ -60,7 +58,6 @@ def test_get_plot_tas_ev(plotter_gaas):
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
     filename="tas_lambda_gaas.png",
-    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_lambda(plotter_gaas):
@@ -80,7 +77,6 @@ def test_get_plot_tas_lambda(plotter_gaas):
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
     filename="jdos_ev_gaas.png",
-    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_ev(plotter_gaas):
@@ -100,7 +96,6 @@ def test_get_plot_jdos_ev(plotter_gaas):
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
     filename="jdos_lambda_gaas.png",
-    # style=f"{_file_path}/../shakenbreak/shakenbreak.mplstyle",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_lambda(plotter_gaas):
