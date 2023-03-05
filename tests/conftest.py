@@ -1,5 +1,4 @@
 import pytest
-# from . import pytaser
 from pytaser.generator import TASGenerator
 from pytaser.plotter import TASPlotter
 from monty.serialization import loadfn
