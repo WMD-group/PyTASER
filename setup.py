@@ -1,5 +1,5 @@
 """"
-PyTASER: Post-DFT TAS spectrum classification tool.
+PyTASER: TAS prediction tool
 """
 
 from setuptools import find_packages, setup
@@ -10,7 +10,7 @@ with open("README.md") as file:
 setup(
     name="pytaser",
     version="0.1.0",
-    description="Post-DFT TAS spectrum classification tool",
+    description="TAS prediction tool",
     url="https://github.com/WMD-group/PyTASER",
     author="Savyasanchi Aggarwal",
     author_email="sa13018@ic.ac.uk",
