@@ -16,8 +16,10 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
         k-point_weights
     """
     if isinstance(bandstructure, BandStructureSymmLine):
-        raise TypeError("This bandstructure object uses a line-mode kpoint mesh instead of a uniform mesh. Kpoint "
-                        "weighting is not possible")
+        raise TypeError(
+            "This bandstructure object uses a line-mode kpoint mesh instead of a uniform mesh. Kpoint "
+            "weighting is not possible"
+        )
 
     kpoints = get_kpoints_from_bandstructure(bandstructure)
     _, _, _, _, _, kp_mapping = expand_kpoints(
@@ -155,7 +157,9 @@ def get_reciprocal_point_group_operations(
     sga = SpacegroupAnalyzer(structure, symprec=symprec)
     if sga.get_symmetry_dataset() is None:
         # sometimes default angle tolerance doesn't work as expected
-        sga = SpacegroupAnalyzer(structure, symprec=symprec, angle_tolerance=-1)
+        sga = SpacegroupAnalyzer(
+            structure, symprec=symprec, angle_tolerance=-1
+        )
 
     rotations = sga.get_symmetry_dataset()["rotations"].transpose((0, 2, 1))
     translations = sga.get_symmetry_dataset()["translations"]
@@ -171,6 +175,8 @@ def get_reciprocal_point_group_operations(
         is_tr = is_tr[unique_ops]
 
     # put identity first and time-reversal last
-    sort_idx = np.argsort(np.abs(rotations - np.eye(3)).sum(axis=(1, 2)) + is_tr * 10)
+    sort_idx = np.argsort(
+        np.abs(rotations - np.eye(3)).sum(axis=(1, 2)) + is_tr * 10
+    )
 
     return rotations[sort_idx], translations[sort_idx], is_tr[sort_idx]

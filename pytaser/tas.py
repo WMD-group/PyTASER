@@ -27,7 +27,7 @@ class Tas:
         jdos_dark_total,
         jdos_dark_decomp,
         energy_mesh_ev,
-        bandgap_ev
+        bandgap_ev,
     ):
         self.total_tas = total_tas
         self.tas_decomp = tas_decomp
