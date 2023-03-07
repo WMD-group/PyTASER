@@ -40,7 +40,7 @@ def test_get_plot(plotter_gaas):
 
 
 # to run the following image comparison tests and see relative differences, use the CLI
-# "<pytest --mpl --mpl-generate-summary=html test_plotter.py>"
+# <pytest --mpl --mpl-generate-summary=html test_plotter.py>
 
 
 @pytest.mark.mpl_image_compare(
