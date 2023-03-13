@@ -1,8 +1,8 @@
 pytaser package
-==============
+===============
 
 pytaser.generator module
------------------------
+--------------------------
 
 .. automodule:: pytaser.generator
    :members:

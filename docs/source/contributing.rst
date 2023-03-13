@@ -13,8 +13,7 @@ transparent as possible, whether it's:
 Reporting bugs, getting help, and discussion
 --------------------------------------------
 
-Please submit questions to the dedicated PyTASER `help forum <>`__.
-Bug reports should be directed to the `GitHub issues page <https://github.com/WMD-group/PyTASER/issues>`__.
+Please submit questions and bug reports to the `GitHub issues page <https://github.com/WMD-group/PyTASER/issues>`__.
 
 If you are making a bug report, incorporate as many elements of the
 following as possible to ensure a timely response and avoid the
@@ -38,7 +37,7 @@ Contributing code modifications or additions through Github
 We use github to host code, to track issues and feature requests,
 as well as accept pull requests. We maintain a list of all
 contributors `here
-<>`__.
+<https://pytaser.readthedocs.io/en/latest/contributors.html>`__.
 
 Pull requests are the best way to propose changes to the codebase.
 Follow the `Github flow
@@ -62,12 +61,12 @@ We have a few tips for writing good PRs that are accepted into the main repo:
 - Your code should have (4) spaces instead of tabs.
 - If needed, update the documentation.
 - **Write tests** for new features! Good tests are 100%, absolutely necessary
-  for good code. We use the python ``unittest`` framework -- see some of the
+  for good code. We use the python ``pytest`` framework -- see some of the
   other tests in this repo for examples, or review the `Hitchhiker's guide
   to python <https://docs.python-guide.org/writing/tests/>`__ for some good
   resources on writing good tests.
 - Understand your contributions will fall under the same license as this repo.
 
-When you submit your PR, our CI service will automatically run your tests.
+When you submit your PR, our CI service will automatically run tests.
 We welcome good discussion on the best ways to write your code, and the comments
 on your PR are an excellent area for discussion.
