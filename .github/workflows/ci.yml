@@ -1,4 +1,4 @@
-name: PyTASER CI
+name: tests
 
 on: [push]
 

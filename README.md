@@ -1,6 +1,9 @@
 [![Documentation Status](https://readthedocs.org/projects/pytaser/badge/?version=latest)](https://pytaser.readthedocs.io/en/latest/?badge=latest)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![tests](https://github.com/WMD-Group/PyTASER/actions/workflows/ci.yml/badge.svg)](https://github.com/WMD-Group/PyTASER/actions)
+[![pypi](https://img.shields.io/pypi/v/pytaser)](https://pypi.org/project/pytaser)
+
 
 # PyTASER
 
@@ -10,7 +13,7 @@
 
 [Documentation](https://pytaser.readthedocs.io/en/latest/)
 
-PyTASER is a Python (3.9+) library and set of command-line tools for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
+PyTASER is a Python (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
 
 * A TAS spectrum for a pristine semiconducting crystal
 * Components from individual band-to-band transitions
@@ -41,11 +44,30 @@ PyTASER is currently compatible with Python 3.9+ and relies on a number of open-
 * [numpy](https://numpy.org/), [scipy](https://scipy.org/) for data structures and unit conversion
 * [matplotlib](https://matplotlib.org/) for plotting the spectra
 
+# Developer’s installation (optional)
+
+For development work, PyTASER can also be installed from a copy of the source directory:
+
+Download PyTASER source code using the command:
+```
+git clone https://github.com/WMD-group/PyTASER
+```
+Navigate to root directory:
+```
+cd PyTASER
+```
+Install the code with the command:
+```
+pip install -e .
+```
+This command tries to obtain the required packages and their dependencies and install them automatically.
+
 # Visualisation 
 
-Once the library is installed, please setup a file as done in the examples provided. Then just run it as a python file:
+The preferred method is to generate a Jupyter Notebook, as shown in the [examples](https://github.com/WMD-group/PyTASER/blob/main/examples/GaAs.ipynb) folder.
+Alternatively, you can set up a file in Python to run it in the command line of the terminal:
 ```
-python3 filename.py
+python3 <filename.py>
 ```
 
 # Contributing
