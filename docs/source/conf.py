@@ -48,7 +48,7 @@ extensions = [
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []  # ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -57,22 +57,23 @@ exclude_patterns = []  # ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = "sphinx_book_theme"  # "sphinx_rtd_theme"
 # "sphinx_book_theme"  #
+
+html_theme_options = {
+    "repository_url": "https://github.com/WMD-group/PyTASER",
+    # "repository_branch": "main",
+    "path_to_docs": "docs",
+    "use_repository_button": True,
+    "use_issues_button": True,
+    "use_edit_page_button": True, # add button to suggest edits
+    "home_page_in_toc": True,
+}
+
 html_logo = "_static/PyTASER.png"
 html_title = "PyTASER"
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
 html_use_smartypants = True
-
-# html_theme_options = {
-#     "repository_url": "https://github.com/WMD-group/PyTASER",
-#     "repository_branch": "develop",
-#     "path_to_docs": "docs",
-#     "use_repository_button": True,
-#     "use_issues_button": True,
-#     "use_edit_page_button": True,  # add button to suggest edits
-#     "home_page_in_toc": True,
-# }
 
 html_context = {
     "display_github": True,

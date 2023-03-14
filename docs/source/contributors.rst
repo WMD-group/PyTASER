@@ -1,7 +1,7 @@
 Contributors
 ============
 
-PyTASER was developed by **Savyasanchi Aggarwal** |savya10| and
+``PyTASER`` was developed by **Savyasanchi Aggarwal** |savya10| and
 **Alex Ganose** |utf| |0000-0002-4486-3321|.
 The project was designed and led by **Aron Walsh** |aronwalsh| |0000-0001-5460-7033| at Imperial
 College London.

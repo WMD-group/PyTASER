@@ -26,7 +26,7 @@ Welcome to PyTASER's documentation!
 Introduction
 ============
 
-PyTASER is a Python (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
+``PyTASER`` is a ``Python`` (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
 
 * An interactive TAS spectrum for a pristine semiconducting crystal
 * Isolated spectra for individual band transitions
@@ -44,7 +44,7 @@ The drawback is that TAS spectra are difficult to interpret, especially for crys
 Installation
 ============
 
-To install the module with pip *(recommended)*:
+To install the module with ``pip`` *(recommended)*:
 
 .. code::
 
@@ -66,9 +66,9 @@ To do a manual build and installation:
 Developer’s installation (optional)
 ===================================
 
-For development work, PyTASER can also be installed from a copy of the source directory:
+For development work, ``PyTASER`` can also be installed from a copy of the source directory:
 
-Download PyTASER source code using the command:
+Download ``PyTASER`` source code using the command:
 
 .. code::
 
@@ -91,7 +91,7 @@ This command tries to obtain the required packages and their dependencies and in
 Dependencies
 ============
 
-PyTASER is currently compatible with Python 3.9+ and relies on a number of open-source python packages, specifically:
+``PyTASER`` is currently compatible with ``Python 3.9+`` and relies on a number of open-source python packages, specifically:
 
 * `pymatgen <https://pymatgen.org/index.html>`__
 * `numpy <https://numpy.org/>`__, `scipy <https://scipy.org/>`__ for data structures and unit conversion
@@ -100,8 +100,8 @@ PyTASER is currently compatible with Python 3.9+ and relies on a number of open-
 Visualisation
 =============
 
-The preferred method is to generate a Jupyter Notebook, as shown in the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/GaAs.ipynb>`__ folder.
-Alternatively, you can setup a file in Python to run it in the command line of the terminal:
+The preferred method is to generate a ``Jupyter`` Notebook, as shown in the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/GaAs.ipynb>`__ folder.
+Alternatively, you can setup a ``Python`` file to run it in the command line of the terminal:
 
 .. code::
 
@@ -111,7 +111,7 @@ Contributing
 ============
 
 We appreciate any contributions in the form of a pull request.
-Additional test cases/example spectra performed with PyTASER would be welcomed.
+Additional test cases/example spectra performed with ``PyTASER`` would be welcomed.
 Please feel free to reach out to us if there are any questions or suggestions.
 
 Future topics we plan to build on:
@@ -129,15 +129,12 @@ Acknowledgements
 Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design the project. Thanks to group members for their support, especially Youngwon Woo, Anahita Mychala and Liam Harnett-Caulfield.
 
 
-
-Contents
-========
-
 .. toctree::
    :maxdepth: 1
    :caption: Usage Guide
+   :hidden:
 
-   introduction
+   index
    gaas_example
 
 .. toctree::
@@ -151,15 +148,11 @@ Contents
    PyTASER on GitHub <https://github.com/WMD-group/PyTASER>
 
 .. toctree::
-   :maxdepth: 1
+   :hidden:
+   :maxdepth: 4
    :caption: Function Reference
 
    API reference <pytaser>
    genindex
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

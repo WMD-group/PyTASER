@@ -50,8 +50,8 @@ def set_bandgap(bandstructure, dos, bandgap):
 
     scissor = bandgap - bandstructure.get_band_gap()["energy"]
     midgap = (
-        bandstructure.get_cbm()["energy"] + bandstructure.get_vbm()["energy"]
-    ) / 2
+                     bandstructure.get_cbm()["energy"] + bandstructure.get_vbm()["energy"]
+             ) / 2
 
     new_bandstructure = deepcopy(bandstructure)
     for spin, spin_energies in bandstructure.bands.items():
@@ -67,12 +67,12 @@ def set_bandgap(bandstructure, dos, bandgap):
         dens = np.zeros_like(dos.energies)
         if shift > 0:
             dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
-            dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
+            dens[fermi_idx + shift:] = dos.densities[spin][fermi_idx:-shift]
         else:
-            dens[abs(shift) : fermi_idx] = dos.densities[spin][
-                : fermi_idx + shift
-            ]
-            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
+            dens[abs(shift): fermi_idx] = dos.densities[spin][
+                                          : fermi_idx + shift
+                                          ]
+            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift:]
         new_dos.densities[spin] = dens
 
     new_bandstructure.efermi = midgap
@@ -106,7 +106,7 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         init_occ = occs[i][k]
         k_weight = kweights[k]
         factor = k_weight * (
-            (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
+                (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
         )
         jdos += factor * gaussian(
             energies, gaussian_width, center=final_energy - init_energy
@@ -214,15 +214,15 @@ class TASGenerator:
         return occs
 
     def generate_tas(
-        self,
-        temp,
-        conc,
-        energy_min=0,
-        energy_max=5,
-        gaussian_width=0.1,
-        step=0.01,
-        light_occs=None,
-        dark_occs=None,
+            self,
+            temp,
+            conc,
+            energy_min=0,
+            energy_max=5,
+            gaussian_width=0.1,
+            step=0.01,
+            light_occs=None,
+            dark_occs=None,
     ):
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
