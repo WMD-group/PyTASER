@@ -39,5 +39,18 @@ setup(
         "matplotlib",
         "pymatgen>=2017.12.30",
     ],
+    extras_require={
+        "tests": [
+            "pytest>=7.1.3",
+            "pytest-mpl==0.15.1",
+        ]
+        "docs": [
+            "sphinx"
+            "sphinx-book-theme"
+            "sphinx-rtd-theme"
+            "sphinx_click"
+            "sphinx_design"
+        ]
+    }
     data_files=["LICENSE"],
 )
