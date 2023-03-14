@@ -78,7 +78,7 @@ Navigate to root directory:
 
 .. code::
 
-    cd ShakeNBreak
+    cd PyTASER
 
 Install the code with the command:
 
@@ -100,7 +100,7 @@ Dependencies
 Visualisation
 =============
 
-The preferred method is to generate a ``Jupyter`` Notebook, as shown in the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/GaAs.ipynb>`__ folder.
+The preferred method is to generate a ``Jupyter`` Notebook, as shown in the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/>`__ folder.
 Alternatively, you can setup a ``Python`` file to run it in the command line of the terminal:
 
 .. code::
@@ -134,7 +134,6 @@ Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design t
    :caption: Usage Guide
    :hidden:
 
-   index
    gaas_example
 
 .. toctree::

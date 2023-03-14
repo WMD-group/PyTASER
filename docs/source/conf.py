@@ -36,6 +36,8 @@ extensions = [
     "sphinx_book_theme",
     "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_toggleprompt",
     "nbsphinx",
@@ -61,7 +63,7 @@ html_theme = "sphinx_book_theme"  # "sphinx_rtd_theme"
 html_theme_options = {
     "repository_url": "https://github.com/WMD-group/PyTASER",
     # "repository_branch": "main",
-    "path_to_docs": "docs",
+    "path_to_docs": "docs/source",
     "use_repository_button": True,
     "use_issues_button": True,
     "use_edit_page_button": True, # add button to suggest edits

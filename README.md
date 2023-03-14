@@ -11,7 +11,7 @@
 
 ***The library is undergoing changes before it is released*** 
 
-[Documentation](https://pytaser.readthedocs.io/en/latest/)
+[Official Documentation](https://pytaser.readthedocs.io/en/latest/)
 
 PyTASER is a Python (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
 

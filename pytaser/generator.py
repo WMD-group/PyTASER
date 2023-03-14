@@ -239,21 +239,21 @@ class TASGenerator:
             dark_occs: Optional input parameter for occupancies of material in dark [dict]
 
         Returns:
-            TAS class containing the following inputs:
-                tas_cumulative: overall deltaT TAS spectrum for a material under the
-                    specified conditions
-                tas_if: deltaT TAS spectrum across the energy mesh for a specific band
+            TAS class containing the following inputs;
+                - tas_cumulative: overall deltaT TAS spectrum for a material under the
+                    specified conditions.
+                - tas_if: deltaT TAS spectrum across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
-                jdos_light_cumulative: overall JDOS (pump-on) for a material under the
+                - jdos_light_cumulative: overall JDOS (pump-on) for a material under the
                     specified conditions
-                jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
+                - jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
-                jdos_dark_cumulative: overall JDOS (pump-off) for a material under the
+                - jdos_dark_cumulative: overall JDOS (pump-off) for a material under the
                     specified conditions
-                jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
+                - jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
-                energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
-                bandgap_ev: Bandgap of the system, in eV, rounded to 2 decimal points.
+                - energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
+                - bandgap_ev: Bandgap of the system, in eV, rounded to 2 decimal points
         """
         occs_light = light_occs
         occs_dark = dark_occs
