@@ -103,7 +103,7 @@ class TASPlotter:
         """
         energy_mesh = 0
         bg = 0
-        plt.figure(figsize=(8, 5))
+        plt.figure(figsize=(12, 8))
 
         xmin_ind = 0
         xmax_ind = -1
@@ -115,7 +115,7 @@ class TASPlotter:
             if xmax is not None:
                 xmin_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap_lambda
-            plt.xlabel("Wavelength (nm)")
+            plt.xlabel("Wavelength (nm)", fontsize=30)
 
         elif xaxis == "energy":
             energy_mesh = self.energy_mesh_ev
@@ -124,7 +124,7 @@ class TASPlotter:
             if xmax is not None:
                 xmax_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap_ev
-            plt.xlabel("Energy (eV)")
+            plt.xlabel("Energy (eV)", fontsize=30)
 
         if xmin is not None:
             if xmin < np.min(energy_mesh):
@@ -160,7 +160,7 @@ class TASPlotter:
                 self.tas_tot[xmin_ind:xmax_ind],
                 label="total TAS",
                 color="black",
-                lw=2.5,
+                lw=3.5,
             )
 
             if relevant_transitions == "auto":
@@ -172,6 +172,7 @@ class TASPlotter:
                         energy_mesh[xmin_ind:xmax_ind],
                         self.tas_decomp[transition][xmin_ind:xmax_ind],
                         label=transition,
+                        lw=2.5
                     )
 
             else:
@@ -180,6 +181,7 @@ class TASPlotter:
                         energy_mesh[xmin_ind:xmax_ind],
                         self.tas_decomp[transition][xmin_ind:xmax_ind],
                         label=transition,
+                        lw=2.5
                     )
 
         elif yaxis == "jdos":
@@ -189,14 +191,14 @@ class TASPlotter:
                 self.jdos_light_tot[xmin_ind:xmax_ind],
                 label="JDOS (light)",
                 color="black",
-                lw=1.5,
+                lw=2.5,
             )
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
                 self.jdos_dark_tot[xmin_ind:xmax_ind],
                 label="JDOS (dark)",
                 color="blue",
-                lw=1.5,
+                lw=2.5,
             )
 
             if relevant_transitions == "auto":
@@ -266,9 +268,12 @@ class TASPlotter:
                 + " at T = "
                 + str(self.temp)
                 + " K, n = $cm^{-3}$"
-                + str(self.conc)
+                + str(self.conc),
+                fontsize=25
             )
 
-        plt.legend(loc="best")
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        plt.legend(loc="center left", bbox_to_anchor=(1.04, 0.5),fontsize=16)
 
         return plt
