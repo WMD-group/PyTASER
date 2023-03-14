@@ -7,7 +7,7 @@
 Welcome to PyTASER's documentation!
 ===================================
 
-.. image:: https://github.com/WMD-Group/PyTASER/actions/workflows/ci.yml/badge.svg
+.. image:: https://github.com/WMD-Group/PyTASER/actions/workflows/build_and_test.yml/badge.svg
  :target: https://github.com/WMD-Group/PyTASER/actions
 
 .. image:: https://readthedocs.org/projects/pytaser/badge/?version=latest&style=flat

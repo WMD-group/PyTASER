@@ -42,7 +42,7 @@ jobs:
           pip show -V pytest
       - name: Test
         run:  |
-          pytest --mpl tests/test_generator.py  # test generator
+          pytest tests/test_generator.py  # test generator
           pytest --mpl tests/test_plotter.py  # test output plots
           # To generate the test plots:
           # pytest --mpl-generate-path=tests/remote_baseline tests/test_plotter.py  # generate output plots
