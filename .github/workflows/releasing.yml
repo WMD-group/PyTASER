@@ -28,8 +28,8 @@ jobs:
 
       - name: Test
         run:  |
-          pytest tests/test_generator.py  # test generator
-          pytest --mpl tests/test_plotting.py  # test plots
+          pytest --import-mode=append tests/test_generator.py  # test generator
+          pytest --mpl --import-mode=append tests/test_plotting.py  # test plots
 
       - name: Build packages
         run: |

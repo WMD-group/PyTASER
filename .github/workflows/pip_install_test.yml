@@ -35,6 +35,6 @@ jobs:
 
       - name: Test
         run:  |
-          pytest tests/test_generator.py  # test generator
-          pytest --mpl tests/test_plotter.py  # test plots
+          pytest --import-mode=append tests/test_generator.py  # test generator
+          pytest --mpl --import-mode=append tests/test_plotter.py  # test plots
           # pytest --mpl-generate-path=tests/remote_baseline tests/test_plotter.py  # generate output plots
