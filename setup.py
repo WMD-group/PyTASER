@@ -36,7 +36,7 @@ setup(
     install_requires=[
         "numpy",
         "scipy",
-        "matplotlib",
+        "matplotlib>=3.7.1",
         "pymatgen>=2017.12.30",
         "setuptools"
     ],
