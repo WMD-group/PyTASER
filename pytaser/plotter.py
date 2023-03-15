@@ -217,7 +217,7 @@ class TASPlotter:
                 + str(self.temp)
                 + " K, n = "
                 + str(self.conc)
-            ,fontsize=25)
+            ,fontsize=30)
 
         plt.xticks(fontsize=30)
         plt.yticks(fontsize=30)
