@@ -3,6 +3,13 @@ from monty.serialization import loadfn
 
 from pytaser.generator import TASGenerator
 from pytaser.plotter import TASPlotter
+from pathlib import Path
+
+
+@pytest.fixture(scope="package")
+def datapath_gaas():
+    """Path to data_gaas folder"""
+    return Path(__file__).parent / 'data_gaas'
 
 
 @pytest.fixture(scope="package")
@@ -11,10 +18,10 @@ def conditions():  # return [temperature, carrier conc, bandgap] in that order
 
 
 @pytest.fixture(scope="package")
-def generated_class():
-    gaas_bs = loadfn("data_gaas/new_gaas_2534_bs.json")
-    gaas_dos = loadfn("data_gaas/new_gaas_2534_dos.json")
-    kweights = loadfn("data_gaas/gaas_kweights.json")
+def generated_class(datapath_gaas):
+    gaas_bs = loadfn(datapath_gaas / "new_gaas_2534_bs.json")
+    gaas_dos = loadfn(datapath_gaas / "new_gaas_2534_dos.json")
+    kweights = loadfn(datapath_gaas / "gaas_kweights.json")
     return TASGenerator(gaas_bs, kweights, gaas_dos)
 
 

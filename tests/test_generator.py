@@ -8,23 +8,19 @@ from unittest import mock
 from pytaser import generator
 from pytaser.generator import TASGenerator, set_bandgap
 
-gaussian = loadfn("data_gaas/gaussian_123.json")
 
-
-@pytest.mark.parametrize(
-    "gaussian_example", loadfn("data_gaas/gaussian_123.json")
-)
-def test_gaussian(gaussian_example):
+def test_gaussian(datapath_gaas):
+    gaussian_example = loadfn(datapath_gaas / "gaussian_123.json")
     x = np.array([1, 2, 3])
     width = 0.1
     assert generator.gaussian(x, width).all() == gaussian_example.all()
 
 
-def test_set_bandgap(conditions):
-    old_bs = loadfn("data_gaas/gaas_2534_bs.json")
-    old_dos = loadfn("data_gaas/gaas_2534_dos.json")
-    new_bs = loadfn("data_gaas/new_gaas_2534_bs.json")
-    new_dos = loadfn("data_gaas/new_gaas_2534_dos.json")
+def test_set_bandgap(datapath_gaas, conditions):
+    old_bs = loadfn(datapath_gaas / "gaas_2534_bs.json")
+    old_dos = loadfn(datapath_gaas / "gaas_2534_dos.json")
+    new_bs = loadfn(datapath_gaas / "new_gaas_2534_bs.json")
+    new_dos = loadfn(datapath_gaas / "new_gaas_2534_dos.json")
     bs_new, dos_new = set_bandgap(old_bs, old_dos, conditions[2])
     assert bs_new.nb_bands == new_bs.nb_bands
     assert bs_new.get_band_gap() == new_bs.get_band_gap()
@@ -164,10 +160,10 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
 
 
 @mock.patch("pymatgen.ext.matproj.MPRester")
-def test_from_mpid(mocker, generated_class, conditions):
+def test_from_mpid(mocker, datapath_gaas, generated_class, conditions):
     mock_mpr = mocker.Mock()
-    mock_mpr.get_dos_by_material_id.return_value = loadfn("data_gaas/gaas_2534_dos.json")
-    mock_mpr.get_bandstructure_by_material_id.return_value = loadfn("data_gaas/gaas_2534_bs.json")
+    mock_mpr.get_dos_by_material_id.return_value = loadfn(datapath_gaas / "gaas_2534_dos.json")
+    mock_mpr.get_bandstructure_by_material_id.return_value = loadfn(datapath_gaas / "gaas_2534_bs.json")
 
     gaas2534 = TASGenerator.from_mpid("mp-2534", conditions[2], mpr=mock_mpr)
     mock_mpr.get_dos_by_material_id.assert_called_once_with('mp-2534')

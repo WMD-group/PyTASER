@@ -42,10 +42,12 @@ jobs:
           pip show -V pytest
       - name: Test
         run:  |
-          pytest --import-mode=append tests/test_generator.py  # test generator
-          pytest --mpl --import-mode=append tests/test_plotter.py  # test output plots
+          pytest tests/test_generator.py  # test generator
+          pytest --mpl tests/test_plotter.py  # test output plots
           # To generate the test plots:
-          # pytest --mpl-generate-path=tests/remote_baseline tests/test_plotter.py  # generate output plots
+          # pytest --mpl-generate-path=tests/data_gaas/remote_baseline_plots tests/test_plotter.py  # generate output plots
+          # to run the following image comparison tests and see relative differences, use the CLI
+          # pytest --mpl --mpl-generate-summary=html tests/test_plotter.py
 
       # Download test plots
       # - name: Archive test plots
