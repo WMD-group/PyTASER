@@ -29,7 +29,7 @@ jobs:
       - name: Test
         run:  |
           pytest tests/test_generator.py  # test generator
-          pytest --mpl tests/test_plotting.py  # test plots
+          pytest --mpl tests/test_plotter.py  # test plots
           # pytest --mpl-generate-path=tests/data_gaas/remote_baseline tests/test_plotter.py  # generate output plots
           # to run the following image comparison tests and see relative differences, use the CLI
           # pytest --mpl --mpl-generate-summary=html tests/test_plotter.py
