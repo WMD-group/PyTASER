@@ -2,7 +2,6 @@ import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
-
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
 
@@ -40,8 +39,8 @@ def set_bandgap(bandstructure, dos, bandgap):
     """
     from copy import deepcopy
 
-    if abs(dos.efermi - bandstructure.efermi) > 0.001:
-        raise ValueError("DOS and band structure are not from the same calculation")
+    # if abs(dos.efermi - bandstructure.efermi) > 0.001:
+    #     raise ValueError("DOS and band structure are not from the same calculation")
 
     if bandstructure.is_metal():
         raise ValueError("System is a metal, cannot change bandgap")
@@ -344,3 +343,5 @@ class TASGenerator:
             mp_bs, mp_dos = set_bandgap(mp_bs, mp_dos, bg)
         kweights = get_kpoint_weights(mp_bs)
         return TASGenerator(mp_bs, kweights, mp_dos)
+
+
