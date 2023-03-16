@@ -134,7 +134,7 @@ Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design t
    :caption: Usage Guide
    :hidden:
 
-   gaas_example
+   examples
 
 .. toctree::
    :caption: Information
