@@ -272,8 +272,8 @@ class TASPlotter:
                 fontsize=25
             )
 
-        plt.xticks(fontsize=25)
-        plt.yticks(fontsize=25)
+        plt.xticks(fontsize=30)
+        plt.yticks(fontsize=30)
         plt.legend(loc="center left", bbox_to_anchor=(1.04, 0.5),fontsize=16)
 
         return plt
