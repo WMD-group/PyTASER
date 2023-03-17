@@ -237,7 +237,7 @@ class TASPlotter:
                         label=str(transition) + " (dark)",
                     )
 
-        plt.ylabel(abs_label)
+        plt.ylabel(abs_label, fontsize=30)
         y_axis_min, y_axis_max = plt.gca().get_ylim()
 
         if ymax is None:
