@@ -267,8 +267,9 @@ class TASPlotter:
                 + self.material_name
                 + " at T = "
                 + str(self.temp)
-                + " K, n = $cm^{-3}$"
-                + str(self.conc),
+                + " K, n = "
+                + str(self.conc)
+                + "$cm^{-3}$",
                 fontsize=25
             )
 
