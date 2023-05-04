@@ -20,8 +20,8 @@ def lambda_to_ev(lambda_float):
 
 
 def cutoff_transitions(dictionary, cutoff, ind_xmin, ind_xmax):
-    """Output a list of transitions from a dict corresponding to those that fall within a percentage threshold of the
-    maximum value transition."""
+    """Output a list of transitions from a dict, with any that fall below a percentage cutoff of
+    the maximum value transition set to None."""
     max_abs_val = {
         key: np.max(abs(val[ind_xmin:ind_xmax]))
         for key, val in dictionary.items()
@@ -31,6 +31,8 @@ def cutoff_transitions(dictionary, cutoff, ind_xmin, ind_xmax):
     for transition, value in max_abs_val.items():
         if value >= (max_val * cutoff):
             relevant_transition_list += [transition]
+        else:
+            relevant_transition_list += [None]
     return relevant_transition_list
 
 
@@ -172,15 +174,16 @@ class TASPlotter:
 
                 # group transitions with (almost) equal energies:
                 groups = defaultdict(list)
-                for transition in relevant_transition_list:
-                    tas_curve = self.tas_decomp[transition][xmin_ind:xmax_ind]
-                    tas_area = np.trapz(tas_curve, energy_mesh[xmin_ind:xmax_ind])
-                    # group by position of max point and area under curve (to account for
-                    # possibility of degeneracy at max point, but not for the full curve (if e.g.
-                    # two bands are degenerate at a single kpoint but not across the BZ)
-                    groups[f"{np.argmax(np.abs(tas_curve))}, {tas_area:.2f}"].append(
-                        (transition, tas_curve)
-                    )
+                for index, transition in enumerate(relevant_transition_list):
+                    if transition is not None:
+                        tas_curve = self.tas_decomp[transition][xmin_ind:xmax_ind]
+                        tas_area = np.trapz(tas_curve, energy_mesh[xmin_ind:xmax_ind])
+                        # group by position of max point and area under curve (to account for
+                        # possibility of degeneracy at max point, but not for the full curve (if
+                        # e.g. two bands are degenerate at a single kpoint but not across the BZ)
+                        groups[f"{np.argmax(np.abs(tas_curve))}, {tas_area:.2f}"].append(
+                            (transition, tas_curve, index)
+                        )
 
                 for coords, transition_tuple_list in groups.items():
                     transition_tuple_array = np.array(transition_tuple_list, dtype=object)
@@ -190,7 +193,8 @@ class TASPlotter:
                         label=", ".join([str(transition) for transition
                                          in transition_tuple_array[:, 0]]
                                         ),
-                        lw=2.5
+                        lw=2.5,
+                        color=f"C{transition_tuple_array[0, 2]}"
                     )
 
             else:
@@ -229,16 +233,18 @@ class TASPlotter:
 
                 # group transitions with (almost) equal energies:
                 groups = defaultdict(list)
-                for transition in relevant_transition_list:
-                    jdos_light_curve = self.jdos_light_decomp[transition][xmin_ind:xmax_ind]
-                    jdos_dark_curve = self.jdos_dark_decomp[transition][xmin_ind:xmax_ind]
-                    jdos_light_area = np.trapz(jdos_light_curve, energy_mesh[xmin_ind:xmax_ind])
-                    # group by position of max point and area under curve (to account for
-                    # possibility of degeneracy at max point, but not for the full curve (if e.g.
-                    # two bands are degenerate at a single kpoint but not across the BZ)
-                    groups[f"{np.argmax(np.abs(jdos_light_curve))}, {jdos_light_area:.2f}"].append(
-                        (transition, jdos_light_curve, jdos_dark_curve)
-                    )
+                for index, transition in enumerate(relevant_transition_list):
+                    if transition is not None:
+                        jdos_light_curve = self.jdos_light_decomp[transition][xmin_ind:xmax_ind]
+                        jdos_dark_curve = self.jdos_dark_decomp[transition][xmin_ind:xmax_ind]
+                        jdos_light_area = np.trapz(jdos_light_curve, energy_mesh[xmin_ind:xmax_ind])
+                        # group by position of max point and area under curve (to account for
+                        # possibility of degeneracy at max point, but not for the full curve (if
+                        # e.g. two bands are degenerate at a single kpoint but not across the BZ)
+                        groups[f"{np.argmax(np.abs(jdos_light_curve))}," \
+                               f" {jdos_light_area:.2f}"].append(
+                            (transition, jdos_light_curve, jdos_dark_curve, index)
+                        )
 
                 for coords, transition_tuple_list in groups.items():
                     transition_tuple_array = np.array(transition_tuple_list, dtype=object)
@@ -248,6 +254,7 @@ class TASPlotter:
                         label=", ".join([str(transition) for transition
                                          in transition_tuple_array[:, 0]]
                                         ) + " (light)",
+                        color=f"C{2*transition_tuple_array[0, 3]}"
                     )
                     if np.any(sum(transition_tuple_array[:, 2])):
                         # only plot dark if it's not all zero
@@ -259,6 +266,7 @@ class TASPlotter:
                                             ) + " (dark)",
                             ls="--",  # dashed linestyle for dark to distinguish
                             alpha=0.5,  # make semi-transparent to show if overlapping lines
+                            color=f"C{2 * transition_tuple_array[0, 3] + 1}"
                         )
 
             else:
