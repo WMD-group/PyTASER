@@ -241,6 +241,7 @@ class TASPlotter:
                                              in transition_tuple_array[:, 0]]
                                             ) + " (dark)",
                             ls="--",  # dashed linestyle for dark to distinguish
+                            alpha=0.5,  # make semi-transparent to show if overlapping lines
                         )
 
             else:
