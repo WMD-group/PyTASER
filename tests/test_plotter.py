@@ -202,3 +202,24 @@ def test_get_plot_jdos_lambda_cdte(plotter_cdte):
         yaxis="jdos",
     )
     return fig
+
+
+def test_line_color_consistency(plotter_cdte):
+    """Test that the same transition has the same color in all plots, when transition_cutoff is
+    changed"""
+    fig = plotter_cdte.get_plot()  # with default transition_cutoff of 0.03
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    line_color = line.get_color()
+
+    fig = plotter_cdte.get_plot(transition_cutoff=0.3)  # this removes lines before (-2, 0)
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    assert line_color == line.get_color()
+
+    # check for JDOS plots as well:
+    fig = plotter_cdte.get_plot(yaxis="jdos")  # with default transition_cutoff of 0.03
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    line_color = line.get_color()
+
+    fig = plotter_cdte.get_plot(transition_cutoff=0.3, yaxis="jdos")  # removes lines before (-2, 0)
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    assert line_color == line.get_color()
