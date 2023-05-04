@@ -214,7 +214,7 @@ class TASPlotter:
                         self.jdos_light_decomp[transition_jd][
                             xmin_ind:xmax_ind
                         ],
-                        label=str(transition_jd) + "(light)",
+                        label=str(transition_jd) + " (light)",
                     )
                     if np.any(self.jdos_dark_decomp[transition_jd][
                                 xmin_ind:xmax_ind
@@ -225,7 +225,8 @@ class TASPlotter:
                             self.jdos_dark_decomp[transition_jd][
                                 xmin_ind:xmax_ind
                             ],
-                            label=str(transition_jd) + "(dark)",
+                            label=str(transition_jd) + " (dark)",
+                            ls="--",  # dashed linestyle for dark to distinguish
                         )
 
             else:
@@ -235,11 +236,16 @@ class TASPlotter:
                         self.jdos_light_decomp[transition][xmin_ind:xmax_ind],
                         label=str(transition) + " (light)",
                     )
-                    plt.plot(
-                        energy_mesh[xmin_ind:xmax_ind],
-                        self.jdos_dark_decomp[transition][xmin_ind:xmax_ind],
-                        label=str(transition) + " (dark)",
-                    )
+                    if np.any(self.jdos_dark_decomp[transition][
+                                xmin_ind:xmax_ind
+                            ]):
+                        # only plot dark if it's not all zero
+                        plt.plot(
+                            energy_mesh[xmin_ind:xmax_ind],
+                            self.jdos_dark_decomp[transition][xmin_ind:xmax_ind],
+                            label=str(transition) + " (dark)",
+                            ls="--",  # dashed linestyle for dark to distinguish
+                        )
 
         plt.ylabel(abs_label, fontsize=30)
         y_axis_min, y_axis_max = plt.gca().get_ylim()
