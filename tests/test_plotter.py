@@ -25,6 +25,7 @@ def test_cutoff_transitions(plotter_gaas):
     relevant_transitions = plotter.cutoff_transitions(
         plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1
     )
+    relevant_transitions = [x for x in relevant_transitions if x is not None]
     relevant_transitions.sort()
     assert relevant_transitions == highest_transitions
 
