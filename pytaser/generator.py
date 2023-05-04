@@ -242,6 +242,19 @@ class TASGenerator:
         self.vb = get_cbm_vbm_index(self.bs)[0]
         self.cb = get_cbm_vbm_index(self.bs)[1]
 
+
+    @classmethod
+    def from_vasp_objects(cls, vasprun_file, waveder_file=None):
+        """Create a TASGenerator object from VASP output files."""
+        vr = Vasprun(vasprun_file)
+        if waveder_file:
+            waveder = Waveder.from_binary(waveder_file)
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(vr, waveder)
+        else:
+            dfc = None
+        return cls(vr.get_band_structure(), vr.actual_kpoints_weights, vr.complete_dos, dfc)
+
+
     def band_occupancies(self, temp, conc, dark=True):
         """
         Gives band occupancies.
