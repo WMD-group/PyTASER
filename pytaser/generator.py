@@ -118,6 +118,74 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
     return jdos
 
 
+def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
+    """Calculate the expected optical absorption given the groundstate orbital derivatives and
+    eigenvalues (via dfc) and specified band occupancies.
+    Templated from pymatgen.io.vasp.optics.epsilon_imag().
+
+    Args:
+        dfc: DielectricFunctionCalculator object
+        occs: Array of band occupancies with shape (nspin, nbands, nkpoints)
+        spin: Which spin channel to include.
+        sigma: Smearing width (in eV) for broadening of the dielectric function (see
+            https://www.vasp.at/wiki/index.php/SIGMA). If not set, uses the value of SIGMA from the
+            underlying VASP WAVEDER calculation.
+        cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function (see
+            https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of CSHIFT from
+            the underlying VASP WAVEDER calculation.
+    """
+    if sigma is None:
+        sigma = dfc.sigma
+    if cshift is None:
+        cshift = dfc.cshift
+    egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
+    imag_dielectric = np.zeros_like(egrid, dtype=np.complex128)
+    norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
+    eigs_shifted = dfc.eigs - dfc.efermi
+    rspin = 3 - dfc.cder.shape[3]  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
+    min_band0, max_band0 = np.min(np.where(dfc.cder)[0]), np.max(np.where(dfc.cder)[0])
+    min_band1, max_band1 = np.min(np.where(dfc.cder)[1]), np.max(np.where(dfc.cder)[1])
+
+    _, _, nk, nspin = dfc.cder.shape[:4]
+    iter_idx = [
+        range(min_band0, max_band0 + 1),
+        range(min_band1, max_band1 + 1),
+        range(nk),
+        range(nspin),
+    ]
+    num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
+    spin_string = "up" if spin == Spin.up else "down"
+    light_dark_string = "under illumination" if any(occs[b][k] not in [0, 1] for b in range(
+        min_band0, max_band0 + 1) for k in range(nk)) else "dark"
+    for ib, jb, ik, ispin in tqdm(itertools.product(*iter_idx), total=num_,
+                                  desc=f"Calculating oscillator strengths (spin {spin_string}, "
+                                       f"{light_dark_string})"):
+        init_energy = eigs_shifted[ib, ik, ispin]
+        final_energy = eigs_shifted[jb, ik, ispin]
+        if final_energy > init_energy:
+            init_occ = occs[ib][ik]
+            final_occ = occs[jb][ik]
+            factor = norm_kweights[ik] * (init_occ - final_occ) * rspin
+
+            A = sum(dfc.cder[ib, jb, ik, ispin, idir] * np.conjugate(
+                dfc.cder[ib, jb, ik, ispin, idir]) for idir in range(3))/3
+            decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
+            matrix_el = np.abs(A) * factor
+            smeared = optics.get_delta(
+                x0=decel, sigma=sigma, nx=dfc.nedos, dx=dfc.deltae, ismear=dfc.ismear
+            ) * matrix_el
+            imag_dielectric += smeared
+
+    eps_in = imag_dielectric * optics.edeps * np.pi / dfc.volume
+    eps = optics.kramers_kronig(eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift)
+    eps += 1.0 + 0.0j  # complex dielectric
+
+    # convert to alpha:
+    n = np.sqrt(eps)  # complex refractive index
+    alpha = n.imag * egrid * 4 * np.pi / 1.23984212e-4
+    return egrid, alpha
+
+
 def get_cbm_vbm_index(bs):
     """
     Args:
