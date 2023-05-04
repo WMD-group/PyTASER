@@ -102,15 +102,18 @@ class TASPlotter:
                 only write the bands involved [(-1,6),(2,7),(-8,-5)...] If spin-polarised,
                 include the type of spin involved in transition
                 [(-1,6, "down"),(2,7, "down"),(-8,-5, "up")...]
-                Default is 'auto' mode, which shows all band transitions above the transition_cutoff.
-            xaxis: Units for the energy mesh. Either in wavelengths or energy.
-            transition_cutoff: The minimum height of the band transition as a percentage threshold of the most
-                contributing transition (Across all kpoints, within the energy range specified). Default is 3%.
+                Default is 'auto' mode, which shows all band transitions above the
+                transition_cutoff.
+            xaxis: Units for the energy mesh. Either "wavelength" or "energy".
+            transition_cutoff: The minimum height of the band transition as a percentage
+                threshold of the largest contributing transition (Across all kpoints, within the
+                energy range specified). Default is 0.03 (3%).
             xmin: Minimum energy point in mesh (float64)
             xmax: Maximum energy point in mesh (float64)
             ymin: Minimum absorption point. Default is 1.15 * minimum point.
             ymax: Maximum absorption point. Default is 1.15 * maximum point.
-            yaxis: Measurement method of absorption (jdos or tas) (string)
+            yaxis: Whether to plot the predicted TAS spectrum ("tas", default) or joint density of
+                states before & after illumination ("jdos"). (string)
 
         Returns:
             Matplotlib pyplot of the desired spectrum, with labelled units.
