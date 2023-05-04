@@ -7,6 +7,7 @@ from pytaser.plotter import ev_to_lambda, lambda_to_ev
 
 _file_path = os.path.dirname(__file__)
 _DATA_DIR = os.path.join(_file_path, "data_gaas")
+_CDTE_DATA_DIR = os.path.join(_file_path, "data_cdte")
 
 
 def test_ev_to_lambda():
@@ -120,6 +121,84 @@ def test_get_plot_jdos_lambda(plotter_gaas):
         xmax=1200,
         ymin=None,
         ymax=None,
+        yaxis="jdos",
+    )
+    return fig
+
+## Test with CdTe, with many more transitions:
+def test_get_plot_cdte(plotter_cdte):
+    assert plotter_cdte.bandgap_lambda == plotter.ev_to_lambda(
+        plotter_cdte.bandgap_ev
+    )
+    assert (
+        plotter_cdte.energy_mesh_lambda.all()
+        == plotter.ev_to_lambda(plotter_cdte.energy_mesh_ev).all()
+    )
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="tas_ev_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_ev_cdte(plotter_cdte):
+    """Test get_plot() TAS function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="tas_lambda_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_lambda_cdte(plotter_cdte):
+    """Test get_plot() TAS function for CdTe with the default cutoff and wavelength xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="wavelength",
+        xmin=None,
+        xmax=1200,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_ev_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_ev_cdte(plotter_cdte):
+    """Test get_plot() JDOS function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_lambda_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_lambda_cdte(plotter_cdte):
+    """Test get_plot() JDOS function for CdTe with the default cutoff and wavelength xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="wavelength",
+        xmin=None,
+        xmax=1200,
         yaxis="jdos",
     )
     return fig
