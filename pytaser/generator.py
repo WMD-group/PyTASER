@@ -1,8 +1,13 @@
+import itertools
+from tqdm import tqdm
 import warnings
 import numpy as np
+
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
+from pymatgen.io.vasp import optics
+from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
@@ -213,6 +218,7 @@ class TASGenerator:
         bs: Pymatgen-based bandstructure object
         kpoint_weights: kpoint weights either found by the function or inputted.
         dos: Pymatgen-based dos object
+        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
 
     Attributes:
         bs: Pymatgen bandstructure object
@@ -223,11 +229,12 @@ class TASGenerator:
         cb: Spin dict detailing the conduction band minima
     """
 
-    def __init__(self, bs, kpoint_weights, dos):
+    def __init__(self, bs, kpoint_weights, dos, dfc=None):
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = FermiDos(dos)
         self.bg_centre = (bs.get_cbm()["energy"] + bs.get_vbm()["energy"]) / 2
+        self.dfc = dfc
 
         if self.bs.is_metal():
             raise ValueError("System is metallic, cannot compute TAS")
