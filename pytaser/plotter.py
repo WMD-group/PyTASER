@@ -1,3 +1,4 @@
+from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
@@ -208,24 +209,37 @@ class TASPlotter:
                     xmin_ind,
                     xmax_ind,
                 )
-                for transition_jd in relevant_transition_list:
+
+                # group transitions with (almost) equal energies:
+                groups = defaultdict(list)
+                for transition in relevant_transition_list:
+                    jdos_light_curve = self.jdos_light_decomp[transition][xmin_ind:xmax_ind]
+                    jdos_dark_curve = self.jdos_dark_decomp[transition][xmin_ind:xmax_ind]
+                    jdos_light_area = np.trapz(jdos_light_curve, energy_mesh[xmin_ind:xmax_ind])
+                    # group by position of max point and area under curve (to account for
+                    # possibility of degeneracy at max point, but not for the full curve (if e.g.
+                    # two bands are degenerate at a single kpoint but not across the BZ)
+                    groups[f"{np.argmax(jdos_light_curve)}, {jdos_light_area:.2f}"].append(
+                        (transition, jdos_light_curve, jdos_dark_curve)
+                    )
+
+                for coords, transition_tuple_list in groups.items():
+                    transition_tuple_array = np.array(transition_tuple_list, dtype=object)
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
-                        self.jdos_light_decomp[transition_jd][
-                            xmin_ind:xmax_ind
-                        ],
-                        label=str(transition_jd) + " (light)",
+                        sum(transition_tuple_array[:, 1]),
+                        label=", ".join([str(transition) for transition
+                                         in transition_tuple_array[:, 0]]
+                                        ) + " (light)",
                     )
-                    if np.any(self.jdos_dark_decomp[transition_jd][
-                                xmin_ind:xmax_ind
-                            ]):
+                    if np.any(sum(transition_tuple_array[:, 2])):
                         # only plot dark if it's not all zero
                         plt.plot(
                             energy_mesh[xmin_ind:xmax_ind],
-                            self.jdos_dark_decomp[transition_jd][
-                                xmin_ind:xmax_ind
-                            ],
-                            label=str(transition_jd) + " (dark)",
+                            sum(transition_tuple_array[:, 2]),
+                            label=", ".join([str(transition) for transition
+                                             in transition_tuple_array[:, 0]]
+                                            ) + " (dark)",
                             ls="--",  # dashed linestyle for dark to distinguish
                         )
 
