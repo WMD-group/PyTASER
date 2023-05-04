@@ -168,11 +168,27 @@ class TASPlotter:
                 relevant_transition_list = cutoff_transitions(
                     self.tas_decomp, transition_cutoff, xmin_ind, xmax_ind
                 )
+
+                # group transitions with (almost) equal energies:
+                groups = defaultdict(list)
                 for transition in relevant_transition_list:
+                    tas_curve = self.tas_decomp[transition][xmin_ind:xmax_ind]
+                    tas_area = np.trapz(tas_curve, energy_mesh[xmin_ind:xmax_ind])
+                    # group by position of max point and area under curve (to account for
+                    # possibility of degeneracy at max point, but not for the full curve (if e.g.
+                    # two bands are degenerate at a single kpoint but not across the BZ)
+                    groups[f"{np.argmax(np.abs(tas_curve))}, {tas_area:.2f}"].append(
+                        (transition, tas_curve)
+                    )
+
+                for coords, transition_tuple_list in groups.items():
+                    transition_tuple_array = np.array(transition_tuple_list, dtype=object)
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
-                        self.tas_decomp[transition][xmin_ind:xmax_ind],
-                        label=transition,
+                        sum(transition_tuple_array[:, 1]),
+                        label=", ".join([str(transition) for transition
+                                         in transition_tuple_array[:, 0]]
+                                        ),
                         lw=2.5
                     )
 
@@ -219,7 +235,7 @@ class TASPlotter:
                     # group by position of max point and area under curve (to account for
                     # possibility of degeneracy at max point, but not for the full curve (if e.g.
                     # two bands are degenerate at a single kpoint but not across the BZ)
-                    groups[f"{np.argmax(jdos_light_curve)}, {jdos_light_area:.2f}"].append(
+                    groups[f"{np.argmax(np.abs(jdos_light_curve))}, {jdos_light_area:.2f}"].append(
                         (transition, jdos_light_curve, jdos_dark_curve)
                     )
 
