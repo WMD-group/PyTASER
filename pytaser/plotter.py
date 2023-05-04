@@ -216,13 +216,17 @@ class TASPlotter:
                         ],
                         label=str(transition_jd) + "(light)",
                     )
-                    plt.plot(
-                        energy_mesh[xmin_ind:xmax_ind],
-                        self.jdos_dark_decomp[transition_jd][
-                            xmin_ind:xmax_ind
-                        ],
-                        label=str(transition_jd) + "(dark)",
-                    )
+                    if np.any(self.jdos_dark_decomp[transition_jd][
+                                xmin_ind:xmax_ind
+                            ]):
+                        # only plot dark if it's not all zero
+                        plt.plot(
+                            energy_mesh[xmin_ind:xmax_ind],
+                            self.jdos_dark_decomp[transition_jd][
+                                xmin_ind:xmax_ind
+                            ],
+                            label=str(transition_jd) + "(dark)",
+                        )
 
             else:
                 for transition in relevant_transitions:
