@@ -137,7 +137,7 @@ def test_get_plot_cdte(plotter_cdte):
 
 
 @pytest.mark.mpl_image_compare(
-    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
     filename="tas_ev_cdte.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
@@ -154,7 +154,7 @@ def test_get_plot_tas_ev_cdte(plotter_cdte):
 
 
 @pytest.mark.mpl_image_compare(
-    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
     filename="tas_lambda_cdte.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
@@ -171,7 +171,7 @@ def test_get_plot_tas_lambda_cdte(plotter_cdte):
 
 
 @pytest.mark.mpl_image_compare(
-    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
     filename="jdos_ev_cdte.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
@@ -188,7 +188,7 @@ def test_get_plot_jdos_ev_cdte(plotter_cdte):
 
 
 @pytest.mark.mpl_image_compare(
-    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
     filename="jdos_lambda_cdte.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
