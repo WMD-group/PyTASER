@@ -1,8 +1,12 @@
 import re
+import warnings
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
+
+
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 def ev_to_lambda(ev):
