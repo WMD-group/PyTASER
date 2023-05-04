@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
@@ -302,15 +303,17 @@ class TASPlotter:
             and (self.temp is not None)
             and (self.conc is not None)
         ):
+            # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
+            formatted_material_name = re.sub(r"(\d)", r"$_{\1}$", self.material_name)
             plt.title(
                 abs_label
                 + " spectrum of "
-                + self.material_name
+                + formatted_material_name
                 + " at T = "
                 + str(self.temp)
                 + " K, n = "
                 + str(self.conc)
-                + "$cm^{-3}$",
+                + " $cm^{-3}$",
                 fontsize=25
             )
 
