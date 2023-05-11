@@ -7,6 +7,7 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import optics
+from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 from pytaser.kpoints import get_kpoint_weights
@@ -224,6 +225,7 @@ class TASGenerator:
         bs: Pymatgen bandstructure object
         kpoint_weights: k-point weights (degeneracies).
         dos: Pymatgen-based dos object
+        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
         bg_centre: Energy (eV) of the bandgap centre.
         vb: Spin dict detailing the valence band maxima.
         cb: Spin dict detailing the conduction band minima
@@ -246,6 +248,10 @@ class TASGenerator:
     @classmethod
     def from_vasp_objects(cls, vasprun_file, waveder_file=None):
         """Create a TASGenerator object from VASP output files."""
+        warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
+        warnings.filterwarnings(
+            "ignore", message="No POTCAR file with matching TITEL fields"
+        )
         vr = Vasprun(vasprun_file)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
