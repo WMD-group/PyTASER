@@ -145,7 +145,9 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
     if cshift is None:
         cshift = dfc.cshift
     egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
-    imag_dielectric = np.zeros_like(egrid, dtype=np.complex128)
+    imag_dielectric_dict = {key: np.zeros_like(egrid, dtype=np.complex128) for key in
+                       ["absorption", "emission", "both"]}
+
     norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
     eigs_shifted = dfc.eigs - dfc.efermi
     rspin = 3 - dfc.cder.shape[3]  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
@@ -174,22 +176,42 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             factor = norm_kweights[ik] * (init_occ - final_occ) * rspin
 
             A = sum(dfc.cder[ib, jb, ik, ispin, idir] * np.conjugate(
-                dfc.cder[ib, jb, ik, ispin, idir]) for idir in range(3))/3
+                dfc.cder[ib, jb, ik, ispin, idir]) for idir in range(3)) / 3
             decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
-            matrix_el = np.abs(A) * factor
-            smeared = optics.get_delta(
-                x0=decel, sigma=sigma, nx=dfc.nedos, dx=dfc.deltae, ismear=dfc.ismear
-            ) * matrix_el
-            imag_dielectric += smeared
+            matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
 
-    eps_in = imag_dielectric * optics.edeps * np.pi / dfc.volume
-    eps = optics.kramers_kronig(eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift)
-    eps += 1.0 + 0.0j  # complex dielectric
+            abs_occ_factor = init_occ * (1 - final_occ)
+            em_occ_factor = (1 - init_occ) * final_occ
+            both_occ_factor = init_occ - final_occ
 
-    # convert to alpha:
-    n = np.sqrt(eps)  # complex refractive index
-    alpha = n.imag * egrid * 4 * np.pi / 1.23984212e-4
-    return egrid, alpha
+            abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
+            em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
+            both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
+
+            if dfc.ismear == 0:  # error in pymatgen, TODO: PR!
+                ismear = -0.1
+            else:
+                ismear = dfc.ismear
+            smeared_wout_matrix_el = optics.get_delta(x0=decel, sigma=sigma, nx=dfc.nedos,
+                                             dx=dfc.deltae, ismear=ismear)
+
+            imag_dielectric_dict["absorption"] += smeared_wout_matrix_el * abs_matrix_el
+            imag_dielectric_dict["emission"] += smeared_wout_matrix_el * em_matrix_el
+            imag_dielectric_dict["both"] += smeared_wout_matrix_el * both_matrix_el
+
+    alpha_dict = {}
+    for key, imag_dielectric in imag_dielectric_dict.items():
+        eps_in = imag_dielectric * optics.edeps * np.pi / dfc.volume
+        eps = optics.kramers_kronig(eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift)
+        eps += 1.0 + 0.0j
+        imag_dielectric_dict[key] = eps  # complex dielectric function
+
+        # convert to alpha:
+        n = np.sqrt(eps)  # complex refractive index
+        alpha = n.imag * egrid * 4 * np.pi / 1.23984212e-4  # absorption coefficient in cm^-1
+        alpha_dict[key] = alpha
+
+    return egrid, alpha_dict
 
 
 def get_cbm_vbm_index(bs):
