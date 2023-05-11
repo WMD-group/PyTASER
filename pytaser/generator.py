@@ -60,8 +60,8 @@ def set_bandgap(bandstructure, dos, bandgap):
 
     scissor = bandgap - bandstructure.get_band_gap()["energy"]
     midgap = (
-                     bandstructure.get_cbm()["energy"] + bandstructure.get_vbm()["energy"]
-             ) / 2
+        bandstructure.get_cbm()["energy"] + bandstructure.get_vbm()["energy"]
+    ) / 2
 
     new_bandstructure = deepcopy(bandstructure)
     for spin, spin_energies in bandstructure.bands.items():
@@ -77,12 +77,12 @@ def set_bandgap(bandstructure, dos, bandgap):
         dens = np.zeros_like(dos.energies)
         if shift > 0:
             dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
-            dens[fermi_idx + shift:] = dos.densities[spin][fermi_idx:-shift]
+            dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
         else:
-            dens[abs(shift): fermi_idx] = dos.densities[spin][
-                                          : fermi_idx + shift
-                                          ]
-            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift:]
+            dens[abs(shift) : fermi_idx] = dos.densities[spin][
+                : fermi_idx + shift
+            ]
+            dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
         new_dos.densities[spin] = dens
 
     new_bandstructure.efermi = midgap
@@ -116,7 +116,7 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         init_occ = occs[i][k]
         k_weight = kweights[k]
         factor = k_weight * (
-                (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
+            (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
         )
         jdos += factor * gaussian(
             energies, gaussian_width, center=final_energy - init_energy
@@ -145,14 +145,22 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
     if cshift is None:
         cshift = dfc.cshift
     egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
-    imag_dielectric_dict = {key: np.zeros_like(egrid, dtype=np.complex128) for key in
-                       ["absorption", "emission", "both"]}
+    imag_dielectric_dict = {
+        key: np.zeros_like(egrid, dtype=np.complex128)
+        for key in ["absorption", "emission", "both"]
+    }
 
     norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
     eigs_shifted = dfc.eigs - dfc.efermi
-    rspin = 3 - dfc.cder.shape[3]  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
-    min_band0, max_band0 = np.min(np.where(dfc.cder)[0]), np.max(np.where(dfc.cder)[0])
-    min_band1, max_band1 = np.min(np.where(dfc.cder)[1]), np.max(np.where(dfc.cder)[1])
+    rspin = (
+        3 - dfc.cder.shape[3]
+    )  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
+    min_band0, max_band0 = np.min(np.where(dfc.cder)[0]), np.max(
+        np.where(dfc.cder)[0]
+    )
+    min_band1, max_band1 = np.min(np.where(dfc.cder)[1]), np.max(
+        np.where(dfc.cder)[1]
+    )
 
     _, _, nk, nspin = dfc.cder.shape[:4]
     iter_idx = [
@@ -163,11 +171,21 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
     ]
     num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
     spin_string = "up" if spin == Spin.up else "down"
-    light_dark_string = "under illumination" if any(occs[b][k] not in [0, 1] for b in range(
-        min_band0, max_band0 + 1) for k in range(nk)) else "dark"
-    for ib, jb, ik, ispin in tqdm(itertools.product(*iter_idx), total=num_,
-                                  desc=f"Calculating oscillator strengths (spin {spin_string}, "
-                                       f"{light_dark_string})"):
+    light_dark_string = (
+        "under illumination"
+        if any(
+            occs[b][k] not in [0, 1]
+            for b in range(min_band0, max_band0 + 1)
+            for k in range(nk)
+        )
+        else "dark"
+    )
+    for ib, jb, ik, ispin in tqdm(
+        itertools.product(*iter_idx),
+        total=num_,
+        desc=f"Calculating oscillator strengths (spin {spin_string}, "
+        f"{light_dark_string})",
+    ):
         init_energy = eigs_shifted[ib, ik, ispin]
         final_energy = eigs_shifted[jb, ik, ispin]
         if final_energy > init_energy:
@@ -175,8 +193,14 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             final_occ = occs[jb][ik]
             factor = norm_kweights[ik] * (init_occ - final_occ) * rspin
 
-            A = sum(dfc.cder[ib, jb, ik, ispin, idir] * np.conjugate(
-                dfc.cder[ib, jb, ik, ispin, idir]) for idir in range(3)) / 3
+            A = (
+                sum(
+                    dfc.cder[ib, jb, ik, ispin, idir]
+                    * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
+                    for idir in range(3)
+                )
+                / 3
+            )
             decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
             matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
 
@@ -192,23 +216,38 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
                 ismear = -0.1
             else:
                 ismear = dfc.ismear
-            smeared_wout_matrix_el = optics.get_delta(x0=decel, sigma=sigma, nx=dfc.nedos,
-                                             dx=dfc.deltae, ismear=ismear)
+            smeared_wout_matrix_el = optics.get_delta(
+                x0=decel,
+                sigma=sigma,
+                nx=dfc.nedos,
+                dx=dfc.deltae,
+                ismear=ismear,
+            )
 
-            imag_dielectric_dict["absorption"] += smeared_wout_matrix_el * abs_matrix_el
-            imag_dielectric_dict["emission"] += smeared_wout_matrix_el * em_matrix_el
-            imag_dielectric_dict["both"] += smeared_wout_matrix_el * both_matrix_el
+            imag_dielectric_dict["absorption"] += (
+                smeared_wout_matrix_el * abs_matrix_el
+            )
+            imag_dielectric_dict["emission"] += (
+                smeared_wout_matrix_el * em_matrix_el
+            )
+            imag_dielectric_dict["both"] += (
+                smeared_wout_matrix_el * both_matrix_el
+            )
 
     alpha_dict = {}
     for key, imag_dielectric in imag_dielectric_dict.items():
         eps_in = imag_dielectric * optics.edeps * np.pi / dfc.volume
-        eps = optics.kramers_kronig(eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift)
+        eps = optics.kramers_kronig(
+            eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift
+        )
         eps += 1.0 + 0.0j
         imag_dielectric_dict[key] = eps  # complex dielectric function
 
         # convert to alpha:
         n = np.sqrt(eps)  # complex refractive index
-        alpha = n.imag * egrid * 4 * np.pi / 1.23984212e-4  # absorption coefficient in cm^-1
+        alpha = (
+            n.imag * egrid * 4 * np.pi / 1.23984212e-4
+        )  # absorption coefficient in cm^-1
         alpha_dict[key] = alpha
 
     return egrid, alpha_dict
@@ -266,7 +305,6 @@ class TASGenerator:
         self.vb = get_cbm_vbm_index(self.bs)[0]
         self.cb = get_cbm_vbm_index(self.bs)[1]
 
-
     @classmethod
     def from_vasp_objects(cls, vasprun_file, waveder_file=None):
         """Create a TASGenerator object from VASP output files."""
@@ -277,11 +315,17 @@ class TASGenerator:
         vr = Vasprun(vasprun_file)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
-            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(vr, waveder)
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
+                vr, waveder
+            )
         else:
             dfc = None
-        return cls(vr.get_band_structure(), vr.actual_kpoints_weights, vr.complete_dos, dfc)
-
+        return cls(
+            vr.get_band_structure(),
+            vr.actual_kpoints_weights,
+            vr.complete_dos,
+            dfc,
+        )
 
     def band_occupancies(self, temp, conc, dark=True):
         """
@@ -334,15 +378,15 @@ class TASGenerator:
         return occs
 
     def generate_tas(
-            self,
-            temp,
-            conc,
-            energy_min=0,
-            energy_max=5,
-            gaussian_width=0.1,
-            step=0.01,
-            light_occs=None,
-            dark_occs=None,
+        self,
+        temp,
+        conc,
+        energy_min=0,
+        energy_max=5,
+        gaussian_width=0.1,
+        step=0.01,
+        light_occs=None,
+        dark_occs=None,
     ):
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
