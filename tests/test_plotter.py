@@ -7,6 +7,7 @@ from pytaser.plotter import ev_to_lambda, lambda_to_ev
 
 _file_path = os.path.dirname(__file__)
 _DATA_DIR = os.path.join(_file_path, "data_gaas")
+_CDTE_DATA_DIR = os.path.join(_file_path, "data_cdte")
 
 
 def test_ev_to_lambda():
@@ -25,6 +26,7 @@ def test_cutoff_transitions(plotter_gaas):
     relevant_transitions = plotter.cutoff_transitions(
         plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1
     )
+    relevant_transitions = [x for x in relevant_transitions if x is not None]
     relevant_transitions.sort()
     assert relevant_transitions == highest_transitions
 
@@ -122,3 +124,102 @@ def test_get_plot_jdos_lambda(plotter_gaas):
         yaxis="jdos",
     )
     return fig
+
+## Test with CdTe, with many more transitions:
+def test_get_plot_cdte(plotter_cdte):
+    assert plotter_cdte.bandgap_lambda == plotter.ev_to_lambda(
+        plotter_cdte.bandgap_ev
+    )
+    assert (
+        plotter_cdte.energy_mesh_lambda.all()
+        == plotter.ev_to_lambda(plotter_cdte.energy_mesh_ev).all()
+    )
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_ev_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_ev_cdte(plotter_cdte):
+    """Test get_plot() TAS function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_lambda_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_lambda_cdte(plotter_cdte):
+    """Test get_plot() TAS function for CdTe with the default cutoff and wavelength xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="wavelength",
+        xmin=None,
+        xmax=1200,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_ev_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_ev_cdte(plotter_cdte):
+    """Test get_plot() JDOS function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_lambda_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_lambda_cdte(plotter_cdte):
+    """Test get_plot() JDOS function for CdTe with the default cutoff and wavelength xaxis"""
+    fig = plotter_cdte.get_plot(
+        relevant_transitions="auto",
+        xaxis="wavelength",
+        xmin=None,
+        xmax=1200,
+        yaxis="jdos",
+    )
+    return fig
+
+
+def test_line_color_consistency(plotter_cdte):
+    """Test that the same transition has the same color in all plots, when transition_cutoff is
+    changed"""
+    fig = plotter_cdte.get_plot()  # with default transition_cutoff of 0.03
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    line_color = line.get_color()
+
+    fig = plotter_cdte.get_plot(transition_cutoff=0.3)  # this removes lines before (-2, 0)
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    assert line_color == line.get_color()
+
+    # check for JDOS plots as well:
+    fig = plotter_cdte.get_plot(yaxis="jdos")  # with default transition_cutoff of 0.03
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    line_color = line.get_color()
+
+    fig = plotter_cdte.get_plot(transition_cutoff=0.3, yaxis="jdos")  # removes lines before (-2, 0)
+    line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
+    assert line_color == line.get_color()

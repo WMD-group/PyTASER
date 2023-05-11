@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
@@ -5,6 +6,9 @@ from pymatgen.ext.matproj import MPRester
 
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
+
+
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 def gaussian(x, width, center=0.0, height=None):
