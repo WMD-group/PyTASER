@@ -162,14 +162,13 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         np.where(dfc.cder)[1]
     )
 
-    _, _, nk, nspin = dfc.cder.shape[:4]
+    _, _, nk, _ = dfc.cder.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),
         range(min_band1, max_band1 + 1),
         range(nk),
-        range(nspin),
     ]
-    num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk * nspin
+    num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk
     spin_string = "up" if spin == Spin.up else "down"
     light_dark_string = (
         "under illumination"
@@ -180,18 +179,18 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         )
         else "dark"
     )
-    for ib, jb, ik, ispin in tqdm(
+    for ib, jb, ik in tqdm(
         itertools.product(*iter_idx),
         total=num_,
         desc=f"Calculating oscillator strengths (spin {spin_string}, "
         f"{light_dark_string})",
     ):
+        ispin = 0 if spin == Spin.up else 1
         init_energy = eigs_shifted[ib, ik, ispin]
         final_energy = eigs_shifted[jb, ik, ispin]
         if final_energy > init_energy:
             init_occ = occs[ib][ik]
             final_occ = occs[jb][ik]
-            factor = norm_kweights[ik] * (init_occ - final_occ) * rspin
 
             A = (
                 sum(
