@@ -6,16 +6,16 @@ class Tas:
     A container class for the data from TASgenerator.
 
     Args:
-        total_tas: overall TAS spectrum for a material under the specified conditions
-        tas_decomp: TAS spectrum across the energy mesh for a specific band transition i
-            (initial) -> f (final) [dict]
+        tas_total: overall TAS spectrum for a material under the specified conditions
+        jdos_diff_if: JDOS difference (from dark to light) across the energy mesh for a
+            specific band transition i (initial) -> f (final) [dict]
         jdos_light_total: overall JDOS (pump-on) for a material under the specified
             conditions
-        jdos_light_decomp: JDOS (pump-on) across the energy mesh for a specific band
+        jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
             transition i (initial) -> f (final) [dict]
         jdos_dark_total: overall JDOS (pump-off) for a material under the specified
             conditions
-        jdos_dark_decomp: JDOS (pump-off) across the energy mesh for a specific band
+        jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
             transition i (initial) -> f (final) [dict]
         energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
         bandgap_ev: Bandgap of the system in electronvolts.
@@ -23,21 +23,28 @@ class Tas:
 
     def __init__(
         self,
-        total_tas,
-        tas_decomp,
+        tas_total,
+        jdos_diff_if,
         jdos_light_total,
-        jdos_light_decomp,
+        jdos_light_if,
         jdos_dark_total,
-        jdos_dark_decomp,
+        jdos_dark_if,
         energy_mesh_ev,
-        bandgap_ev,
+        bandgap,
+        temp,
+        conc,
+        alpha_dark=None,
+        alpha_light_dict=None,
+        weighted_jdos_light_if=None,
+        weighted_jdos_dark_if=None,
+        weighted_jdos_diff_if=None,
     ):
-        self.total_tas = total_tas
-        self.tas_decomp = tas_decomp
-        self.jdos_light_tot = jdos_light_total
-        self.jdos_light_decomp = jdos_light_decomp
-        self.jdos_dark_tot = jdos_dark_total
-        self.jdos_dark_decomp = jdos_dark_decomp
+        self.tas_total = tas_total
+        self.jdos_diff_if = jdos_diff_if
+        self.jdos_light_total = jdos_light_total
+        self.jdos_light_if = jdos_light_if
+        self.jdos_dark_total = jdos_dark_total
+        self.jdos_dark_if = jdos_dark_if
         self.energy_mesh_ev = energy_mesh_ev
         self.bandgap = bandgap
         self.temp = temp
