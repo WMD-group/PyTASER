@@ -401,7 +401,12 @@ class TASGenerator:
         dark_occs=None,
     ):
         """
-        Generates TAS spectra based on inputted occupancies, and a specified energy mesh.
+        Generates TAS spectra based on inputted occupancies, and a specified energy mesh. If the
+        TASGenerator has not been generated from VASP outputs (and thus does not have a dfc
+        attribute), then the output TAS is generated using the change in joint density of states
+        (JDOS) under illumination, with no consideration of oscillator strengths.
+        Otherwise, the output TAS is generated considering all contributions to the predicted TAS
+        spectrum.
 
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
