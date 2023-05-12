@@ -433,7 +433,24 @@ class TASGenerator:
                 - jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
                 - energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
-                - bandgap_ev: Bandgap of the system, in eV, rounded to 2 decimal points
+                - bandgap: Bandgap of the system, in eV, rounded to 2 decimal points
+                - temp: Temperature of the system, in K
+                - conc: Carrier concentration of the system, in cm^-3
+                - alpha_dark: Absorption coefficient of the material in the dark, in cm^-1 (only
+                    calculated if the TASGenerator has been generated from VASP outputs)
+                - alpha_light_dict: Dictionary of band-to-band absorption, stimulated emission
+                    and summed contributions to the total overall absorption coefficient under
+                    illumination, in cm^-1 (only calculated if the TASGenerator has been
+                    generated from VASP outputs)
+                - weighted_jdos_diff_if: JDOS difference (from dark to light) across the energy
+                    mesh for a specific band transition i (initial) -> f (final), weighted by the
+                    oscillator strength of the transition [dict]
+                - weighted_jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
+                    transition i (initial) -> f (final), weighted by the oscillator strength of
+                    the transition [dict]
+                - weighted_jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
+                    transition i (initial) -> f (final), weighted by the oscillator strength of
+                    the transition [dict]
         """
         occs_light = light_occs
         occs_dark = dark_occs
@@ -451,6 +468,24 @@ class TASGenerator:
         jdos_dark_cumulative = np.zeros(len(energy_mesh_ev))
         jdos_light_cumulative = np.zeros(len(energy_mesh_ev))
         for spin, spin_bands in self.bs.bands.items():
+            if self.dfc is not None:
+                alpha_dark_dict, tdm_array = occ_dependent_alpha(
+                    self.dfc,
+                    occs_dark[spin],
+                    sigma=gaussian_width,
+                    cshift=cshift,
+                )
+                alpha_dark += alpha_dark_dict["both"]  # stimulated emission should be
+                # zero in the dark
+                calculated_alpha_light_dict = occ_dependent_alpha(
+                    self.dfc,
+                    occs_light[spin],
+                    sigma=gaussian_width,
+                    cshift=cshift,
+                )[0]
+                for key, array in alpha_light_dict.items():
+                    alpha_light_dict[key] += calculated_alpha_light_dict[key]
+
             for i in range(len(spin_bands)):
                 for f in range(len(spin_bands)):
                     if f > i:
@@ -498,7 +533,46 @@ class TASGenerator:
 
                         jdos_dark_if[key] = jd_dark
                         jdos_light_if[key] = jd_light
-                        tas_if[key] = tas
+                        jdos_diff_if[key] = jdos_diff
+
+                        if self.dfc is not None:
+                            weighted_jd_light = jdos(
+                                self.bs,
+                                f,
+                                i,
+                                occs_light[spin],
+                                energy_mesh_ev,
+                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
+                                gaussian_width,
+                                spin=spin,
+                            )
+                            weighted_jd_dark = jdos(
+                                self.bs,
+                                f,
+                                i,
+                                occs_dark[spin],
+                                energy_mesh_ev,
+                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
+                                gaussian_width,
+                                spin=spin,
+                            )
+                            weighted_jdos_diff = weighted_jd_light - weighted_jd_dark
+
+                            weighted_jdos_light_if[key] = weighted_jd_light
+                            weighted_jdos_dark_if[key] = weighted_jd_dark
+                            weighted_jdos_diff_if[key] = weighted_jdos_diff
+
+        # need to interpolate alpha arrays onto JDOS energy mesh:
+        if self.dfc is not None:
+            alpha_dark = np.interp(energy_mesh_ev, egrid, alpha_dark)
+            for key, array in alpha_light_dict.items():
+                alpha_light_dict[key] = np.interp(energy_mesh_ev, egrid, array)
+
+            tas_total = (
+                alpha_light_dict["absorption"]
+                - alpha_light_dict["emission"]
+                - alpha_dark
+            )
 
         return Tas(
             tas_cumulative,
