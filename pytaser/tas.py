@@ -18,7 +18,20 @@ class Tas:
         jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
             transition i (initial) -> f (final) [dict]
         energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
-        bandgap_ev: Bandgap of the system in electronvolts.
+        bandgap: Bandgap of the system in electronvolts (eV).
+        temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
+        conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
+            Inversely proportional to pump-probe time delay.
+        alpha_dark: Absorption coefficient of the material in the dark, in cm^-1.
+        alpha_light_dict: Dictionary of band-to-band absorption, stimulated emission and summed
+            contributions to the total overall absorption coefficient under illumination, in cm^-1.
+        weighted_jdos_light_if: JDOS weighted by the transition dipole matrix (TDM) (pump-on)
+            across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
+        weighted_jdos_dark_if: JDOS weighted by the transition dipole matrix (TDM) (pump-off)
+            across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
+        weighted_jdos_diff_if: Difference in JDOS weighted by the transition dipole matrix
+            (TDM) from dark to illumination across the energy mesh for a specific band transition
+            i (initial) -> f (final) [dict]
     """
 
     def __init__(
