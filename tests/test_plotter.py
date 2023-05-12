@@ -24,7 +24,7 @@ def test_cutoff_transitions(plotter_gaas):
     highest_transitions = [(-2, 1), (-1, 1), (0, 1)]
     highest_transitions.sort()
     relevant_transitions = plotter.cutoff_transitions(
-        plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1
+        plotter_gaas.jdos_diff_if, cutoff=0.75, ind_xmin=0, ind_xmax=-1
     )
     relevant_transitions = [x for x in relevant_transitions if x is not None]
     relevant_transitions.sort()
@@ -33,7 +33,7 @@ def test_cutoff_transitions(plotter_gaas):
 
 def test_get_plot(plotter_gaas):
     assert plotter_gaas.bandgap_lambda == plotter.ev_to_lambda(
-        plotter_gaas.bandgap_ev
+        plotter_gaas.bandgap
     )
     assert (
         plotter_gaas.energy_mesh_lambda.all()
@@ -128,7 +128,7 @@ def test_get_plot_jdos_lambda(plotter_gaas):
 ## Test with CdTe, with many more transitions:
 def test_get_plot_cdte(plotter_cdte):
     assert plotter_cdte.bandgap_lambda == plotter.ev_to_lambda(
-        plotter_cdte.bandgap_ev
+        plotter_cdte.bandgap
     )
     assert (
         plotter_cdte.energy_mesh_lambda.all()
