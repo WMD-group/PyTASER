@@ -395,6 +395,7 @@ class TASGenerator:
         energy_min=0,
         energy_max=5,
         gaussian_width=0.1,
+        cshift=None,
         step=0.01,
         light_occs=None,
         dark_occs=None,
@@ -409,6 +410,10 @@ class TASGenerator:
             energy_min: Minimum band transition energy to consider for energy mesh (eV)
             energy_max: Maximum band transition energy to consider for energy mesh (eV)
             gaussian_width: Width of gaussian curve
+            cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function
+                (see https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of
+                CSHIFT from the underlying VASP WAVEDER calculation. (only relevant if the
+                TASGenerator has been generated from VASP outputs)
             step: Interval between energy points in the energy mesh.
             light_occs: Optional input parameter for occupancies of material under light [dict]
             dark_occs: Optional input parameter for occupancies of material in dark [dict]
