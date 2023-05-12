@@ -146,6 +146,19 @@ class TASPlotter:
         Returns:
             Matplotlib pyplot of the desired spectrum, with labelled units.
         """
+        # check specified yaxis matches available choices:
+        if yaxis.lower() not in [
+            "tas",
+            "tas_absorption_only",
+            "jdos",
+            "alpha",
+            "jdos_diff",
+        ]:
+            raise ValueError(
+                f"Invalid yaxis '{yaxis}' specified, must be one of: 'tas', "
+                f"'tas_absorption_only', 'jdos', 'alpha', 'jdos_diff'!"
+            )
+
         energy_mesh = 0
         bg = 0
         plt.figure(figsize=(12, 8))
@@ -394,6 +407,12 @@ class TASPlotter:
                                 )
 
             else:
+                if yaxis.lower() in ["tas_absorption_only", "alpha"]:
+                    raise ValueError(
+                        f"The `{yaxis}` option for yaxis can only be chosen if the TASGenerator "
+                        f"object was created using VASP outputs!"
+                    )
+
                 plt.plot(
                     energy_mesh[xmin_ind:xmax_ind],
                     self.tas_total[xmin_ind:xmax_ind],
