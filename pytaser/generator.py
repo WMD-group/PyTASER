@@ -533,16 +533,8 @@ class TASGenerator:
                         jdos_light_total += jd_light
                         tas_total += jdos_diff
 
-                        new_i = 0
-                        new_f = 0
-                        if i <= self.vb[spin]:
-                            new_i = i - self.vb[spin]
-                        elif i > self.vb[spin]:
-                            new_i = (i - self.cb[spin]) + 1
-                        if f <= self.vb[spin]:
-                            new_f = f - self.vb[spin]
-                        elif f > self.vb[spin]:
-                            new_f = (f - self.cb[spin]) + 1
+                        new_i = i - self.vb[spin]
+                        new_f = f - self.vb[spin]
 
                         if self.bs.is_spin_polarized:
                             spin_str = "up" if spin == Spin.up else "down"

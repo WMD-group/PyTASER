@@ -168,25 +168,25 @@ class TASPlotter:
         if xmin is not None:
             if xmin < np.min(energy_mesh):
                 raise ValueError(
-                    "Plotting region xmin value is smaller than energy mesh minimum. Please specify in "
-                    "same units as xaxis"
+                    "Plotting region xmin value is smaller than energy mesh minimum. Please "
+                    "specify in same units as xaxis"
                 )
             if xmin > np.max(energy_mesh):
                 raise ValueError(
-                    "Plotting region xmin value is larger than energy mesh maximum. Please specify in "
-                    "same units as xaxis"
+                    "Plotting region xmin value is larger than energy mesh maximum. Please "
+                    "specify in same units as xaxis"
                 )
 
         if xmax is not None:
             if xmax < np.min(energy_mesh):
                 raise ValueError(
-                    "Plotting region xmax value is smaller than energy mesh minimum. Please specify in "
-                    "same units as xaxis"
+                    "Plotting region xmax value is smaller than energy mesh minimum. Please "
+                    "specify in same units as xaxis"
                 )
             if xmax > np.max(energy_mesh):
                 raise ValueError(
-                    "Plotting region xmax value is larger than energy mesh maximum. Please specify in "
-                    "same units as xaxis"
+                    "Plotting region xmax value is larger than energy mesh maximum. Please "
+                    "specify in same units as xaxis"
                 )
 
         def _rescale_overlapping_curves(list_of_curves):
@@ -314,22 +314,24 @@ class TASPlotter:
             abs_label = "JDOS (a.u.)"
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
-                self.jdos_light_tot[xmin_ind:xmax_ind],
+                self.jdos_light_total[xmin_ind:xmax_ind],
                 label="JDOS (light)",
                 color="black",
                 lw=2.5,
+                alpha=0.75,  # make semi-transparent to show if overlapping lines
             )
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
-                self.jdos_dark_tot[xmin_ind:xmax_ind],
+                self.jdos_dark_total[xmin_ind:xmax_ind],
                 label="JDOS (dark)",
                 color="blue",
                 lw=2.5,
+                alpha=0.75,  # make semi-transparent to show if overlapping lines
             )
 
             if relevant_transitions == "auto":
                 relevant_transition_list = cutoff_transitions(
-                    self.jdos_light_decomp,
+                    self.jdos_light_if,
                     transition_cutoff,
                     xmin_ind,
                     xmax_ind,
@@ -414,7 +416,9 @@ class TASPlotter:
             and (self.conc is not None)
         ):
             # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
-            formatted_material_name = re.sub(r"(\d)", r"$_{\1}$", self.material_name)
+            formatted_material_name = re.sub(
+                r"(\d)", r"$_{\1}$", self.material_name
+            )
             plt.title(
                 abs_label
                 + " spectrum of "
@@ -424,7 +428,7 @@ class TASPlotter:
                 + " K, n = "
                 + str(self.conc)
                 + " $cm^{-3}$",
-                fontsize=25
+                fontsize=25,
             )
 
         plt.xticks(fontsize=30)
