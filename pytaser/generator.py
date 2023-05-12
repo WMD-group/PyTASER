@@ -420,15 +420,15 @@ class TASGenerator:
 
         Returns:
             TAS class containing the following inputs;
-                - tas_cumulative: overall deltaT TAS spectrum for a material under the
+                - tas_total: overall deltaT TAS spectrum for a material under the
                     specified conditions.
-                - tas_if: deltaT TAS spectrum across the energy mesh for a specific band
-                    transition i (initial) -> f (final) [dict]
-                - jdos_light_cumulative: overall JDOS (pump-on) for a material under the
+                - jdos_diff_if: JDOS difference (from dark to light) across the energy mesh for a
+                    specific band transition i (initial) -> f (final) [dict]
+                - jdos_light_total: overall JDOS (pump-on) for a material under the
                     specified conditions
                 - jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
-                - jdos_dark_cumulative: overall JDOS (pump-off) for a material under the
+                - jdos_dark_total: overall JDOS (pump-off) for a material under the
                     specified conditions
                 - jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
@@ -459,14 +459,28 @@ class TASGenerator:
         if dark_occs is None:
             occs_dark = self.band_occupancies(temp, conc)
 
-        bandgap_ev = round(self.bs.get_band_gap()["energy"], 2)
+        bandgap = round(self.bs.get_band_gap()["energy"], 2)
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
         jdos_dark_if = {}
-        tas_if = {}
-        tas_cumulative = np.zeros(len(energy_mesh_ev))
-        jdos_dark_cumulative = np.zeros(len(energy_mesh_ev))
-        jdos_light_cumulative = np.zeros(len(energy_mesh_ev))
+        jdos_diff_if = {}
+        weighted_jdos_light_if = {}
+        weighted_jdos_dark_if = {}
+        weighted_jdos_diff_if = {}
+        tas_total = np.zeros(len(energy_mesh_ev))
+        jdos_dark_total = np.zeros(len(energy_mesh_ev))
+        jdos_light_total = np.zeros(len(energy_mesh_ev))
+
+        if self.dfc is not None:
+            egrid = np.arange(
+                0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
+            )
+            alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
+            alpha_light_dict = {
+                key: np.zeros_like(egrid, dtype=np.complex128)
+                for key in ["absorption", "emission", "both"]
+            }
+
         for spin, spin_bands in self.bs.bands.items():
             if self.dfc is not None:
                 alpha_dark_dict, tdm_array = occ_dependent_alpha(
@@ -509,10 +523,10 @@ class TASGenerator:
                             gaussian_width,
                             spin=spin,
                         )
-                        tas = jd_light - jd_dark
-                        jdos_dark_cumulative += jd_dark
-                        jdos_light_cumulative += jd_light
-                        tas_cumulative += tas
+                        jdos_diff = jd_light - jd_dark
+                        jdos_dark_total += jd_dark
+                        jdos_light_total += jd_light
+                        tas_total += jdos_diff
 
                         new_i = 0
                         new_f = 0
@@ -575,14 +589,21 @@ class TASGenerator:
             )
 
         return Tas(
-            tas_cumulative,
-            tas_if,
-            jdos_light_cumulative,
+            tas_total,
+            jdos_diff_if,
+            jdos_light_total,
             jdos_light_if,
-            jdos_dark_cumulative,
+            jdos_dark_total,
             jdos_dark_if,
             energy_mesh_ev,
-            bandgap_ev,
+            bandgap,
+            temp,
+            conc,
+            alpha_dark if self.dfc is not None else None,
+            alpha_light_dict if self.dfc is not None else None,
+            weighted_jdos_light_if if self.dfc is not None else None,
+            weighted_jdos_dark_if if self.dfc is not None else None,
+            weighted_jdos_diff_if if self.dfc is not None else None,
         )
 
     @classmethod

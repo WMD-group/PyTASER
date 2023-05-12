@@ -67,22 +67,25 @@ class TASPlotter:
         temp=None,
         conc=None,
     ):
-        self.tas_tot = container.total_tas
-        self.tas_decomp = container.tas_decomp
-        self.jdos_light_tot = container.jdos_light_tot
-        self.jdos_light_decomp = container.jdos_light_decomp
-        self.jdos_dark_tot = container.jdos_dark_tot
-        self.jdos_dark_decomp = container.jdos_dark_decomp
+        self.tas_total = container.tas_total
+        self.jdos_diff_if = container.jdos_diff_if
+        self.jdos_light_total = container.jdos_light_total
+        self.jdos_light_if = container.jdos_light_if
+        self.jdos_dark_total = container.jdos_dark_total
+        self.jdos_dark_if = container.jdos_dark_if
         self.energy_mesh_ev = container.energy_mesh_ev
-        if bandgap_ev is None:
-            self.bandgap_ev = container.bandgap
-        elif bandgap_ev is not None:
-            self.bandgap_ev = bandgap_ev
+        self.bandgap = container.bandgap
         self.material_name = material_name
         self.temp = temp
         self.conc = conc
         self.energy_mesh_lambda = ev_to_lambda(self.energy_mesh_ev)
-        self.bandgap_lambda = ev_to_lambda(self.bandgap_ev)
+        self.bandgap_lambda = ev_to_lambda(self.bandgap)
+
+        self.alpha_dark = container.alpha_dark
+        self.alpha_light_dict = container.alpha_light_dict
+        self.weighted_jdos_light_if = container.weighted_jdos_light_if
+        self.weighted_jdos_dark_if = container.weighted_jdos_dark_if
+        self.weighted_jdos_diff_if = container.weighted_jdos_diff_if
 
     def get_plot(
         self,
@@ -140,7 +143,7 @@ class TASPlotter:
                 xmin_ind = np.abs(energy_mesh - xmin).argmin()
             if xmax is not None:
                 xmax_ind = np.abs(energy_mesh - xmax).argmin()
-            bg = self.bandgap_ev
+            bg = self.bandgap
             plt.xlabel("Energy (eV)", fontsize=30)
 
         if xmin is not None:
