@@ -58,11 +58,11 @@ def test_jdos(generated_class, light, dark, tas_object):
     f_tas = f - (generated_class.cb[Spin.up]) + 1
     assert (
             new_jdos_light.all()
-            == tas_object.jdos_light_decomp[(i_tas, f_tas)].all()
+            == tas_object.jdos_light_if[(i_tas, f_tas)].all()
     )
     assert (
             new_jdos_dark.all()
-            == tas_object.jdos_dark_decomp[(i_tas, f_tas)].all()
+            == tas_object.jdos_dark_if[(i_tas, f_tas)].all()
     )
 
 
@@ -116,10 +116,10 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
         dark,
     )
 
-    assert tas_class.total_tas.all() == tas_object.total_tas.all()
-    assert DeepDiff(tas_class.tas_decomp, tas_object.tas_decomp) == {}
+    assert tas_class.tas_total.all() == tas_object.tas_total.all()
+    assert DeepDiff(tas_class.jdos_diff_if, tas_object.jdos_diff_if) == {}
     assert (
-            DeepDiff(tas_class.jdos_light_decomp, tas_object.jdos_light_decomp)
+            DeepDiff(tas_class.jdos_light_if, tas_object.jdos_light_if)
             == {}
     )
     assert tas_class.jdos_light_tot.all() == tas_object.jdos_light_tot.all()
@@ -128,8 +128,8 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     assert tas_class.bandgap == tas_object.bandgap
 
     assert (
-            tas_class.total_tas.all()
-            == (tas_class.jdos_light_tot - tas_class.jdos_dark_tot).all()
+            tas_class.tas_total.all()
+            == (tas_class.jdos_light_total - tas_class.jdos_dark_total).all()
     )
 
     number_combinations_if = int(
@@ -137,9 +137,9 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     )
     assert (
             number_combinations_if
-            == len(tas_class.tas_decomp.keys())
-            == len(tas_class.jdos_light_decomp.keys())
-            == len(tas_class.jdos_dark_decomp.keys())
+            == len(tas_class.jdos_diff_if.keys())
+            == len(tas_class.jdos_light_if.keys())
+            == len(tas_class.jdos_dark_if.keys())
     )
 
     cbm = generated_class.cb[Spin.up]
@@ -156,7 +156,7 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
         gaussian_width,
         spin,
     )
-    assert tas_class.jdos_light_decomp[0, 1].all() == jdos_vbm_cbm.all()
+    assert tas_class.jdos_light_if[0, 1].all() == jdos_vbm_cbm.all()
 
 
 @mock.patch("pymatgen.ext.matproj.MPRester")
