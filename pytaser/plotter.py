@@ -3,6 +3,7 @@ import warnings
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.signal import argrelextrema
 import scipy.constants as scpc
 
 
@@ -170,7 +171,38 @@ class TASPlotter:
                     "same units as xaxis"
                 )
 
-        abs_label = ""
+        def _rescale_overlapping_curves(list_of_curves):
+            local_extrema_coords = []
+            output_list_of_curves = []
+            for curve in list_of_curves:  # Find the local maxima of each curve
+                if curve is not None and np.max(np.abs(curve)) > 0.1:
+                    local_extrema_indices = argrelextrema(
+                        np.abs(curve), np.greater
+                    )[0]
+                    local_extrema = [
+                        (idx, round(np.abs(curve)[idx], 1))
+                        for idx in local_extrema_indices
+                    ]
+                    # if any matching tuple in the list of local extrema:
+                    while any(
+                        i == j
+                        for i in local_extrema
+                        for j in local_extrema_coords
+                    ):
+                        curve *= 0.95
+                        local_extrema_indices = argrelextrema(
+                            np.abs(curve), np.greater
+                        )[0]
+                        local_extrema = [
+                            (i, round(np.abs(curve)[i], 1))
+                            for i in local_extrema_indices
+                        ]
+
+                    local_extrema_coords += [
+                        (i, round(np.abs(curve)[i], 1))
+                        for i in local_extrema_indices
+                    ]
+                output_list_of_curves.append(curve)
 
         if yaxis == "tas":
             abs_label = "ΔT (a.u.)"
