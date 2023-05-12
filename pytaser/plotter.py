@@ -86,6 +86,7 @@ class TASPlotter:
         ymin=None,
         ymax=None,
         yaxis="tas",
+        **kwargs,
     ):
         """
         Args:
@@ -363,6 +364,11 @@ class TASPlotter:
 
         plt.xticks(fontsize=30)
         plt.yticks(fontsize=30)
-        plt.legend(loc="center left", bbox_to_anchor=(1.04, 0.5),fontsize=16)
+        plt.legend(
+            loc=kwargs.pop("loc", "center left"),
+            bbox_to_anchor=kwargs.pop("bbox_to_anchor", (1.04, 0.5)),
+            fontsize=kwargs.pop("fontsize", 16),
+            **kwargs,
+        )
 
         return plt
