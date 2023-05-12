@@ -96,7 +96,7 @@ def cdte_tas_object(cdte_generated_class, cdte_conditions, cdte_dark, cdte_light
 def plotter_gaas(tas_object, conditions):
     return TASPlotter(
         tas_object,
-        bandgap_ev=conditions[2],
+        bandgap=conditions[2],
         material_name="GaAs",
         temp=conditions[0],
         conc=conditions[1],
@@ -107,7 +107,7 @@ def plotter_gaas(tas_object, conditions):
 def plotter_cdte(cdte_tas_object, cdte_conditions):
     return TASPlotter(
         cdte_tas_object,
-        bandgap_ev=cdte_conditions[2],
+        bandgap=cdte_conditions[2],
         material_name="CdTe",
         temp=cdte_conditions[0],
         conc=cdte_conditions[1],
