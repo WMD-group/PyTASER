@@ -99,12 +99,15 @@ class TASPlotter:
         spectrum ("Total TAS (Δɑ)"). If only the contribution from the change in absorption is
         desired, with stimulated emission neglected, set "yaxis" to "tas_absorption_only".
 
-        One can also plot the JDOS before and after illumination, by setting "yaxis" to "jdos".
+        One can also plot the JDOS before and after illumination, by setting "yaxis" to "jdos",
+        or the effective absorption coefficient (α, including absorption and stimulated emission)
+        before and after illumination, by setting "yaxis" to "alpha".
 
         The individual band-to-band transitions which contribute to the JDOS/TAS are also shown
         (which can be controlled with the `transition_cutoff` argument – set to 1 to not show any
         band-band transitions), and these are weighted by the oscillator strength of the transition
-        when TASGenerator was created from VASP objects and yaxis="tas" or "tas_absorption_only".
+        when TASGenerator was created from VASP objects and yaxis="tas", "tas_absorption_only" or
+        "alpha".
 
         Args:
             relevant_transitions: List containing individual transitions to be displayed
@@ -127,11 +130,14 @@ class TASPlotter:
                 predicted TAS spectrum considering all contributions to the TAS (if TASGenerator
                 was created from VASP outputs)("Total TAS (Δɑ)"), or just using the change in the
                 joint density of states (JDOS) before & after illumination ("Total TAS (ΔJDOS
-                only)") – the latter can also be explicitly selected with yaxis = "jdos_diff". If
-                yaxis = "tas_absorption_only", will instead plot the predicted TAS spectrum
-                considering only the change in absorption, with stimulated emission neglected. If
-                yaxis = "jdos", will plot the joint density of states before & after
+                only)") – the latter can also be explicitly selected with yaxis = "jdos_diff".
+
+                If yaxis = "tas_absorption_only", will instead plot the predicted TAS spectrum
+                considering only the change in absorption, with stimulated emission neglected.
+                If yaxis = "jdos", will plot the joint density of states before & after
                 illumination.
+                If yaxis = "alpha", will plot the effective absorption coefficient (α, including
+                absorption and stimulated emission) before and after illumination.
             **kwargs: Additional arguments to be passed to matplotlib.pyplot.legend(); such as
                 `ncols` (number of columns in the legend), `loc` (location of the legend),
                 `fontsize` etc. (see https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot
@@ -224,30 +230,18 @@ class TASPlotter:
 
             return output_list_of_curves
 
-        if yaxis.lower() in ["tas", "tas_absorption_only", "jdos_diff"]:
+        if yaxis.lower() in [
+            "tas",
+            "tas_absorption_only",
+            "jdos_diff",
+            "alpha",
+        ]:
             abs_label = "ΔT (a.u.)"
 
-            if self.alpha_light_dict is not None and "tas" in yaxis.lower():
-                if yaxis.lower() == "tas_absorption_only":
-                    tas_total = (
-                        self.alpha_light_dict["absorption"] - self.alpha_dark
-                    )
-                else:
-                    tas_total = (
-                        self.tas_total
-                    )  # alpha_light_abs - alpha_light_emission - alpha_dark
-
-                normalised_tas = tas_total / np.max(
-                    np.abs(tas_total)[xmin_ind:xmax_ind]
-                )
-                plt.plot(
-                    energy_mesh[xmin_ind:xmax_ind],
-                    normalised_tas[xmin_ind:xmax_ind],
-                    label="Total TAS (Δα)",
-                    color="black",
-                    lw=3.5,
-                    alpha=0.75,  # make semi-transparent to show if overlapping lines
-                )
+            if (
+                self.alpha_light_dict is not None
+                and "jdos_diff" not in yaxis.lower()
+            ):
                 transition_dict = {
                     k: v
                     / np.max(
@@ -257,6 +251,147 @@ class TASPlotter:
                     )
                     for k, v in self.weighted_jdos_diff_if.items()
                 }
+                if "tas" in yaxis.lower():
+                    if yaxis.lower() == "tas_absorption_only":
+                        tas_total = (
+                            self.alpha_light_dict["absorption"]
+                            - self.alpha_dark
+                        )
+                    else:  # yaxis = "tas"
+                        tas_total = (
+                            self.tas_total
+                        )  # alpha_light_abs - alpha_light_emission - alpha_dark
+
+                    normalised_tas = tas_total / np.max(
+                        np.abs(tas_total)[xmin_ind:xmax_ind]
+                    )
+                    plt.plot(
+                        energy_mesh[xmin_ind:xmax_ind],
+                        normalised_tas[xmin_ind:xmax_ind],
+                        label="Total TAS (Δα)",
+                        color="black",
+                        lw=3.5,
+                        alpha=0.75,  # make semi-transparent to show if overlapping lines
+                    )
+
+                else:  # yaxis = "alpha"
+                    abs_label = "α (a.u.)"
+                    alpha_normalisation_factor = (
+                        np.max(  # normalise to max alpha in dark
+                            np.abs(self.alpha_dark)[xmin_ind:xmax_ind]
+                        )
+                    )
+                    plt.plot(
+                        energy_mesh[xmin_ind:xmax_ind],
+                        self.alpha_light_dict["both"][xmin_ind:xmax_ind]
+                        / alpha_normalisation_factor,
+                        label="α (light)",
+                        color="black",
+                        lw=2.5,
+                        alpha=0.75,  # make semi-transparent to show if overlapping lines
+                    )
+                    plt.plot(
+                        energy_mesh[xmin_ind:xmax_ind],
+                        self.alpha_dark[xmin_ind:xmax_ind]
+                        / alpha_normalisation_factor,
+                        label="α (dark)",
+                        color="blue",
+                        lw=2.5,
+                        alpha=0.75,  # make semi-transparent to show if overlapping lines
+                    )
+                    weighted_jdos_normalisation_factor = np.max(
+                        np.abs(list(self.weighted_jdos_dark_if.values()))[
+                            xmin_ind:xmax_ind
+                        ]
+                    )
+
+                    if relevant_transitions == "auto":
+                        relevant_transition_list = cutoff_transitions(
+                            self.weighted_jdos_light_if,
+                            transition_cutoff,
+                            xmin_ind,
+                            xmax_ind,
+                        )
+                        list_of_curves = [
+                            np.array(
+                                self.weighted_jdos_light_if[transition][
+                                    xmin_ind:xmax_ind
+                                ]
+                            )
+                            if transition is not None
+                            else None
+                            for transition in relevant_transition_list
+                        ]
+                        list_of_curves = _rescale_overlapping_curves(
+                            list_of_curves
+                        )
+
+                        for i, transition in enumerate(
+                            relevant_transition_list
+                        ):
+                            if transition is not None:
+                                plt.plot(
+                                    energy_mesh[xmin_ind:xmax_ind],
+                                    list_of_curves[i]
+                                    / weighted_jdos_normalisation_factor,
+                                    label=str(transition) + " (light)",
+                                    color=f"C{2 * i}",
+                                )
+                            if transition is not None and np.any(
+                                self.weighted_jdos_dark_if[transition][
+                                    xmin_ind:xmax_ind
+                                ]
+                            ):
+                                # only plot dark if it's not all zero
+                                plt.plot(
+                                    energy_mesh[xmin_ind:xmax_ind],
+                                    self.weighted_jdos_dark_if[transition][
+                                        xmin_ind:xmax_ind
+                                    ]
+                                    / weighted_jdos_normalisation_factor,
+                                    label=str(transition) + " (dark)",
+                                    ls="--",  # dashed linestyle for dark to distinguish
+                                    color=f"C{2 * i + 1}",
+                                )
+
+                    else:
+                        list_of_curves = [
+                            np.array(
+                                self.weighted_jdos_light_if[transition][
+                                    xmin_ind:xmax_ind
+                                ]
+                            )
+                            for transition in relevant_transitions
+                        ]
+                        list_of_curves = _rescale_overlapping_curves(
+                            list_of_curves
+                        )
+
+                        for i, transition in enumerate(relevant_transitions):
+                            plt.plot(
+                                energy_mesh[xmin_ind:xmax_ind],
+                                list_of_curves[i]
+                                / weighted_jdos_normalisation_factor,
+                                label=str(transition) + " (light)",
+                                lw=2.5,
+                                color=f"C{2 * i}",
+                            )
+                            if np.any(
+                                self.weighted_jdos_dark_if[transition][
+                                    xmin_ind:xmax_ind
+                                ]
+                            ):
+                                # only plot dark if it's not all zero
+                                plt.plot(
+                                    energy_mesh[xmin_ind:xmax_ind],
+                                    self.weighted_jdos_dark_if[transition][
+                                        xmin_ind:xmax_ind
+                                    ]
+                                    / weighted_jdos_normalisation_factor,
+                                    label=str(transition) + " (dark)",
+                                    ls="--",  # dashed linestyle for dark to distinguish
+                                    color=f"C{2 * i + 1}",
+                                )
 
             else:
                 plt.plot(
@@ -310,7 +445,7 @@ class TASPlotter:
                         color=f"C{i}",
                     )
 
-        elif yaxis == "jdos":
+        elif yaxis.lower() == "jdos":
             abs_label = "JDOS (a.u.)"
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
