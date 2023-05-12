@@ -139,16 +139,24 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function (see
             https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of CSHIFT from
             the underlying VASP WAVEDER calculation.
+
+    Returns:
+        (alpha_dict, tdm_array) where alpha_dict is a dictionary of band-to-band absorption,
+        stimulated emission and summed contributions to the total overall absorption coefficient
+        under illumination in cm^-1, and tdm_array is an array of shape (nbands, nbands,
+        nkpoints) with the transition dipole matrix elements for each band-to-band transition.
     """
     if sigma is None:
         sigma = dfc.sigma
     if cshift is None:
         cshift = dfc.cshift
     egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
-    imag_dielectric_dict = {
+    dielectric_dict = {
         key: np.zeros_like(egrid, dtype=np.complex128)
         for key in ["absorption", "emission", "both"]
     }
+    # array of shape equal to cder but without the last two dimensions (ispin, idir)
+    tdm_array = np.zeros_like(dfc.cder[:, :, :, 0, 0])  # ib, jb, ik, ispin
 
     norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
     eigs_shifted = dfc.eigs - dfc.efermi
@@ -202,6 +210,8 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             )
             decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
             matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
+            tdm_array[ib, jb, ik] = np.abs(A) * rspin * decel  # kweight and occ factor
+            # already accounted for with JDOS
 
             abs_occ_factor = init_occ * (1 - final_occ)
             em_occ_factor = (1 - init_occ) * final_occ
@@ -223,24 +233,26 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
                 ismear=ismear,
             )
 
-            imag_dielectric_dict["absorption"] += (
+            dielectric_dict["absorption"] += (
                 smeared_wout_matrix_el * abs_matrix_el
             )
-            imag_dielectric_dict["emission"] += (
+            dielectric_dict["emission"] += (
                 smeared_wout_matrix_el * em_matrix_el
             )
-            imag_dielectric_dict["both"] += (
+            dielectric_dict["both"] += (
                 smeared_wout_matrix_el * both_matrix_el
             )
 
+    tdm_array = tdm_array.real  # real part of A is the TDM (imag part is zero after taking the
+    # complex conjugate)
     alpha_dict = {}
-    for key, imag_dielectric in imag_dielectric_dict.items():
-        eps_in = imag_dielectric * optics.edeps * np.pi / dfc.volume
+    for key, dielectric in dielectric_dict.items():
+        eps_in = dielectric * optics.edeps * np.pi / dfc.volume
         eps = optics.kramers_kronig(
             eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift
         )
         eps += 1.0 + 0.0j
-        imag_dielectric_dict[key] = eps  # complex dielectric function
+        dielectric_dict[key] = eps  # complex dielectric function
 
         # convert to alpha:
         n = np.sqrt(eps)  # complex refractive index
@@ -249,7 +261,7 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         )  # absorption coefficient in cm^-1
         alpha_dict[key] = alpha
 
-    return egrid, alpha_dict
+    return alpha_dict, tdm_array
 
 
 def get_cbm_vbm_index(bs):
