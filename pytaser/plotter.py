@@ -206,41 +206,43 @@ class TASPlotter:
 
             if relevant_transitions == "auto":
                 relevant_transition_list = cutoff_transitions(
-                    self.tas_decomp, transition_cutoff, xmin_ind, xmax_ind
+                    transition_dict,
+                    transition_cutoff,
+                    xmin_ind,
+                    xmax_ind,
                 )
+                list_of_curves = [
+                    np.array(transition_dict[transition][xmin_ind:xmax_ind])
+                    if transition is not None
+                    else None
+                    for transition in relevant_transition_list
+                ]
+                list_of_curves = _rescale_overlapping_curves(list_of_curves)
 
-                # group transitions with (almost) equal energies:
-                groups = defaultdict(list)
-                for index, transition in enumerate(relevant_transition_list):
+                for i, transition in enumerate(relevant_transition_list):
                     if transition is not None:
-                        tas_curve = self.tas_decomp[transition][xmin_ind:xmax_ind]
-                        tas_area = np.trapz(tas_curve, energy_mesh[xmin_ind:xmax_ind])
-                        # group by position of max point and area under curve (to account for
-                        # possibility of degeneracy at max point, but not for the full curve (if
-                        # e.g. two bands are degenerate at a single kpoint but not across the BZ)
-                        groups[f"{np.argmax(np.abs(tas_curve))}, {tas_area:.2f}"].append(
-                            (transition, tas_curve, index)
+                        plt.plot(
+                            energy_mesh[xmin_ind:xmax_ind],
+                            list_of_curves[i],
+                            label=str(transition),
+                            lw=2.5,
+                            color=f"C{i}",
                         )
 
-                for coords, transition_tuple_list in groups.items():
-                    transition_tuple_array = np.array(transition_tuple_list, dtype=object)
-                    plt.plot(
-                        energy_mesh[xmin_ind:xmax_ind],
-                        sum(transition_tuple_array[:, 1]),
-                        label=", ".join([str(transition) for transition
-                                         in transition_tuple_array[:, 0]]
-                                        ),
-                        lw=2.5,
-                        color=f"C{transition_tuple_array[0, 2]}"
-                    )
-
             else:
-                for transition in relevant_transitions:
+                list_of_curves = [
+                    np.array(transition_dict[transition][xmin_ind:xmax_ind])
+                    for transition in relevant_transitions
+                ]
+                list_of_curves = _rescale_overlapping_curves(list_of_curves)
+
+                for i, transition in enumerate(relevant_transitions):
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
-                        self.tas_decomp[transition][xmin_ind:xmax_ind],
-                        label=transition,
-                        lw=2.5
+                        list_of_curves[i],
+                        label=str(transition),
+                        lw=2.5,
+                        color=f"C{i}",
                     )
 
         elif yaxis == "jdos":
@@ -267,6 +269,13 @@ class TASPlotter:
                     xmin_ind,
                     xmax_ind,
                 )
+                list_of_curves = [
+                    np.array(self.jdos_light_if[transition][xmin_ind:xmax_ind])
+                    if transition is not None
+                    else None
+                    for transition in relevant_transition_list
+                ]
+                list_of_curves = _rescale_overlapping_curves(list_of_curves)
 
                 # group transitions with (almost) equal energies:
                 groups = defaultdict(list)
@@ -307,7 +316,13 @@ class TASPlotter:
                         )
 
             else:
-                for transition in relevant_transitions:
+                list_of_curves = [
+                    np.array(self.jdos_light_if[transition][xmin_ind:xmax_ind])
+                    for transition in relevant_transitions
+                ]
+                list_of_curves = _rescale_overlapping_curves(list_of_curves)
+
+                for i, transition in enumerate(relevant_transitions):
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
                         self.jdos_light_decomp[transition][xmin_ind:xmax_ind],
