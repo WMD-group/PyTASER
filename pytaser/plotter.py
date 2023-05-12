@@ -193,16 +193,52 @@ class TASPlotter:
                     ]
                 output_list_of_curves.append(curve)
 
-        if yaxis == "tas":
+            return output_list_of_curves
+
+        if yaxis.lower() in ["tas", "tas_absorption_only", "jdos_diff"]:
             abs_label = "ΔT (a.u.)"
 
-            plt.plot(
-                energy_mesh[xmin_ind:xmax_ind],
-                self.tas_tot[xmin_ind:xmax_ind],
-                label="total TAS",
-                color="black",
-                lw=3.5,
-            )
+            if self.alpha_light_dict is not None and "tas" in yaxis.lower():
+                if yaxis.lower() == "tas_absorption_only":
+                    tas_total = (
+                        self.alpha_light_dict["absorption"] - self.alpha_dark
+                    )
+                else:
+                    tas_total = (
+                        self.tas_total
+                    )  # alpha_light_abs - alpha_light_emission - alpha_dark
+
+                normalised_tas = tas_total / np.max(
+                    np.abs(tas_total)[xmin_ind:xmax_ind]
+                )
+                plt.plot(
+                    energy_mesh[xmin_ind:xmax_ind],
+                    normalised_tas[xmin_ind:xmax_ind],
+                    label="Total TAS (Δα)",
+                    color="black",
+                    lw=3.5,
+                    alpha=0.75,  # make semi-transparent to show if overlapping lines
+                )
+                transition_dict = {
+                    k: v
+                    / np.max(
+                        np.abs(list(self.weighted_jdos_diff_if.values()))[
+                            xmin_ind:xmax_ind
+                        ]
+                    )
+                    for k, v in self.weighted_jdos_diff_if.items()
+                }
+
+            else:
+                plt.plot(
+                    energy_mesh[xmin_ind:xmax_ind],
+                    self.tas_total[xmin_ind:xmax_ind],
+                    label="Total TAS (ΔJDOS only)",
+                    color="black",
+                    lw=3.5,
+                    alpha=0.75,  # make semi-transparent to show if overlapping lines
+                )
+                transition_dict = self.jdos_diff_if
 
             if relevant_transitions == "auto":
                 relevant_transition_list = cutoff_transitions(
@@ -277,42 +313,24 @@ class TASPlotter:
                 ]
                 list_of_curves = _rescale_overlapping_curves(list_of_curves)
 
-                # group transitions with (almost) equal energies:
-                groups = defaultdict(list)
-                for index, transition in enumerate(relevant_transition_list):
+                for i, transition in enumerate(relevant_transition_list):
                     if transition is not None:
-                        jdos_light_curve = self.jdos_light_decomp[transition][xmin_ind:xmax_ind]
-                        jdos_dark_curve = self.jdos_dark_decomp[transition][xmin_ind:xmax_ind]
-                        jdos_light_area = np.trapz(jdos_light_curve, energy_mesh[xmin_ind:xmax_ind])
-                        # group by position of max point and area under curve (to account for
-                        # possibility of degeneracy at max point, but not for the full curve (if
-                        # e.g. two bands are degenerate at a single kpoint but not across the BZ)
-                        groups[f"{np.argmax(np.abs(jdos_light_curve))}," \
-                               f" {jdos_light_area:.2f}"].append(
-                            (transition, jdos_light_curve, jdos_dark_curve, index)
+                        plt.plot(
+                            energy_mesh[xmin_ind:xmax_ind],
+                            list_of_curves[i],
+                            label=str(transition) + " (light)",
+                            color=f"C{2*i}",
                         )
-
-                for coords, transition_tuple_list in groups.items():
-                    transition_tuple_array = np.array(transition_tuple_list, dtype=object)
-                    plt.plot(
-                        energy_mesh[xmin_ind:xmax_ind],
-                        sum(transition_tuple_array[:, 1]),
-                        label=", ".join([str(transition) for transition
-                                         in transition_tuple_array[:, 0]]
-                                        ) + " (light)",
-                        color=f"C{2*transition_tuple_array[0, 3]}"
-                    )
-                    if np.any(sum(transition_tuple_array[:, 2])):
+                    if transition is not None and np.any(
+                        self.jdos_dark_if[transition][xmin_ind:xmax_ind]
+                    ):
                         # only plot dark if it's not all zero
                         plt.plot(
                             energy_mesh[xmin_ind:xmax_ind],
-                            sum(transition_tuple_array[:, 2]),
-                            label=", ".join([str(transition) for transition
-                                             in transition_tuple_array[:, 0]]
-                                            ) + " (dark)",
+                            self.jdos_dark_if[transition][xmin_ind:xmax_ind],
+                            label=str(transition) + " (dark)",
                             ls="--",  # dashed linestyle for dark to distinguish
-                            alpha=0.5,  # make semi-transparent to show if overlapping lines
-                            color=f"C{2 * transition_tuple_array[0, 3] + 1}"
+                            color=f"C{2 * i + 1}",
                         )
 
             else:
@@ -325,18 +343,21 @@ class TASPlotter:
                 for i, transition in enumerate(relevant_transitions):
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
-                        self.jdos_light_decomp[transition][xmin_ind:xmax_ind],
+                        list_of_curves[i],
                         label=str(transition) + " (light)",
+                        lw=2.5,
+                        color=f"C{2*i}",
                     )
-                    if np.any(self.jdos_dark_decomp[transition][
-                                xmin_ind:xmax_ind
-                            ]):
+                    if np.any(
+                        self.jdos_dark_if[transition][xmin_ind:xmax_ind]
+                    ):
                         # only plot dark if it's not all zero
                         plt.plot(
                             energy_mesh[xmin_ind:xmax_ind],
-                            self.jdos_dark_decomp[transition][xmin_ind:xmax_ind],
+                            self.jdos_dark_if[transition][xmin_ind:xmax_ind],
                             label=str(transition) + " (dark)",
                             ls="--",  # dashed linestyle for dark to distinguish
+                            color=f"C{2 * i + 1}",
                         )
 
         plt.ylabel(abs_label, fontsize=30)
