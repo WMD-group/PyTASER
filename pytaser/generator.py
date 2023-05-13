@@ -317,7 +317,7 @@ class TASGenerator:
         self.cb = get_cbm_vbm_index(self.bs)[1]
 
     @classmethod
-    def from_vasp_objects(cls, vasprun_file, waveder_file=None):
+    def from_vasp_outputs(cls, vasprun_file, waveder_file=None):
         """Create a TASGenerator object from VASP output files."""
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
         warnings.filterwarnings(
@@ -334,7 +334,7 @@ class TASGenerator:
                     "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
                     "previous calculation this should only require 1 or 2 electronic steps!"
                 )
-            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
+            dfc = optics.DielectricFunctionCalculator.from_vasp_outputs(
                 vr, waveder
             )
         else:

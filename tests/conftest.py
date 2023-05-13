@@ -52,13 +52,13 @@ def cdte_generated_class(datapath_cdte):
 
 @pytest.fixture(scope="package")
 def cdte_vasp_generated_class(examplepath_cdte):
-    return TASGenerator.from_vasp_objects(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml",
+    return TASGenerator.from_vasp_outputs(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml",
                                           waveder_file=examplepath_cdte / "k666_Optics/WAVEDER")
 
 
 @pytest.fixture(scope="package")
 def cdte_vasp_generated_class_vr_only(examplepath_cdte):
-    return TASGenerator.from_vasp_objects(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml")
+    return TASGenerator.from_vasp_outputs(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml")
 
 
 @pytest.fixture(name="dark", scope="module")

@@ -132,11 +132,11 @@ def test_occ_dependent_alpha(
 
 
 def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
-    """Test that from_vasp_objects raises informative errors when ISYM not 0/-1"""
+    """Test that from_vasp_outputs raises informative errors when ISYM not 0/-1"""
     with pytest.raises(
         NotImplementedError, match="ISYM != 0 is not implemented yet"
     ):
-        cdte_vasp_generated_class.from_vasp_objects(
+        cdte_vasp_generated_class.from_vasp_outputs(
             vasprun_file=datapath_cdte
             / "error_testing/CdTe_symmetry_on_vasprun.xml",
             waveder_file=datapath_cdte
@@ -145,12 +145,12 @@ def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
 
 
 def test_LVEL_false_error(cdte_vasp_generated_class, datapath_cdte):
-    """Test that from_vasp_objects raises informative errors when LVEL not True"""
+    """Test that from_vasp_outputs raises informative errors when LVEL not True"""
     with pytest.raises(
         ValueError,
         match="LVEL must be set to True in the INCAR for the VASP optics calculation",
     ):
-        cdte_vasp_generated_class.from_vasp_objects(
+        cdte_vasp_generated_class.from_vasp_outputs(
             vasprun_file=datapath_cdte
             / "error_testing/CdTe_LVEL_False_vasprun.xml",
             waveder_file=datapath_cdte
