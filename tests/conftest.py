@@ -9,17 +9,25 @@ from pathlib import Path
 @pytest.fixture(scope="package")
 def datapath_gaas():
     """Path to data_gaas folder"""
-    return Path(__file__).parent / 'data_gaas'
+    return Path(__file__).parent / "data_gaas"
+
 
 @pytest.fixture(scope="package")
 def datapath_cdte():
     """Path to data_cdte folder"""
-    return Path(__file__).parent / 'data_cdte'
+    return Path(__file__).parent / "data_cdte"
+
+
+@pytest.fixture(scope="package")
+def examplepath_cdte():
+    """Path to CdTe examples folder"""
+    return Path(__file__).parent.parent / "examples/CdTe"
 
 
 @pytest.fixture(scope="package")
 def conditions():  # return [temperature, carrier conc, bandgap] in that order
     return [298, 1e18, 1.5]
+
 
 @pytest.fixture(scope="package")
 def cdte_conditions():  # return [temperature, carrier conc, bandgap] in that order
@@ -42,6 +50,17 @@ def cdte_generated_class(datapath_cdte):
     return TASGenerator(cdte_bs, cdte_kweights, cdte_dos)
 
 
+@pytest.fixture(scope="package")
+def cdte_vasp_generated_class(examplepath_cdte):
+    return TASGenerator.from_vasp_objects(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml",
+                                          waveder_file=examplepath_cdte / "k666_Optics/WAVEDER")
+
+
+@pytest.fixture(scope="package")
+def cdte_vasp_generated_class_vr_only(examplepath_cdte):
+    return TASGenerator.from_vasp_objects(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml")
+
+
 @pytest.fixture(name="dark", scope="module")
 def dark_occs_generated(generated_class, conditions):
     return generated_class.band_occupancies(conditions[0], conditions[1])
@@ -49,7 +68,9 @@ def dark_occs_generated(generated_class, conditions):
 
 @pytest.fixture(name="cdte_dark", scope="module")
 def cdte_dark_occs_generated(cdte_generated_class, cdte_conditions):
-    return cdte_generated_class.band_occupancies(cdte_conditions[0], cdte_conditions[1])
+    return cdte_generated_class.band_occupancies(
+        cdte_conditions[0], cdte_conditions[1]
+    )
 
 
 @pytest.fixture(name="light", scope="module")
@@ -80,7 +101,9 @@ def tas_object(generated_class, conditions, dark, light):
 
 
 @pytest.fixture(scope="module")
-def cdte_tas_object(cdte_generated_class, cdte_conditions, cdte_dark, cdte_light):
+def cdte_tas_object(
+    cdte_generated_class, cdte_conditions, cdte_dark, cdte_light
+):
     return cdte_generated_class.generate_tas(
         cdte_conditions[0],
         cdte_conditions[1],
@@ -89,6 +112,19 @@ def cdte_tas_object(cdte_generated_class, cdte_conditions, cdte_dark, cdte_light
         step=0.01,  # default
         light_occs=cdte_light,
         dark_occs=cdte_dark,
+    )
+
+
+@pytest.fixture(scope="module")
+def cdte_vasp_tas_object(
+    cdte_vasp_generated_class, cdte_conditions
+):
+    return cdte_vasp_generated_class.generate_tas(
+        cdte_conditions[0],
+        cdte_conditions[1],
+        energy_min=0,
+        energy_max=10,
+        step=0.01,  # default
     )
 
 
