@@ -405,4 +405,26 @@ def test_get_plot_jdos_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
     return fig
 
 
-
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_cdte_custom_legend.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
+    """Test get_plot() yaxis="tas" for CdTe with kwargs for plt.legend()"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+        # kwargs for plt.legend():
+        ncols=2,
+        loc="upper right",
+        bbox_to_anchor=(1.0, 1.0),
+        frameon=False,
+        borderaxespad=0.0,
+        handlelength=1.5,
+        handletextpad=0.5,
+    )
+    return fig
