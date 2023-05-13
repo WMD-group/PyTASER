@@ -141,6 +141,7 @@ def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
             / "error_testing/CdTe_symmetry_on_WAVEDER",
         )
 
+
 def test_LVEL_false_error(cdte_vasp_generated_class, datapath_cdte):
     """Test that from_vasp_objects raises informative errors when LVEL not True"""
     with pytest.raises(
@@ -155,7 +156,70 @@ def test_LVEL_false_error(cdte_vasp_generated_class, datapath_cdte):
         )
 
 
+def test_generate_from_vasprun_only(
+    cdte_vasp_generated_class_vr_only,
+    cdte_vasp_generated_class,
+    cdte_conditions,
+):
+    tas_class = cdte_vasp_generated_class_vr_only.generate_tas(
+        temp=cdte_conditions[0],
+        conc=cdte_conditions[1],
+    )
+    tas_class_with_waveder = cdte_vasp_generated_class.generate_tas(
+        temp=cdte_conditions[0],
+        conc=cdte_conditions[1],
+    )
 
+    assert tas_class.tas_total.size
+    with pytest.raises(
+        AssertionError,
+    ):
+        np.testing.assert_array_almost_equal(
+            tas_class.tas_total, tas_class_with_waveder.tas_total, decimal=1
+        )
+    assert tas_class.jdos_diff_if
+    for key, array in tas_class.jdos_diff_if.items():
+        np.testing.assert_array_almost_equal(
+            array, tas_class_with_waveder.jdos_diff_if[key]
+        )
+    assert tas_class.jdos_light_total.size
+    np.testing.assert_array_almost_equal(
+        tas_class.jdos_light_total, tas_class_with_waveder.jdos_light_total
+    )
+    assert tas_class.jdos_light_if
+    for key, array in tas_class.jdos_light_if.items():
+        np.testing.assert_array_almost_equal(
+            array, tas_class_with_waveder.jdos_light_if[key]
+        )
+    assert tas_class.jdos_dark_total.size
+    np.testing.assert_array_almost_equal(
+        tas_class.jdos_dark_total, tas_class_with_waveder.jdos_dark_total
+    )
+    assert tas_class.jdos_dark_if
+    for key, array in tas_class.jdos_dark_if.items():
+        np.testing.assert_array_almost_equal(
+            array, tas_class_with_waveder.jdos_dark_if[key]
+        )
+    assert tas_class.energy_mesh_ev.size
+    np.testing.assert_array_almost_equal(
+        tas_class.energy_mesh_ev, tas_class_with_waveder.energy_mesh_ev
+    )
+    np.testing.assert_almost_equal(tas_class.bandgap, 0.67, decimal=2)
+    assert tas_class.bandgap == tas_class_with_waveder.bandgap
+    assert tas_class.temp == cdte_conditions[0]
+    assert tas_class.temp == tas_class_with_waveder.temp
+    assert tas_class.conc == cdte_conditions[1]
+    assert tas_class.conc == tas_class_with_waveder.conc
+    assert tas_class.alpha_dark is None
+    assert tas_class_with_waveder.alpha_dark.size
+    assert tas_class.alpha_light_dict is None
+    assert tas_class_with_waveder.alpha_light_dict
+    assert tas_class.weighted_jdos_light_if is None
+    assert tas_class_with_waveder.weighted_jdos_light_if
+    assert tas_class.weighted_jdos_dark_if is None
+    assert tas_class_with_waveder.weighted_jdos_dark_if
+    assert tas_class.weighted_jdos_diff_if is None
+    assert tas_class_with_waveder.weighted_jdos_diff_if
 
 
 def test_generate_tas(generated_class, light, dark, tas_object, conditions):
