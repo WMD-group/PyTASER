@@ -141,6 +141,19 @@ def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
             / "error_testing/CdTe_symmetry_on_WAVEDER",
         )
 
+def test_LVEL_false_error(cdte_vasp_generated_class, datapath_cdte):
+    """Test that from_vasp_objects raises informative errors when LVEL not True"""
+    with pytest.raises(
+        ValueError,
+        match="LVEL must be set to True in the INCAR for the VASP optics calculation",
+    ):
+        cdte_vasp_generated_class.from_vasp_objects(
+            vasprun_file=datapath_cdte
+            / "error_testing/CdTe_LVEL_False_vasprun.xml",
+            waveder_file=datapath_cdte
+            / "error_testing/CdTe_LVEL_False_WAVEDER",
+        )
+
 
 
 

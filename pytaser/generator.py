@@ -326,6 +326,14 @@ class TASGenerator:
         vr = Vasprun(vasprun_file)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
+            # check if LVEL was set to True in vasprun file:
+            if not vr.incar.get("LVEL", False):
+                raise ValueError(
+                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the full "
+                    "band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and compute oscillator "
+                    "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
+                    "previous calculation this should only require 1 or 2 electronic steps!"
+                )
             dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
                 vr, waveder
             )
@@ -420,8 +428,12 @@ class TASGenerator:
                 CSHIFT from the underlying VASP WAVEDER calculation. (only relevant if the
                 TASGenerator has been generated from VASP outputs)
             step: Interval between energy points in the energy mesh.
-            light_occs: Optional input parameter for occupancies of material under light [dict]
-            dark_occs: Optional input parameter for occupancies of material in dark [dict]
+            light_occs: Optional input parameter for occupancies of material under light, otherwise
+                automatically calculated based on input temperature (temp) and carrier concentration
+                (conc) [dict]
+            dark_occs: Optional input parameter for occupancies of material in dark, otherwise
+                automatically calculated based on input temperature (temp) and carrier concentration
+                (conc) [dict]
 
         Returns:
             TAS class containing the following inputs;
