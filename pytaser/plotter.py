@@ -185,24 +185,24 @@ class TASPlotter:
             plt.xlabel("Energy (eV)", fontsize=30)
 
         if xmin is not None:
-            if xmin < np.min(energy_mesh):
+            if xmin / np.min(energy_mesh) < 0.95:
                 raise ValueError(
                     "Plotting region xmin value is smaller than energy mesh minimum. Please "
                     "specify in same units as xaxis"
                 )
-            if xmin > np.max(energy_mesh):
+            if xmin / np.max(energy_mesh) > 1.05:
                 raise ValueError(
                     "Plotting region xmin value is larger than energy mesh maximum. Please "
                     "specify in same units as xaxis"
                 )
 
         if xmax is not None:
-            if xmax < np.min(energy_mesh):
+            if xmax / np.min(energy_mesh) < 0.95:
                 raise ValueError(
                     "Plotting region xmax value is smaller than energy mesh minimum. Please "
                     "specify in same units as xaxis"
                 )
-            if xmax > np.max(energy_mesh):
+            if xmax / np.max(energy_mesh) > 1.05:
                 raise ValueError(
                     "Plotting region xmax value is larger than energy mesh maximum. Please "
                     "specify in same units as xaxis"
