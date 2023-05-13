@@ -129,6 +129,19 @@ def test_occ_dependent_alpha(
     np.testing.assert_allclose(interp_alpha_dark, sumo_abs[:, 1], rtol=0.05)
 
 
+def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
+    """Test that from_vasp_objects raises informative errors when ISYM not 0/-1"""
+    with pytest.raises(
+        NotImplementedError, match="ISYM != 0 is not implemented yet"
+    ):
+        cdte_vasp_generated_class.from_vasp_objects(
+            vasprun_file=datapath_cdte
+            / "error_testing/CdTe_symmetry_on_vasprun.xml",
+            waveder_file=datapath_cdte
+            / "error_testing/CdTe_symmetry_on_WAVEDER",
+        )
+
+
 
 
 
