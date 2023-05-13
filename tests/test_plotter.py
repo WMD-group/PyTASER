@@ -125,6 +125,7 @@ def test_get_plot_jdos_lambda(plotter_gaas):
     )
     return fig
 
+
 ## Test with CdTe, with many more transitions:
 def test_get_plot_cdte(plotter_cdte):
     assert plotter_cdte.bandgap_lambda == plotter.ev_to_lambda(
@@ -211,15 +212,21 @@ def test_line_color_consistency(plotter_cdte):
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     line_color = line.get_color()
 
-    fig = plotter_cdte.get_plot(transition_cutoff=0.3)  # this removes lines before (-2, 0)
+    fig = plotter_cdte.get_plot(
+        transition_cutoff=0.3
+    )  # this removes lines before (-2, 0)
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     assert line_color == line.get_color()
 
     # check for JDOS plots as well:
-    fig = plotter_cdte.get_plot(yaxis="jdos")  # with default transition_cutoff of 0.03
+    fig = plotter_cdte.get_plot(
+        yaxis="jdos"
+    )  # with default transition_cutoff of 0.03
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     line_color = line.get_color()
 
-    fig = plotter_cdte.get_plot(transition_cutoff=0.3, yaxis="jdos")  # removes lines before (-2, 0)
+    fig = plotter_cdte.get_plot(
+        transition_cutoff=0.3, yaxis="jdos"
+    )  # removes lines before (-2, 0)
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     assert line_color == line.get_color()

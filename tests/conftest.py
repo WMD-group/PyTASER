@@ -129,6 +129,19 @@ def cdte_vasp_tas_object(
 
 
 @pytest.fixture(scope="module")
+def cdte_vasp_tas_object_vr_only(
+    cdte_vasp_generated_class_vr_only, cdte_conditions
+):
+    return cdte_vasp_generated_class_vr_only.generate_tas(
+        cdte_conditions[0],
+        cdte_conditions[1],
+        energy_min=0,
+        energy_max=10,
+        step=0.01,  # default
+    )
+
+
+@pytest.fixture(scope="module")
 def plotter_gaas(tas_object, conditions):
     return TASPlotter(
         tas_object,
@@ -140,5 +153,19 @@ def plotter_gaas(tas_object, conditions):
 def plotter_cdte(cdte_tas_object, cdte_conditions):
     return TASPlotter(
         cdte_tas_object,
+        material_name="CdTe",
+    )
+
+@pytest.fixture(scope="module")
+def plotter_cdte_vasp(cdte_vasp_tas_object, cdte_conditions):
+    return TASPlotter(
+        cdte_vasp_tas_object,
+        material_name="CdTe",
+    )
+
+@pytest.fixture(scope="module")
+def plotter_cdte_vasp_vr_only(cdte_vasp_tas_object_vr_only, cdte_conditions):
+    return TASPlotter(
+        cdte_vasp_tas_object_vr_only,
         material_name="CdTe",
     )
