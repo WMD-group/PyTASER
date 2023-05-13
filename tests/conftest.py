@@ -132,10 +132,7 @@ def cdte_vasp_tas_object(
 def plotter_gaas(tas_object, conditions):
     return TASPlotter(
         tas_object,
-        bandgap=conditions[2],
         material_name="GaAs",
-        temp=conditions[0],
-        conc=conditions[1],
     )
 
 
@@ -143,8 +140,5 @@ def plotter_gaas(tas_object, conditions):
 def plotter_cdte(cdte_tas_object, cdte_conditions):
     return TASPlotter(
         cdte_tas_object,
-        bandgap=cdte_conditions[2],
         material_name="CdTe",
-        temp=cdte_conditions[0],
-        conc=cdte_conditions[1],
     )

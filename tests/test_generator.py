@@ -1,7 +1,9 @@
 import pytest
+import os
+
 import numpy as np
 from deepdiff import DeepDiff
-from monty.serialization import loadfn
+from monty.serialization import loadfn, dumpfn
 from pymatgen.electronic_structure.core import Spin
 from unittest import mock
 
@@ -220,6 +222,53 @@ def test_generate_from_vasprun_only(
     assert tas_class_with_waveder.weighted_jdos_dark_if
     assert tas_class.weighted_jdos_diff_if is None
     assert tas_class_with_waveder.weighted_jdos_diff_if
+
+
+def test_save_and_load_tas_to_json(
+    tas_object, cdte_tas_object, cdte_vasp_tas_object
+):
+    for tas_object in [tas_object, cdte_tas_object, cdte_vasp_tas_object]:
+        dumpfn(tas_object, "tas.json")
+        assert os.path.isfile("tas.json")
+        tas_object_loaded = loadfn("tas.json")
+
+        # assert attributes are equal:
+        np.testing.assert_array_almost_equal(
+            tas_object.tas_total, tas_object_loaded.tas_total, decimal=1
+        )
+        for dict_attribute in [
+            "jdos_diff_if",
+            "jdos_light_if",
+            "jdos_dark_if",
+            "alpha_light_dict",
+            "weighted_jdos_light_if",
+            "weighted_jdos_dark_if",
+            "weighted_jdos_diff_if",
+        ]:
+            if getattr(tas_object, dict_attribute) is not None:
+                for key, array in getattr(tas_object, dict_attribute).items():
+                    np.testing.assert_array_almost_equal(
+                        array, getattr(tas_object_loaded, dict_attribute)[key]
+                    )
+        np.testing.assert_array_almost_equal(
+            tas_object.jdos_light_total, tas_object_loaded.jdos_light_total
+        )
+        np.testing.assert_array_almost_equal(
+            tas_object.jdos_dark_total, tas_object_loaded.jdos_dark_total
+        )
+        np.testing.assert_array_almost_equal(
+            tas_object.energy_mesh_ev, tas_object_loaded.energy_mesh_ev
+        )
+        assert tas_object.bandgap == tas_object_loaded.bandgap
+        assert tas_object.temp == tas_object_loaded.temp
+        assert tas_object.conc == tas_object_loaded.conc
+
+        if tas_object.alpha_dark is not None:
+            np.testing.assert_array_almost_equal(
+                tas_object.alpha_dark, tas_object_loaded.alpha_dark
+            )
+
+        os.remove("tas.json")  # cleanup
 
 
 def test_generate_tas(generated_class, light, dark, tas_object, conditions):
