@@ -264,4 +264,76 @@ def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
         )
 
 
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_cdte(plotter_cdte_vasp):
+    """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_diff_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_diff_cdte_vasp(plotter_cdte_vasp):
+    """Test get_plot() yaxis="jdos_diff" function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos_diff",
+    )
+    return fig
+
+
+# jdos_diff plot should be the same for both plotter_cdte_vasp and plotter_cdte_vasp_vr_only, so compare to same
+# baseline:
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_diff_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_diff_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
+    """Test get_plot() yaxis="jdos_diff" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp_vr_only.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos_diff",
+    )
+    return fig
+
+
+# jdos_diff plot should be the same as "tas" for plotter_cdte_vasp_vr_only (because no WAVEDER parsed), so compare to
+# same baseline:
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_diff_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
+    """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp_vr_only.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+    )
+    return fig
+
+
 
