@@ -138,13 +138,15 @@ Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design t
    :caption: Usage Guide
    :hidden:
 
-   examples
+   dft_examples
+   jdos_examples
+
 
 .. toctree::
    :caption: Information
    :hidden:
 
-   changelog
+   changelog_link
    contributors
    contributing
    license
