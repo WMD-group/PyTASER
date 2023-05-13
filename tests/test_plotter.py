@@ -336,4 +336,38 @@ def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
     return fig
 
 
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="alpha_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_alpha_cdte(plotter_cdte_vasp):
+    """Test get_plot() yaxis="alpha" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="alpha",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_absorption_only_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_absorption_only_cdte_vasp(plotter_cdte_vasp):
+    """Test get_plot() yaxis="tas_absorption_only" function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas_absorption_only",
+    )
+    return fig
+
+
 
