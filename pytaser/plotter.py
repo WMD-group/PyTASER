@@ -592,6 +592,40 @@ class TASPlotter:
 
             plt.plot(x_bg, y_bg, label="Bandgap", ls="--")
 
+        if xaxis == "wavelength" and any(i is None for i in [xmax, xmin]):
+            # rescale xmax so it doesn't extend to near-infinity and xmin so
+            # it doesn't extend all the way to zero / negative (which is unphysical):
+            lines = plt.gca().get_lines()
+            max_x_for_y_gt_0 = None
+            min_x_for_y_gt_0 = None
+
+            # Iterate through lines
+            for line in lines:
+                xdata = line.get_xdata()
+                ydata = line.get_ydata()
+
+                # Find x values where corresponding |y| > 0.01
+                x_for_y_gt_0 = xdata[np.abs(ydata) > 0.01]
+
+                if len(x_for_y_gt_0) > 0:
+                    # Find min/max x from the filtered values
+                    max_x_in_line = np.max(x_for_y_gt_0)
+                    min_x_in_line = np.min(x_for_y_gt_0)
+
+                    if max_x_for_y_gt_0 is None or max_x_in_line > max_x_for_y_gt_0:
+                        max_x_for_y_gt_0 = max_x_in_line
+
+                    if min_x_for_y_gt_0 is None or min_x_in_line < min_x_for_y_gt_0:
+                        min_x_for_y_gt_0 = min_x_in_line
+
+            if max_x_for_y_gt_0 is not None:
+                # Set x limit to 105% of max x-value
+                xmax = max_x_for_y_gt_0 * 1.05
+
+            if min_x_for_y_gt_0 is not None:
+                # Set x limit to 95% of min x-value
+                xmin = min_x_for_y_gt_0 * 0.95
+
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
 
