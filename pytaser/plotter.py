@@ -299,7 +299,14 @@ class TASPlotter:
                     )
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
-                        self.alpha_light_dict["both"][xmin_ind:xmax_ind]
+                        (
+                            self.alpha_light_dict["absorption"][
+                                xmin_ind:xmax_ind
+                            ]
+                            - self.alpha_light_dict["emission"][
+                                xmin_ind:xmax_ind
+                            ]
+                        )
                         / alpha_normalisation_factor,
                         label="α (light)",
                         color="black",
@@ -383,7 +390,9 @@ class TASPlotter:
                             for transition in self.weighted_jdos_light_if.keys()
                         ]
                         list_of_transitions = [
-                            transition if transition in relevant_transitions else None
+                            transition
+                            if transition in relevant_transitions
+                            else None
                             for transition in self.weighted_jdos_light_if.keys()
                         ]
                         list_of_curves = _rescale_overlapping_curves(
@@ -424,9 +433,15 @@ class TASPlotter:
                         f"object was created using VASP outputs!"
                     )
 
+                if yaxis.lower() == "jdos_diff" and self.alpha_dark is not None:
+                    # jdos_diff explicitly set but WAVEDER info parsed, so tas_total is not the jdos_diff:
+                    jdos_diff = self.jdos_light_total - self.jdos_dark_total
+                else:
+                    jdos_diff = self.tas_total
+
                 plt.plot(
                     energy_mesh[xmin_ind:xmax_ind],
-                    self.tas_total[xmin_ind:xmax_ind],
+                    jdos_diff[xmin_ind:xmax_ind],
                     label="Total TAS (ΔJDOS only)",
                     color="black",
                     lw=3.5,
@@ -436,8 +451,7 @@ class TASPlotter:
 
             if (
                 relevant_transitions == "auto" and transition_dict
-            ):  # if transitions haven't
-                # already been plotted
+            ):  # if transitions haven't already been plotted
                 relevant_transition_list = cutoff_transitions(
                     transition_dict,
                     transition_cutoff,
@@ -570,7 +584,9 @@ class TASPlotter:
                             # only plot dark if it's not all zero
                             plt.plot(
                                 energy_mesh[xmin_ind:xmax_ind],
-                                self.jdos_dark_if[transition][xmin_ind:xmax_ind],
+                                self.jdos_dark_if[transition][
+                                    xmin_ind:xmax_ind
+                                ],
                                 label=str(transition) + " (dark)",
                                 ls="--",  # dashed linestyle for dark to distinguish
                                 color=f"C{2 * i + 1}",
@@ -612,17 +628,23 @@ class TASPlotter:
                     max_x_in_line = np.max(x_for_y_gt_0)
                     min_x_in_line = np.min(x_for_y_gt_0)
 
-                    if max_x_for_y_gt_0 is None or max_x_in_line > max_x_for_y_gt_0:
+                    if (
+                        max_x_for_y_gt_0 is None
+                        or max_x_in_line > max_x_for_y_gt_0
+                    ):
                         max_x_for_y_gt_0 = max_x_in_line
 
-                    if min_x_for_y_gt_0 is None or min_x_in_line < min_x_for_y_gt_0:
+                    if (
+                        min_x_for_y_gt_0 is None
+                        or min_x_in_line < min_x_for_y_gt_0
+                    ):
                         min_x_for_y_gt_0 = min_x_in_line
 
-            if max_x_for_y_gt_0 is not None:
+            if max_x_for_y_gt_0 is not None and xmax is None:
                 # Set x limit to 105% of max x-value
                 xmax = max_x_for_y_gt_0 * 1.05
 
-            if min_x_for_y_gt_0 is not None:
+            if min_x_for_y_gt_0 is not None and xmin is None:
                 # Set x limit to 95% of min x-value
                 xmin = min_x_for_y_gt_0 * 0.95
 
