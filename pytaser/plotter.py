@@ -211,32 +211,35 @@ class TASPlotter:
         def _rescale_overlapping_curves(list_of_curves):
             local_extrema_coords = []
             output_list_of_curves = []
+            # get max value of all curves to use as relative scaling factor:
+            max_curve = np.max([np.max(np.abs(curve)) for curve in list_of_curves if curve is not None])
             for curve in list_of_curves:  # Find the local maxima of each curve
-                if curve is not None and np.max(np.abs(curve)) > 0.1:
+                if curve is not None and np.max(np.abs(curve))/max_curve > 0.05:
                     local_extrema_indices = argrelextrema(
                         np.abs(curve), np.greater
                     )[0]
-                    local_extrema = [
-                        (idx, round(np.abs(curve)[idx], 1))
+                    relative_local_extrema = [
+                        (idx, round(np.abs(curve)[idx]/max_curve, 2))
                         for idx in local_extrema_indices
                     ]
                     # if any matching tuple in the list of local extrema:
                     while any(
                         i == j
-                        for i in local_extrema
+                        for i in relative_local_extrema
                         for j in local_extrema_coords
+                        if i[1]/max_curve > 0.05 and j[1]/max_curve > 0.05
                     ):
                         curve *= 0.95
                         local_extrema_indices = argrelextrema(
                             np.abs(curve), np.greater
                         )[0]
-                        local_extrema = [
-                            (i, round(np.abs(curve)[i], 1))
+                        relative_local_extrema = [
+                            (i, round(np.abs(curve)[i]/max_curve, 2))
                             for i in local_extrema_indices
                         ]
 
                     local_extrema_coords += [
-                        (i, round(np.abs(curve)[i], 1))
+                        (i, round(np.abs(curve)[i]/max_curve, 2))
                         for i in local_extrema_indices
                     ]
                 output_list_of_curves.append(curve)
@@ -544,17 +547,17 @@ class TASPlotter:
                             color=f"C{2*i}",
                             lw=2.5,
                         )
-                    if transition is not None and np.any(
-                        self.jdos_dark_if[transition][xmin_ind:xmax_ind]
-                    ):
-                        # only plot dark if it's not all zero
-                        plt.plot(
-                            energy_mesh[xmin_ind:xmax_ind],
-                            self.jdos_dark_if[transition][xmin_ind:xmax_ind],
-                            label=str(transition) + " (dark)",
-                            ls="--",  # dashed linestyle for dark to distinguish
-                            color=f"C{2 * i + 1}",
-                        )
+                        if np.any(
+                            self.jdos_dark_if[transition][xmin_ind:xmax_ind]
+                        ):
+                            # only plot dark if it's not all zero
+                            plt.plot(
+                                energy_mesh[xmin_ind:xmax_ind],
+                                self.jdos_dark_if[transition][xmin_ind:xmax_ind],
+                                label=str(transition) + " (dark)",
+                                ls="--",  # dashed linestyle for dark to distinguish
+                                color=f"C{2 * i + 1}",
+                            )
 
             else:
                 list_of_curves = [
