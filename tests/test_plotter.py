@@ -230,3 +230,38 @@ def test_line_color_consistency(plotter_cdte):
     )  # removes lines before (-2, 0)
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     assert line_color == line.get_color()
+
+
+def test_get_plot_alpha_cdte_no_waveder(plotter_cdte):
+    """Test informative error for get_plot() yaxis="alpha" when no WAVEDER was parsed"""
+    with pytest.raises(
+        ValueError,
+        match="The `alpha` option for yaxis can only be chosen if the "
+        "TASGenerator object was created using VASP outputs!",
+    ):
+        fig = plotter_cdte.get_plot(
+            relevant_transitions="auto",
+            xaxis="energy",
+            xmin=0,
+            xmax=5,
+            yaxis="alpha",
+        )
+
+
+def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
+    """Test informative error for get_plot() yaxis="tas_absorption_only" when no WAVEDER was parsed"""
+    with pytest.raises(
+        ValueError,
+        match="The `tas_absorption_only` option for yaxis can only be chosen if the "
+        "TASGenerator object was created using VASP outputs!",
+    ):
+        fig = plotter_cdte.get_plot(
+            relevant_transitions="auto",
+            xaxis="energy",
+            xmin=0,
+            xmax=5,
+            yaxis="tas_absorption_only",
+        )
+
+
+
