@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 from deepdiff import DeepDiff
 from monty.serialization import loadfn
@@ -93,6 +94,44 @@ def test_band_occupancies(generated_class, light, conditions):
     assert light_occs[Spin.up].all() == l_occ_inp.all()
 
 
+def test_occ_dependent_alpha(
+    cdte_vasp_generated_class,
+    cdte_conditions,
+    datapath_cdte,
+    cdte_vasp_tas_object,
+):
+    # (dfc, occs, spin=Spin.up, sigma=None, cshift=None):
+    dark_occs = cdte_vasp_generated_class.band_occupancies(
+        cdte_conditions[0], cdte_conditions[1], dark=True
+    )
+    alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
+        cdte_vasp_generated_class.dfc, dark_occs[Spin.up], spin=Spin.up
+    )  # default sigma and cshift
+    egrid = np.arange(
+        0,
+        cdte_vasp_generated_class.dfc.nedos
+        * cdte_vasp_generated_class.dfc.deltae,
+        cdte_vasp_generated_class.dfc.deltae,
+    )
+
+    np.testing.assert_array_almost_equal(
+        alpha_dark_dict["both"], alpha_dark_dict["absorption"], decimal=3
+    )
+
+    sumo_abs = np.genfromtxt(
+        datapath_cdte / "cdte_k666_sumo_absorption.dat", skip_header=1
+    )
+    # interpolate sumo data to energy_mesh_ev
+
+    interp_alpha_dark = np.interp(
+        sumo_abs[:, 0], egrid, alpha_dark_dict["both"]
+    )
+    np.testing.assert_allclose(interp_alpha_dark, sumo_abs[:, 1], rtol=0.05)
+
+
+
+
+
 def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     energy_min = 0
     energy_max = 4
@@ -113,7 +152,9 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     assert tas_class.tas_total.all() == tas_object.tas_total.all()
     assert DeepDiff(tas_class.jdos_diff_if, tas_object.jdos_diff_if) == {}
     assert DeepDiff(tas_class.jdos_light_if, tas_object.jdos_light_if) == {}
-    assert tas_class.jdos_light_total.all() == tas_object.jdos_light_total.all()
+    assert (
+        tas_class.jdos_light_total.all() == tas_object.jdos_light_total.all()
+    )
     assert tas_class.jdos_dark_total.all() == tas_object.jdos_dark_total.all()
     assert tas_class.energy_mesh_ev.all() == tas_object.energy_mesh_ev.all()
     assert tas_class.bandgap == tas_object.bandgap
@@ -160,7 +201,9 @@ def test_from_mpid(mocker, datapath_gaas, generated_class, conditions):
         datapath_gaas / "gaas_2534_bs.json"
     )
 
-    gaas2534 = generator.TASGenerator.from_mpid("mp-2534", conditions[2], mpr=mock_mpr)
+    gaas2534 = generator.TASGenerator.from_mpid(
+        "mp-2534", conditions[2], mpr=mock_mpr
+    )
     mock_mpr.get_dos_by_material_id.assert_called_once_with("mp-2534")
     mock_mpr.get_bandstructure_by_material_id.assert_called_once_with(
         "mp-2534", line_mode=False
