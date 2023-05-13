@@ -1,12 +1,10 @@
 import numpy as np
-import pytest
 from deepdiff import DeepDiff
 from monty.serialization import loadfn
 from pymatgen.electronic_structure.core import Spin
 from unittest import mock
 
 from pytaser import generator
-from pytaser.generator import TASGenerator, set_bandgap
 
 
 def test_gaussian(datapath_gaas):
@@ -21,7 +19,7 @@ def test_set_bandgap(datapath_gaas, conditions):
     old_dos = loadfn(datapath_gaas / "gaas_2534_dos.json")
     new_bs = loadfn(datapath_gaas / "new_gaas_2534_bs.json")
     new_dos = loadfn(datapath_gaas / "new_gaas_2534_dos.json")
-    bs_new, dos_new = set_bandgap(old_bs, old_dos, conditions[2])
+    bs_new, dos_new = generator.set_bandgap(old_bs, old_dos, conditions[2])
     assert bs_new.nb_bands == new_bs.nb_bands
     assert bs_new.get_band_gap() == new_bs.get_band_gap()
     assert dos_new.densities[Spin.up].all() == new_dos.densities[Spin.up].all()
@@ -57,13 +55,9 @@ def test_jdos(generated_class, light, dark, tas_object):
     i_tas = i - (generated_class.vb[Spin.up])
     f_tas = f - (generated_class.cb[Spin.up]) + 1
     assert (
-            new_jdos_light.all()
-            == tas_object.jdos_light_if[(i_tas, f_tas)].all()
+        new_jdos_light.all() == tas_object.jdos_light_if[(i_tas, f_tas)].all()
     )
-    assert (
-            new_jdos_dark.all()
-            == tas_object.jdos_dark_if[(i_tas, f_tas)].all()
-    )
+    assert new_jdos_dark.all() == tas_object.jdos_dark_if[(i_tas, f_tas)].all()
 
 
 def test_get_cbm_vbm_index(generated_class):
@@ -106,40 +100,37 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     step = 0.15
 
     tas_class = generated_class.generate_tas(
-        conditions[0],
-        conditions[1],
-        energy_min,
-        energy_max,
-        gaussian_width,
-        step,
-        light,
-        dark,
+        temp=conditions[0],
+        conc=conditions[1],
+        energy_min=energy_min,
+        energy_max=energy_max,
+        gaussian_width=gaussian_width,
+        step=step,
+        light_occs=light,
+        dark_occs=dark,
     )
 
     assert tas_class.tas_total.all() == tas_object.tas_total.all()
     assert DeepDiff(tas_class.jdos_diff_if, tas_object.jdos_diff_if) == {}
-    assert (
-            DeepDiff(tas_class.jdos_light_if, tas_object.jdos_light_if)
-            == {}
-    )
-    assert tas_class.jdos_light_tot.all() == tas_object.jdos_light_tot.all()
-    assert tas_class.jdos_dark_tot.all() == tas_object.jdos_dark_tot.all()
+    assert DeepDiff(tas_class.jdos_light_if, tas_object.jdos_light_if) == {}
+    assert tas_class.jdos_light_total.all() == tas_object.jdos_light_total.all()
+    assert tas_class.jdos_dark_total.all() == tas_object.jdos_dark_total.all()
     assert tas_class.energy_mesh_ev.all() == tas_object.energy_mesh_ev.all()
     assert tas_class.bandgap == tas_object.bandgap
 
     assert (
-            tas_class.tas_total.all()
-            == (tas_class.jdos_light_total - tas_class.jdos_dark_total).all()
+        tas_class.tas_total.all()
+        == (tas_class.jdos_light_total - tas_class.jdos_dark_total).all()
     )
 
     number_combinations_if = int(
         (generated_class.bs.nb_bands * (generated_class.bs.nb_bands - 1)) / 2
     )
     assert (
-            number_combinations_if
-            == len(tas_class.jdos_diff_if.keys())
-            == len(tas_class.jdos_light_if.keys())
-            == len(tas_class.jdos_dark_if.keys())
+        number_combinations_if
+        == len(tas_class.jdos_diff_if.keys())
+        == len(tas_class.jdos_light_if.keys())
+        == len(tas_class.jdos_dark_if.keys())
     )
 
     cbm = generated_class.cb[Spin.up]
@@ -162,19 +153,25 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
 @mock.patch("pymatgen.ext.matproj.MPRester")
 def test_from_mpid(mocker, datapath_gaas, generated_class, conditions):
     mock_mpr = mocker.Mock()
-    mock_mpr.get_dos_by_material_id.return_value = loadfn(datapath_gaas / "gaas_2534_dos.json")
-    mock_mpr.get_bandstructure_by_material_id.return_value = loadfn(datapath_gaas / "gaas_2534_bs.json")
+    mock_mpr.get_dos_by_material_id.return_value = loadfn(
+        datapath_gaas / "gaas_2534_dos.json"
+    )
+    mock_mpr.get_bandstructure_by_material_id.return_value = loadfn(
+        datapath_gaas / "gaas_2534_bs.json"
+    )
 
-    gaas2534 = TASGenerator.from_mpid("mp-2534", conditions[2], mpr=mock_mpr)
-    mock_mpr.get_dos_by_material_id.assert_called_once_with('mp-2534')
-    mock_mpr.get_bandstructure_by_material_id.assert_called_once_with('mp-2534', line_mode=False)
+    gaas2534 = generator.TASGenerator.from_mpid("mp-2534", conditions[2], mpr=mock_mpr)
+    mock_mpr.get_dos_by_material_id.assert_called_once_with("mp-2534")
+    mock_mpr.get_bandstructure_by_material_id.assert_called_once_with(
+        "mp-2534", line_mode=False
+    )
 
     assert (
-            gaas2534.bs.projections[Spin.up].all()
-            == generated_class.bs.projections[Spin.up].all()
+        gaas2534.bs.projections[Spin.up].all()
+        == generated_class.bs.projections[Spin.up].all()
     )
     assert (
-            gaas2534.bs.is_spin_polarized == generated_class.bs.is_spin_polarized
+        gaas2534.bs.is_spin_polarized == generated_class.bs.is_spin_polarized
     )
     assert gaas2534.bs.efermi == generated_class.bs.efermi
     assert type(gaas2534.bs) == type(generated_class.bs)
@@ -183,7 +180,7 @@ def test_from_mpid(mocker, datapath_gaas, generated_class, conditions):
     assert type(gaas2534.dos) == type(generated_class.dos)
 
     assert (
-            gaas2534.kpoint_weights.all() == generated_class.kpoint_weights.all()
+        gaas2534.kpoint_weights.all() == generated_class.kpoint_weights.all()
     )
     assert gaas2534.bg_centre == generated_class.bg_centre
     assert gaas2534.vb == generated_class.vb
