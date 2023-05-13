@@ -289,6 +289,9 @@ class TASPlotter:
 
                 else:  # yaxis = "alpha"
                     abs_label = "α (a.u.)"
+                    transition_dict = (
+                        {}
+                    )  # control transition plotting here rather than later on:
                     alpha_normalisation_factor = (
                         np.max(  # normalise to max alpha in dark
                             np.abs(self.alpha_dark)[xmin_ind:xmax_ind]
@@ -349,6 +352,7 @@ class TASPlotter:
                                     / weighted_jdos_normalisation_factor,
                                     label=str(transition) + " (light)",
                                     color=f"C{2 * i}",
+                                    lw=2.5,
                                 )
                             if transition is not None and np.any(
                                 self.weighted_jdos_dark_if[transition][
@@ -374,37 +378,44 @@ class TASPlotter:
                                     xmin_ind:xmax_ind
                                 ]
                             )
-                            for transition in relevant_transitions
+                            if transition in relevant_transitions
+                            else None
+                            for transition in self.weighted_jdos_light_if.keys()
+                        ]
+                        list_of_transitions = [
+                            transition if transition in relevant_transitions else None
+                            for transition in self.weighted_jdos_light_if.keys()
                         ]
                         list_of_curves = _rescale_overlapping_curves(
                             list_of_curves
                         )
 
-                        for i, transition in enumerate(relevant_transitions):
-                            plt.plot(
-                                energy_mesh[xmin_ind:xmax_ind],
-                                list_of_curves[i]
-                                / weighted_jdos_normalisation_factor,
-                                label=str(transition) + " (light)",
-                                lw=2.5,
-                                color=f"C{2 * i}",
-                            )
-                            if np.any(
-                                self.weighted_jdos_dark_if[transition][
-                                    xmin_ind:xmax_ind
-                                ]
-                            ):
-                                # only plot dark if it's not all zero
+                        for i, transition in enumerate(list_of_transitions):
+                            if transition is not None:
                                 plt.plot(
                                     energy_mesh[xmin_ind:xmax_ind],
+                                    list_of_curves[i]
+                                    / weighted_jdos_normalisation_factor,
+                                    label=str(transition) + " (light)",
+                                    lw=2.5,
+                                    color=f"C{2 * i}",
+                                )
+                                if np.any(
                                     self.weighted_jdos_dark_if[transition][
                                         xmin_ind:xmax_ind
                                     ]
-                                    / weighted_jdos_normalisation_factor,
-                                    label=str(transition) + " (dark)",
-                                    ls="--",  # dashed linestyle for dark to distinguish
-                                    color=f"C{2 * i + 1}",
-                                )
+                                ):
+                                    # only plot dark if it's not all zero
+                                    plt.plot(
+                                        energy_mesh[xmin_ind:xmax_ind],
+                                        self.weighted_jdos_dark_if[transition][
+                                            xmin_ind:xmax_ind
+                                        ]
+                                        / weighted_jdos_normalisation_factor,
+                                        label=str(transition) + " (dark)",
+                                        ls="--",  # dashed linestyle for dark to distinguish
+                                        color=f"C{2 * i + 1}",
+                                    )
 
             else:
                 if yaxis.lower() in ["tas_absorption_only", "alpha"]:
@@ -423,7 +434,10 @@ class TASPlotter:
                 )
                 transition_dict = self.jdos_diff_if
 
-            if relevant_transitions == "auto":
+            if (
+                relevant_transitions == "auto" and transition_dict
+            ):  # if transitions haven't
+                # already been plotted
                 relevant_transition_list = cutoff_transitions(
                     transition_dict,
                     transition_cutoff,
@@ -448,21 +462,30 @@ class TASPlotter:
                             color=f"C{i}",
                         )
 
-            else:
+            elif (
+                transition_dict
+            ):  # if transitions haven't already been plotted
                 list_of_curves = [
                     np.array(transition_dict[transition][xmin_ind:xmax_ind])
-                    for transition in relevant_transitions
+                    if transition in relevant_transitions
+                    else None
+                    for transition in transition_dict.keys()
+                ]
+                list_of_transitions = [
+                    transition if transition in relevant_transitions else None
+                    for transition in self.jdos_light_if.keys()
                 ]
                 list_of_curves = _rescale_overlapping_curves(list_of_curves)
 
-                for i, transition in enumerate(relevant_transitions):
-                    plt.plot(
-                        energy_mesh[xmin_ind:xmax_ind],
-                        list_of_curves[i],
-                        label=str(transition),
-                        lw=2.5,
-                        color=f"C{i}",
-                    )
+                for i, transition in enumerate(list_of_transitions):
+                    if transition is not None:
+                        plt.plot(
+                            energy_mesh[xmin_ind:xmax_ind],
+                            list_of_curves[i],
+                            label=str(transition),
+                            lw=2.5,
+                            color=f"C{i}",
+                        )
 
         elif yaxis.lower() == "jdos":
             abs_label = "JDOS (a.u.)"
@@ -505,6 +528,7 @@ class TASPlotter:
                             list_of_curves[i],
                             label=str(transition) + " (light)",
                             color=f"C{2*i}",
+                            lw=2.5,
                         )
                     if transition is not None and np.any(
                         self.jdos_dark_if[transition][xmin_ind:xmax_ind]
@@ -521,29 +545,36 @@ class TASPlotter:
             else:
                 list_of_curves = [
                     np.array(self.jdos_light_if[transition][xmin_ind:xmax_ind])
-                    for transition in relevant_transitions
+                    if transition in relevant_transitions
+                    else None
+                    for transition in self.jdos_light_if.keys()
+                ]
+                list_of_transitions = [
+                    transition if transition in relevant_transitions else None
+                    for transition in self.jdos_light_if.keys()
                 ]
                 list_of_curves = _rescale_overlapping_curves(list_of_curves)
 
-                for i, transition in enumerate(relevant_transitions):
-                    plt.plot(
-                        energy_mesh[xmin_ind:xmax_ind],
-                        list_of_curves[i],
-                        label=str(transition) + " (light)",
-                        lw=2.5,
-                        color=f"C{2*i}",
-                    )
-                    if np.any(
-                        self.jdos_dark_if[transition][xmin_ind:xmax_ind]
-                    ):
-                        # only plot dark if it's not all zero
+                for i, transition in enumerate(list_of_transitions):
+                    if transition is not None:
                         plt.plot(
                             energy_mesh[xmin_ind:xmax_ind],
-                            self.jdos_dark_if[transition][xmin_ind:xmax_ind],
-                            label=str(transition) + " (dark)",
-                            ls="--",  # dashed linestyle for dark to distinguish
-                            color=f"C{2 * i + 1}",
+                            list_of_curves[i],
+                            label=str(transition) + " (light)",
+                            lw=2.5,
+                            color=f"C{2*i}",
                         )
+                        if np.any(
+                            self.jdos_dark_if[transition][xmin_ind:xmax_ind]
+                        ):
+                            # only plot dark if it's not all zero
+                            plt.plot(
+                                energy_mesh[xmin_ind:xmax_ind],
+                                self.jdos_dark_if[transition][xmin_ind:xmax_ind],
+                                label=str(transition) + " (dark)",
+                                ls="--",  # dashed linestyle for dark to distinguish
+                                color=f"C{2 * i + 1}",
+                            )
 
         plt.ylabel(abs_label, fontsize=30)
         y_axis_min, y_axis_max = plt.gca().get_ylim()
