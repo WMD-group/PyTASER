@@ -169,7 +169,7 @@ def _calculate_oscillator_strength(args):
         em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
         both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
 
-        if dfc.ismear == 0:  # error in pymatgen, TODO: PR!
+        if dfc.ismear == 0:
             ismear = -0.1
         else:
             ismear = dfc.ismear
@@ -185,12 +185,14 @@ def _calculate_oscillator_strength(args):
         emission = smeared_wout_matrix_el * em_matrix_el
         both = smeared_wout_matrix_el * both_matrix_el
 
-        return absorption, emission, both, tdm
+        return absorption, emission, both, tdm, ib, jb, ik
 
-    return 0, 0, 0, 0
+    return 0, 0, 0, 0, 0, 0, 0
 
 
-def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None):
+def occ_dependent_alpha(
+    dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None
+):
     """Calculate the expected optical absorption given the groundstate orbital derivatives and
     eigenvalues (via dfc) and specified band occupancies.
     Templated from pymatgen.io.vasp.optics.epsilon_imag().
@@ -285,7 +287,7 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None, proces
             ),
         )
 
-    for absorption, emission, both, tdm in results:
+    for absorption, emission, both, tdm, ib, jb, ik in results:
         dielectric_dict["absorption"] += absorption
         dielectric_dict["emission"] += emission
         dielectric_dict["both"] += both
@@ -462,6 +464,7 @@ class TASGenerator:
         step=0.01,
         light_occs=None,
         dark_occs=None,
+        processes=None,
     ):
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh. If the
@@ -489,6 +492,8 @@ class TASGenerator:
             dark_occs: Optional input parameter for occupancies of material in dark, otherwise
                 automatically calculated based on input temperature (temp) and carrier concentration
                 (conc) [dict]
+            processes: Number of processes to use for multiprocessing. If not set, defaults to one
+                less than the number of CPUs available.
 
         Returns:
             TAS class containing the following inputs;
@@ -560,6 +565,7 @@ class TASGenerator:
                     occs_dark[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
+                    processes=processes,
                 )
                 alpha_dark += alpha_dark_dict[
                     "both"
@@ -570,6 +576,7 @@ class TASGenerator:
                     occs_light[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
+                    processes=processes,
                 )[0]
                 for key, array in alpha_light_dict.items():
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
