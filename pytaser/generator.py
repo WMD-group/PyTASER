@@ -210,7 +210,9 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             )
             decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
             matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
-            tdm_array[ib, jb, ik] = np.abs(A) * rspin * decel  # kweight and occ factor
+            tdm_array[ib, jb, ik] = (
+                np.abs(A) * rspin * decel
+            )  # kweight and occ factor
             # already accounted for with JDOS
 
             abs_occ_factor = init_occ * (1 - final_occ)
@@ -239,11 +241,11 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             dielectric_dict["emission"] += (
                 smeared_wout_matrix_el * em_matrix_el
             )
-            dielectric_dict["both"] += (
-                smeared_wout_matrix_el * both_matrix_el
-            )
+            dielectric_dict["both"] += smeared_wout_matrix_el * both_matrix_el
 
-    tdm_array = tdm_array.real  # real part of A is the TDM (imag part is zero after taking the
+    tdm_array = (
+        tdm_array.real
+    )  # real part of A is the TDM (imag part is zero after taking the
     # complex conjugate)
     alpha_dict = {}
     for key, dielectric in dielectric_dict.items():
@@ -328,13 +330,18 @@ class TASGenerator:
             waveder = Waveder.from_binary(waveder_file)
             # check if LVEL was set to True in vasprun file:
             if not vr.incar.get("LVEL", False):
-                raise ValueError(
+                lvel_error_message = (
                     "LVEL must be set to True in the INCAR for the VASP optics calculation to output the full "
                     "band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and compute oscillator "
                     "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
                     "previous calculation this should only require 1 or 2 electronic steps!"
                 )
-            dfc = optics.DielectricFunctionCalculator.from_vasp_outputs(
+                if vr.incar.get("ISYM", 2) not in [-1, 0]:
+                    isym_error_message = "ISYM must be set to 0 and "
+                    raise ValueError(isym_error_message + lvel_error_message)
+                else:
+                    raise ValueError(lvel_error_message)
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
                 vr, waveder
             )
         else:
@@ -506,7 +513,9 @@ class TASGenerator:
                     sigma=gaussian_width,
                     cshift=cshift,
                 )
-                alpha_dark += alpha_dark_dict["both"]  # stimulated emission should be
+                alpha_dark += alpha_dark_dict[
+                    "both"
+                ]  # stimulated emission should be
                 # zero in the dark
                 calculated_alpha_light_dict = occ_dependent_alpha(
                     self.dfc,
@@ -565,7 +574,8 @@ class TASGenerator:
                                 i,
                                 occs_light[spin],
                                 energy_mesh_ev,
-                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
+                                np.array(self.kpoint_weights)
+                                * tdm_array[i, f, :],
                                 gaussian_width,
                                 spin=spin,
                             )
@@ -575,11 +585,14 @@ class TASGenerator:
                                 i,
                                 occs_dark[spin],
                                 energy_mesh_ev,
-                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
+                                np.array(self.kpoint_weights)
+                                * tdm_array[i, f, :],
                                 gaussian_width,
                                 spin=spin,
                             )
-                            weighted_jdos_diff = weighted_jd_light - weighted_jd_dark
+                            weighted_jdos_diff = (
+                                weighted_jd_light - weighted_jd_dark
+                            )
 
                             weighted_jdos_light_if[key] = weighted_jd_light
                             weighted_jdos_dark_if[key] = weighted_jd_dark

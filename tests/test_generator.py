@@ -134,7 +134,8 @@ def test_occ_dependent_alpha(
 def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
     """Test that from_vasp_outputs raises informative errors when ISYM not 0/-1"""
     with pytest.raises(
-        NotImplementedError, match="ISYM != 0 is not implemented yet"
+        ValueError,
+        match="ISYM must be set to 0 and ",  # isym error, then followed by LVEL error
     ):
         cdte_vasp_generated_class.from_vasp_outputs(
             vasprun_file=datapath_cdte
