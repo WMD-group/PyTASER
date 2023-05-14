@@ -190,7 +190,7 @@ def _calculate_oscillator_strength(args):
     return 0, 0, 0, 0
 
 
-def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
+def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None):
     """Calculate the expected optical absorption given the groundstate orbital derivatives and
     eigenvalues (via dfc) and specified band occupancies.
     Templated from pymatgen.io.vasp.optics.epsilon_imag().
@@ -205,6 +205,8 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function (see
             https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of CSHIFT from
             the underlying VASP WAVEDER calculation.
+        processes: Number of processes to use for multiprocessing. If not set, defaults to one
+            less than the number of CPUs available.
 
     Returns:
         (alpha_dict, tdm_array) where alpha_dict is a dictionary of band-to-band absorption,
@@ -271,7 +273,8 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             )
         )
 
-    processes = cpu_count() - 1
+    if processes is None:
+        processes = cpu_count() - 1
     with Pool(processes) as pool:
         results = pool.map(
             _calculate_oscillator_strength,
