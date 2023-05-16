@@ -94,3 +94,6 @@ ENV/
 .mypy*
 .log
 temp-plot.html
+
+# Local testing
+wavy/

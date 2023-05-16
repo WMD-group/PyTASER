@@ -24,7 +24,7 @@ def test_cutoff_transitions(plotter_gaas):
     highest_transitions = [(-2, 1), (-1, 1), (0, 1)]
     highest_transitions.sort()
     relevant_transitions = plotter.cutoff_transitions(
-        plotter_gaas.tas_decomp, cutoff=0.75, ind_xmin=0, ind_xmax=-1
+        plotter_gaas.jdos_diff_if, cutoff=0.75, ind_xmin=0, ind_xmax=-1
     )
     relevant_transitions = [x for x in relevant_transitions if x is not None]
     relevant_transitions.sort()
@@ -33,7 +33,7 @@ def test_cutoff_transitions(plotter_gaas):
 
 def test_get_plot(plotter_gaas):
     assert plotter_gaas.bandgap_lambda == plotter.ev_to_lambda(
-        plotter_gaas.bandgap_ev
+        plotter_gaas.bandgap
     )
     assert (
         plotter_gaas.energy_mesh_lambda.all()
@@ -125,10 +125,11 @@ def test_get_plot_jdos_lambda(plotter_gaas):
     )
     return fig
 
+
 ## Test with CdTe, with many more transitions:
 def test_get_plot_cdte(plotter_cdte):
     assert plotter_cdte.bandgap_lambda == plotter.ev_to_lambda(
-        plotter_cdte.bandgap_ev
+        plotter_cdte.bandgap
     )
     assert (
         plotter_cdte.energy_mesh_lambda.all()
@@ -211,15 +212,219 @@ def test_line_color_consistency(plotter_cdte):
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     line_color = line.get_color()
 
-    fig = plotter_cdte.get_plot(transition_cutoff=0.3)  # this removes lines before (-2, 0)
+    fig = plotter_cdte.get_plot(
+        transition_cutoff=0.3
+    )  # this removes lines before (-2, 0)
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     assert line_color == line.get_color()
 
     # check for JDOS plots as well:
-    fig = plotter_cdte.get_plot(yaxis="jdos")  # with default transition_cutoff of 0.03
+    fig = plotter_cdte.get_plot(
+        yaxis="jdos"
+    )  # with default transition_cutoff of 0.03
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     line_color = line.get_color()
 
-    fig = plotter_cdte.get_plot(transition_cutoff=0.3, yaxis="jdos")  # removes lines before (-2, 0)
+    fig = plotter_cdte.get_plot(
+        transition_cutoff=0.3, yaxis="jdos"
+    )  # removes lines before (-2, 0)
     line = [l for l in fig.gca().lines if "(-2, 0)" in l.get_label()][0]
     assert line_color == line.get_color()
+
+
+def test_get_plot_alpha_cdte_no_waveder(plotter_cdte):
+    """Test informative error for get_plot() yaxis="alpha" when no WAVEDER was parsed"""
+    with pytest.raises(
+        ValueError,
+        match="The `alpha` option for yaxis can only be chosen if the "
+        "TASGenerator object was created using VASP outputs!",
+    ):
+        fig = plotter_cdte.get_plot(
+            relevant_transitions="auto",
+            xaxis="energy",
+            xmin=0,
+            xmax=5,
+            yaxis="alpha",
+        )
+
+
+def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
+    """Test informative error for get_plot() yaxis="tas_absorption_only" when no WAVEDER was parsed"""
+    with pytest.raises(
+        ValueError,
+        match="The `tas_absorption_only` option for yaxis can only be chosen if the "
+        "TASGenerator object was created using VASP outputs!",
+    ):
+        fig = plotter_cdte.get_plot(
+            relevant_transitions="auto",
+            xaxis="energy",
+            xmin=0,
+            xmax=5,
+            yaxis="tas_absorption_only",
+        )
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_cdte(plotter_cdte_vasp):
+    """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_diff_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_diff_cdte_vasp(plotter_cdte_vasp):
+    """Test get_plot() yaxis="jdos_diff" function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos_diff",
+    )
+    return fig
+
+
+# jdos_diff plot should be the same for both plotter_cdte_vasp and plotter_cdte_vasp_vr_only, so compare to same
+# baseline:
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_diff_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_diff_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
+    """Test get_plot() yaxis="jdos_diff" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp_vr_only.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos_diff",
+    )
+    return fig
+
+
+# jdos_diff plot should be the same as "tas" for plotter_cdte_vasp_vr_only (because no WAVEDER parsed), so compare to
+# same baseline:
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_diff_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
+    """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp_vr_only.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="alpha_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_alpha_cdte(plotter_cdte_vasp):
+    """Test get_plot() yaxis="alpha" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="alpha",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_absorption_only_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_absorption_only_cdte_vasp(plotter_cdte_vasp):
+    """Test get_plot() yaxis="tas_absorption_only" function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas_absorption_only",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_cdte(plotter_cdte_vasp):
+    """Test get_plot() yaxis="jdos" function for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos",
+    )
+    return fig
+
+
+# jdos should be the same for plotter_cdte_vasp and plotter_cdte_vasp_vr_only, so compare to same baseline:
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="jdos_cdte.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_jdos_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
+    """Test get_plot() yaxis="jdos" for CdTe with the default cutoff and electronvolts xaxis"""
+    fig = plotter_cdte_vasp_vr_only.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="jdos",
+    )
+    return fig
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_cdte_custom_legend.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
+    """Test get_plot() yaxis="tas" for CdTe with kwargs for plt.legend()"""
+    fig = plotter_cdte_vasp.get_plot(
+        relevant_transitions="auto",
+        xaxis="energy",
+        xmin=0,
+        xmax=5,
+        yaxis="tas",
+        # kwargs for plt.legend():
+        ncols=2,
+        loc="upper right",
+        bbox_to_anchor=(1.0, 1.0),
+        frameon=False,
+        borderaxespad=0.0,
+        handlelength=1.5,
+        handletextpad=0.5,
+    )
+    return fig

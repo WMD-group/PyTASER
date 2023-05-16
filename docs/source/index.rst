@@ -29,7 +29,9 @@ Welcome to PyTASER's documentation!
 Introduction
 ============
 
-``PyTASER`` is a ``Python`` (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from electronic band structures. The goal of this library is to simulate TAS spectra for comparison with and interpretation of experimental spectra. The main features include:
+``PyTASER`` is a ``Python`` (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from
+DFT calculations. The goal of this library is to simulate TAS spectra for comparison with and interpretation of
+experimental spectra. The main features include:
 
 * An interactive TAS spectrum for a pristine semiconducting crystal
 * Isolated spectra for individual band transitions
@@ -119,7 +121,6 @@ Please feel free to reach out to us if there are any questions or suggestions.
 
 Future topics we plan to build on:
 
-* Implementing optical transition probabilities
 * Incorporating finite-temperature effects (particularly for indirect bandgaps)
 * Description of more complex optical processes (e.g. stimulated emission)
 * Direct treatment of pump-probe time delay
@@ -137,13 +138,15 @@ Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design t
    :caption: Usage Guide
    :hidden:
 
-   examples
+   dft_examples
+   jdos_examples
+
 
 .. toctree::
    :caption: Information
    :hidden:
 
-   changelog
+   changelog_link
    contributors
    contributing
    license
