@@ -36,7 +36,7 @@ College London.
 
 Additional contributions have been provided by:
 
-| **Seán Kavanagh** |kavanase||0000-0003-4577-9647|
+| **Seán Kavanagh** |kavanase| |0000-0003-4577-9647|
 | PhD student, UCL & Imperial College London
 
 .. |0000-0003-4577-9647| image:: _static/orcid.svg
