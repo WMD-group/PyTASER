@@ -36,6 +36,20 @@ College London.
 
 Additional contributions have been provided by:
 
+| **Seán Kavanagh** |kavanase||0000-0003-4577-9647|
+| PhD student, UCL & Imperial College London
+
+.. |0000-0003-4577-9647| image:: _static/orcid.svg
+   :target: https://orcid.org/0000-0003-4577-9647
+   :width: 16
+   :height: 16
+   :alt: ORCID profile for 0000-0003-4577-9647
+.. |kavanase| image:: https://cdnjs.cloudflare.com/ajax/libs/octicons/8.5.0/svg/mark-github.svg
+   :target: https://github.com/kavanase
+   :width: 16
+   :height: 16
+   :alt: GitHub profile for kavanase
+
 | **Youngwon Woo** |youngwonwoo|
 | PhD student, Yonsei University
 

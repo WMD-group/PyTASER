@@ -130,7 +130,7 @@ Future topics we plan to build on:
 Acknowledgements
 ================
 
-Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design the project. Thanks to group members for their support, especially Youngwon Woo, Anahita Manchala and Liam Harnett-Caulfield.
+Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design the project. Thanks to group members for their support, especially Seán Kavanagh, Youngwon Woo, Anahita Manchala and Liam Harnett-Caulfield.
 
 
 .. toctree::
