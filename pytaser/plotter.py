@@ -212,14 +212,23 @@ class TASPlotter:
             local_extrema_coords = []
             output_list_of_curves = []
             # get max value of all curves to use as relative scaling factor:
-            max_curve = np.max([np.max(np.abs(curve)) for curve in list_of_curves if curve is not None])
+            max_curve = np.max(
+                [
+                    np.max(np.abs(curve))
+                    for curve in list_of_curves
+                    if curve is not None
+                ]
+            )
             for curve in list_of_curves:  # Find the local maxima of each curve
-                if curve is not None and np.max(np.abs(curve))/max_curve > 0.05:
+                if (
+                    curve is not None
+                    and np.max(np.abs(curve)) / max_curve > 0.05
+                ):
                     local_extrema_indices = argrelextrema(
                         np.abs(curve), np.greater
                     )[0]
                     relative_local_extrema = [
-                        (idx, round(np.abs(curve)[idx]/max_curve, 2))
+                        (idx, round(np.abs(curve)[idx] / max_curve, 2))
                         for idx in local_extrema_indices
                     ]
                     # if any matching tuple in the list of local extrema:
@@ -227,19 +236,19 @@ class TASPlotter:
                         i == j
                         for i in relative_local_extrema
                         for j in local_extrema_coords
-                        if i[1]/max_curve > 0.05 and j[1]/max_curve > 0.05
+                        if i[1] / max_curve > 0.05 and j[1] / max_curve > 0.05
                     ):
                         curve *= 0.95
                         local_extrema_indices = argrelextrema(
                             np.abs(curve), np.greater
                         )[0]
                         relative_local_extrema = [
-                            (i, round(np.abs(curve)[i]/max_curve, 2))
+                            (i, round(np.abs(curve)[i] / max_curve, 2))
                             for i in local_extrema_indices
                         ]
 
                     local_extrema_coords += [
-                        (i, round(np.abs(curve)[i]/max_curve, 2))
+                        (i, round(np.abs(curve)[i] / max_curve, 2))
                         for i in local_extrema_indices
                     ]
                 output_list_of_curves.append(curve)
@@ -260,9 +269,12 @@ class TASPlotter:
             ):
                 transition_dict = {
                     k: v
-                    / np.max(
-                        np.abs(list(self.weighted_jdos_diff_if.values()))[
-                            xmin_ind:xmax_ind
+                    / max(
+                        [
+                            np.max(np.abs(vals_list))
+                            for vals_list in list(
+                                self.weighted_jdos_diff_if.values()
+                            )
                         ]
                     )
                     for k, v in self.weighted_jdos_diff_if.items()
@@ -436,7 +448,10 @@ class TASPlotter:
                         f"object was created using VASP outputs!"
                     )
 
-                if yaxis.lower() == "jdos_diff" and self.alpha_dark is not None:
+                if (
+                    yaxis.lower() == "jdos_diff"
+                    and self.alpha_dark is not None
+                ):
                     # jdos_diff explicitly set but WAVEDER info parsed, so tas_total is not the jdos_diff:
                     jdos_diff = self.jdos_light_total - self.jdos_dark_total
                 else:
@@ -553,7 +568,9 @@ class TASPlotter:
                             # only plot dark if it's not all zero
                             plt.plot(
                                 energy_mesh[xmin_ind:xmax_ind],
-                                self.jdos_dark_if[transition][xmin_ind:xmax_ind],
+                                self.jdos_dark_if[transition][
+                                    xmin_ind:xmax_ind
+                                ],
                                 label=str(transition) + " (dark)",
                                 ls="--",  # dashed linestyle for dark to distinguish
                                 color=f"C{2 * i + 1}",
