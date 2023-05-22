@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import argrelextrema
 import scipy.constants as scpc
+import ipywidgets as widgets
+from IPython.display import display
 
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -86,6 +88,7 @@ class TASPlotter:
         ymin=None,
         ymax=None,
         yaxis="tas",
+        check_button=None,
         **kwargs,
     ):
         """
@@ -138,6 +141,8 @@ class TASPlotter:
                 illumination.
                 If yaxis = "alpha", will plot the effective absorption coefficient (α, including
                 absorption and stimulated emission) before and after illumination.
+            check_buttton: To add ipywidgets.widgets.Checkbox with the ability to choose 
+                which TAS spectrum are displayed using check buttons. Default is False. 
             **kwargs: Additional arguments to be passed to matplotlib.pyplot.legend(); such as
                 `ncols` (number of columns in the legend), `loc` (location of the legend),
                 `fontsize` etc. (see https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot
@@ -161,10 +166,14 @@ class TASPlotter:
 
         energy_mesh = 0
         bg = 0
-        plt.figure(figsize=(12, 8))
-
+        plot_lines = []
+        fig, ax = plt.subplots(figsize=(12, 6),layout="constrained")
         xmin_ind = 0
         xmax_ind = -1
+        colorindex = 0
+        colorindex_dark = 0
+        cmap_light = plt.cm.turbo
+        cmap_dark = plt.cm.nipy_spectral
 
         if xaxis == "wavelength":
             energy_mesh = self.energy_mesh_lambda
@@ -173,7 +182,7 @@ class TASPlotter:
             if xmax is not None:
                 xmin_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap_lambda
-            plt.xlabel("Wavelength (nm)", fontsize=30)
+            ax.set_xlabel("Wavelength (nm)", fontsize=20)
 
         elif xaxis == "energy":
             energy_mesh = self.energy_mesh_ev
@@ -182,7 +191,7 @@ class TASPlotter:
             if xmax is not None:
                 xmax_ind = np.abs(energy_mesh - xmax).argmin()
             bg = self.bandgap
-            plt.xlabel("Energy (eV)", fontsize=30)
+            ax.set_xlabel("Energy (eV)", fontsize=20)
 
         if xmin is not None:
             if xmin / np.min(energy_mesh) < 0.95:
@@ -281,7 +290,7 @@ class TASPlotter:
                     normalised_tas = tas_total / np.max(
                         np.abs(tas_total)[xmin_ind:xmax_ind]
                     )
-                    plt.plot(
+                    ax.plot(
                         energy_mesh[xmin_ind:xmax_ind],
                         normalised_tas[xmin_ind:xmax_ind],
                         label="Total TAS (Δα)",
@@ -300,7 +309,7 @@ class TASPlotter:
                             np.abs(self.alpha_dark)[xmin_ind:xmax_ind]
                         )
                     )
-                    plt.plot(
+                    ax.plot(
                         energy_mesh[xmin_ind:xmax_ind],
                         (
                             self.alpha_light_dict["absorption"][
@@ -313,16 +322,16 @@ class TASPlotter:
                         / alpha_normalisation_factor,
                         label="α (light)",
                         color="black",
-                        lw=2.5,
+                        lw=3.5,
                         alpha=0.75,  # make semi-transparent to show if overlapping lines
                     )
-                    plt.plot(
+                    ax.plot(
                         energy_mesh[xmin_ind:xmax_ind],
                         self.alpha_dark[xmin_ind:xmax_ind]
                         / alpha_normalisation_factor,
                         label="α (dark)",
-                        color="blue",
-                        lw=2.5,
+                        color="tab:blue",
+                        lw=3.5,
                         alpha=0.75,  # make semi-transparent to show if overlapping lines
                     )
                     weighted_jdos_normalisation_factor = np.max(
@@ -356,21 +365,30 @@ class TASPlotter:
                             relevant_transition_list
                         ):
                             if transition is not None:
-                                plt.plot(
+                                num_lines_light = sum(transition is not None for transition in relevant_transition_list)
+                                num_lines_dark = sum(transition is not None and np.any(self.weighted_jdos_dark_if[transition][
+                                    xmin_ind:xmax_ind]) for transition in relevant_transition_list)
+                                colorlist_light = [cmap_light(a) for a in np.linspace(0.0, 1.0, num_lines_light)]
+                                colorlist_dark = [cmap_dark(a) for a in np.linspace(0.0, 1.0, num_lines_dark)]
+                                line, = ax.plot(
                                     energy_mesh[xmin_ind:xmax_ind],
                                     list_of_curves[i]
                                     / weighted_jdos_normalisation_factor,
                                     label=str(transition) + " (light)",
-                                    color=f"C{2 * i}",
+                                    color=colorlist_light[colorindex],
                                     lw=2.5,
                                 )
+                                plot_lines.append(line)
+                                colorindex += 1
+
                             if transition is not None and np.any(
                                 self.weighted_jdos_dark_if[transition][
                                     xmin_ind:xmax_ind
                                 ]
                             ):
                                 # only plot dark if it's not all zero
-                                plt.plot(
+                                # colorindex_dark = 0
+                                line, = ax.plot(
                                     energy_mesh[xmin_ind:xmax_ind],
                                     self.weighted_jdos_dark_if[transition][
                                         xmin_ind:xmax_ind
@@ -378,8 +396,10 @@ class TASPlotter:
                                     / weighted_jdos_normalisation_factor,
                                     label=str(transition) + " (dark)",
                                     ls="--",  # dashed linestyle for dark to distinguish
-                                    color=f"C{2 * i + 1}",
+                                    color=colorlist_dark[colorindex_dark],
                                 )
+                                plot_lines.append(line)
+                                colorindex_dark += 1
 
                     else:
                         list_of_curves = [
@@ -404,21 +424,29 @@ class TASPlotter:
 
                         for i, transition in enumerate(list_of_transitions):
                             if transition is not None:
-                                plt.plot(
+                                num_lines_light = sum(transition is not None for transition in list_of_transitions)
+                                num_lines_dark = sum(transition is not None and np.any(self.weighted_jdos_dark_if[transition][xmin_ind:xmax_ind]) for transition in list_of_transitions)
+                                colorlist_light = [cmap_light(a) for a in np.linspace(0.0, 1.0, num_lines_light)]
+                                colorlist_dark = [cmap_dark(a) for a in np.linspace(0.0, 1.0, num_lines_dark)]
+                                line, = ax.plot(
                                     energy_mesh[xmin_ind:xmax_ind],
                                     list_of_curves[i]
                                     / weighted_jdos_normalisation_factor,
                                     label=str(transition) + " (light)",
                                     lw=2.5,
-                                    color=f"C{2 * i}",
+                                    color=colorlist_light[colorindex],
                                 )
+                                plot_lines.append(line)
+                                colorindex += 1
+
                                 if np.any(
                                     self.weighted_jdos_dark_if[transition][
                                         xmin_ind:xmax_ind
                                     ]
                                 ):
                                     # only plot dark if it's not all zero
-                                    plt.plot(
+                                    # colorindex_dark = 0
+                                    line, =ax.plot(
                                         energy_mesh[xmin_ind:xmax_ind],
                                         self.weighted_jdos_dark_if[transition][
                                             xmin_ind:xmax_ind
@@ -426,9 +454,10 @@ class TASPlotter:
                                         / weighted_jdos_normalisation_factor,
                                         label=str(transition) + " (dark)",
                                         ls="--",  # dashed linestyle for dark to distinguish
-                                        color=f"C{2 * i + 1}",
+                                        color=colorlist_dark[colorindex_dark],
                                     )
-
+                                    plot_lines.append(line)
+                                    colorindex_dark += 1
             else:
                 if yaxis.lower() in ["tas_absorption_only", "alpha"]:
                     raise ValueError(
@@ -442,7 +471,7 @@ class TASPlotter:
                 else:
                     jdos_diff = self.tas_total
 
-                plt.plot(
+                ax.plot(
                     energy_mesh[xmin_ind:xmax_ind],
                     jdos_diff[xmin_ind:xmax_ind],
                     label="Total TAS (ΔJDOS only)",
@@ -471,13 +500,17 @@ class TASPlotter:
 
                 for i, transition in enumerate(relevant_transition_list):
                     if transition is not None:
-                        plt.plot(
+                        num_lines = sum(transition is not None for transition in relevant_transition_list)
+                        colorlist = [cmap_light(a) for a in np.linspace(0.0, 1.0, num_lines)]
+                        line, = ax.plot(
                             energy_mesh[xmin_ind:xmax_ind],
                             list_of_curves[i],
                             label=str(transition),
                             lw=2.5,
-                            color=f"C{i}",
+                            color=colorlist[colorindex],
                         )
+                        plot_lines.append(line)
+                        colorindex += 1
 
             elif (
                 transition_dict
@@ -496,30 +529,34 @@ class TASPlotter:
 
                 for i, transition in enumerate(list_of_transitions):
                     if transition is not None:
-                        plt.plot(
+                        num_lines = sum(transition is not None for transition in list_of_transitions)
+                        colorlist = [cmap_light(a) for a in np.linspace(0.0, 1.0, num_lines)]
+                        line, =ax.plot(
                             energy_mesh[xmin_ind:xmax_ind],
                             list_of_curves[i],
                             label=str(transition),
                             lw=2.5,
-                            color=f"C{i}",
+                            color=colorlist[colorindex],
                         )
+                        plot_lines.append(line)
+                        colorindex += 1
 
         elif yaxis.lower() == "jdos":
             abs_label = "JDOS (a.u.)"
-            plt.plot(
+            ax.plot(
                 energy_mesh[xmin_ind:xmax_ind],
                 self.jdos_light_total[xmin_ind:xmax_ind],
                 label="JDOS (light)",
                 color="black",
-                lw=2.5,
+                lw=3.5,
                 alpha=0.75,  # make semi-transparent to show if overlapping lines
             )
-            plt.plot(
+            ax.plot(
                 energy_mesh[xmin_ind:xmax_ind],
                 self.jdos_dark_total[xmin_ind:xmax_ind],
                 label="JDOS (dark)",
-                color="blue",
-                lw=2.5,
+                color="tab:blue",
+                lw=3.5,
                 alpha=0.75,  # make semi-transparent to show if overlapping lines
             )
 
@@ -540,24 +577,33 @@ class TASPlotter:
 
                 for i, transition in enumerate(relevant_transition_list):
                     if transition is not None:
-                        plt.plot(
+                        num_lines_light = sum(transition is not None for transition in relevant_transition_list)
+                        num_lines_dark = sum(transition is not None and np.any(self.jdos_dark_if[transition][xmin_ind:xmax_ind]) for transition in relevant_transition_list)
+                        colorlist_light = [cmap_light(a) for a in np.linspace(0.0, 1.0, num_lines_light)]
+                        colorlist_dark = [cmap_dark(a) for a in np.linspace(0.0, 1.0, num_lines_dark)]
+                        line, = ax.plot(
                             energy_mesh[xmin_ind:xmax_ind],
                             list_of_curves[i],
                             label=str(transition) + " (light)",
-                            color=f"C{2*i}",
+                            color=colorlist_light[colorindex],
                             lw=2.5,
                         )
+                        plot_lines.append(line)
+                        colorindex += 1
                         if np.any(
                             self.jdos_dark_if[transition][xmin_ind:xmax_ind]
                         ):
                             # only plot dark if it's not all zero
-                            plt.plot(
+                            # colorindex_dark = 0
+                            line, =ax.plot(
                                 energy_mesh[xmin_ind:xmax_ind],
                                 self.jdos_dark_if[transition][xmin_ind:xmax_ind],
                                 label=str(transition) + " (dark)",
                                 ls="--",  # dashed linestyle for dark to distinguish
-                                color=f"C{2 * i + 1}",
+                                color=colorlist_dark[colorindex_dark],
                             )
+                            plot_lines.append(line)
+                            colorindex_dark += 1
 
             else:
                 list_of_curves = [
@@ -574,29 +620,38 @@ class TASPlotter:
 
                 for i, transition in enumerate(list_of_transitions):
                     if transition is not None:
-                        plt.plot(
+                        num_lines_light = sum(transition is not None for transition in list_of_transitions)
+                        num_lines_dark = sum(transition is not None and np.any(self.jdos_dark_if[transition][xmin_ind:xmax_ind]) for transition in list_of_transitions)
+                        colorlist_light = [cmap_light(a) for a in np.linspace(0.0, 1.0, num_lines_light)]
+                        colorlist_dark = [cmap_dark(a) for a in np.linspace(0.0, 1.0, num_lines_dark)]
+                        line, =ax.plot(
                             energy_mesh[xmin_ind:xmax_ind],
                             list_of_curves[i],
                             label=str(transition) + " (light)",
                             lw=2.5,
-                            color=f"C{2*i}",
+                            color=colorlist_light[colorindex],
                         )
+                        plot_lines.append(line)
+                        colorindex += 1
                         if np.any(
                             self.jdos_dark_if[transition][xmin_ind:xmax_ind]
                         ):
                             # only plot dark if it's not all zero
-                            plt.plot(
+                            colorindex_dark=0
+                            line, =ax.plot(
                                 energy_mesh[xmin_ind:xmax_ind],
                                 self.jdos_dark_if[transition][
                                     xmin_ind:xmax_ind
                                 ],
                                 label=str(transition) + " (dark)",
                                 ls="--",  # dashed linestyle for dark to distinguish
-                                color=f"C{2 * i + 1}",
+                                color=colorlist_dark[colorindex_dark],
                             )
+                            plot_lines.append(line)
+                            colorindex_dark += 1
 
-        plt.ylabel(abs_label, fontsize=30)
-        y_axis_min, y_axis_max = plt.gca().get_ylim()
+        ax.set_ylabel(abs_label, fontsize=20)
+        y_axis_min, y_axis_max = ax.get_ylim()
 
         if ymax is None:
             ymax = y_axis_max
@@ -609,12 +664,12 @@ class TASPlotter:
             x_bg = np.empty(len(y_bg), dtype=float)
             x_bg.fill(bg)
 
-            plt.plot(x_bg, y_bg, label="Bandgap", ls="--")
+            ax.plot(x_bg, y_bg, label="Bandgap", ls="--")
 
         if xaxis == "wavelength" and any(i is None for i in [xmax, xmin]):
             # rescale xmax so it doesn't extend to near-infinity and xmin so
             # it doesn't extend all the way to zero / negative (which is unphysical):
-            lines = plt.gca().get_lines()
+            lines = ax.get_lines()
             max_x_for_y_gt_0 = None
             min_x_for_y_gt_0 = None
 
@@ -651,8 +706,8 @@ class TASPlotter:
                 # Set x limit to 95% of min x-value
                 xmin = min_x_for_y_gt_0 * 0.95
 
-        plt.xlim(xmin, xmax)
-        plt.ylim(ymin, ymax)
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
 
         if (
             (self.material_name is not None)
@@ -663,7 +718,7 @@ class TASPlotter:
             formatted_material_name = re.sub(
                 r"(\d)", r"$_{\1}$", self.material_name
             )
-            plt.title(
+            ax.set_title(
                 abs_label
                 + " spectrum of "
                 + formatted_material_name
@@ -672,16 +727,31 @@ class TASPlotter:
                 + " K, n = "
                 + str(self.conc)
                 + " $cm^{-3}$",
-                fontsize=25,
+                fontsize=20,
             )
 
-        plt.xticks(fontsize=30)
-        plt.yticks(fontsize=30)
-        plt.legend(
-            loc=kwargs.pop("loc", "center left"),
-            bbox_to_anchor=kwargs.pop("bbox_to_anchor", (1.04, 0.5)),
-            fontsize=kwargs.pop("fontsize", 16),
-            **kwargs,
-        )
+        ax.tick_params(axis='both', labelsize=20)
 
-        return plt
+        
+        ax.legend(
+        loc=kwargs.pop("loc", "center left"),
+        bbox_to_anchor=kwargs.pop("bbox_to_anchor", (1.04, 0.5)),
+        fontsize=kwargs.pop("fontsize", 12),
+        **kwargs,
+        )
+        if check_button is not None:
+            labels = [str(line.get_label()) for line in plot_lines]
+            visibility = [line.get_visible() for line in plot_lines]
+            line_colors = [line.get_color() for line in plot_lines]
+
+            def checkbuttons(change):
+                index = labels.index(change['owner'].description)
+                plot_lines[index].set_visible(not plot_lines[index].get_visible())
+                plt.draw()
+
+            checkboxes = [widgets.Checkbox(description=label, value=visible) for label, visible in zip(labels, visibility)]            
+            checkboxes_container = widgets.GridBox(checkboxes,layout=widgets.Layout(grid_template_columns="repeat(6, 100px)"))
+            display(checkboxes_container)
+        plt.show()
+
+        return fig
