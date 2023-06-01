@@ -43,11 +43,11 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
-          password: ${{ secrets.TWINE_PASSWORD }}
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Write release info
         run: |
