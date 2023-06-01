@@ -88,4 +88,4 @@ Future topics we plan to build on:
 
 # Acknowledgements
 
-The project was the focus of a [UROP](https://www.imperial.ac.uk/urop/) by @savya10, supervised by @utf and @aronwalsh, with on-going developments and testing from @youngwonwoo.
+The project was the focus of a [UROP](https://www.imperial.ac.uk/urop/) by @savya10, supervised by @utf and @aronwalsh, with on-going developments and testing from @kavanase and @youngwonwoo.

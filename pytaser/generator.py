@@ -116,9 +116,8 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         final_energy = bs.bands[spin][f][k]
         init_occ = occs[i][k]
         k_weight = kweights[k]
-        factor = k_weight * (
-            (init_occ * (1 - final_occ)) - (final_occ * (1 - init_occ))
-        )
+        factor = k_weight * (init_occ - final_occ)
+
         jdos += factor * gaussian(
             energies, gaussian_width, center=final_energy - init_energy
         )
@@ -169,16 +168,12 @@ def _calculate_oscillator_strength(args):
         em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
         both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
 
-        if dfc.ismear == 0:
-            ismear = -0.1
-        else:
-            ismear = dfc.ismear
         smeared_wout_matrix_el = optics.get_delta(
             x0=decel,
             sigma=sigma,
             nx=dfc.nedos,
             dx=dfc.deltae,
-            ismear=ismear,
+            ismear=dfc.ismear,
         )
 
         absorption = smeared_wout_matrix_el * abs_matrix_el
