@@ -37,7 +37,7 @@ setup(
         "numpy",
         "scipy",
         "matplotlib>=3.7.1",
-        "pymatgen>=2017.12.30",
+        "pymatgen>=2023.05.31",
         "setuptools"
     ],
     extras_require={
