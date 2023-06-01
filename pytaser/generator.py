@@ -222,16 +222,12 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
             em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
             both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
 
-            if dfc.ismear == 0:  # error in pymatgen, TODO: PR!
-                ismear = -0.1
-            else:
-                ismear = dfc.ismear
             smeared_wout_matrix_el = optics.get_delta(
                 x0=decel,
                 sigma=sigma,
                 nx=dfc.nedos,
                 dx=dfc.deltae,
-                ismear=ismear,
+                ismear=dfc.ismear,
             )
 
             dielectric_dict["absorption"] += (
