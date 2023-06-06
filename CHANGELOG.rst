@@ -1,7 +1,7 @@
 Change log
 ==========
 
-v0.3.0
+v1.1.0
 ------
 - Add multiprocessing functionality to dramatically speed up parsing of large kpoint sets / large numbers of
   electronic bands, and add example notebook and HPC script for this.
