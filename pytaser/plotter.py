@@ -261,7 +261,7 @@ class TASPlotter:
             "jdos_diff",
             "alpha",
         ]:
-            abs_label = "ΔT (a.u.)"
+            abs_label = "ΔA (a.u.)"
 
             if (
                 self.alpha_light_dict is not None
