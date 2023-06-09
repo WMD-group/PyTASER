@@ -2,6 +2,7 @@ import itertools
 from tqdm import tqdm
 import warnings
 import numpy as np
+from multiprocessing import Pool, cpu_count
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
@@ -116,14 +117,77 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         init_occ = occs[i][k]
         k_weight = kweights[k]
         factor = k_weight * (init_occ - final_occ)
-        
+
         jdos += factor * gaussian(
             energies, gaussian_width, center=final_energy - init_energy
         )
     return jdos
 
 
-def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
+def _calculate_oscillator_strength(args):
+    """Calculates the oscillator strength of a single band-band transition"""
+    (
+        ib,
+        jb,
+        ik,
+        occs,
+        dfc,
+        eigs_shifted,
+        norm_kweights,
+        rspin,
+        spin,
+        sigma,
+    ) = args
+
+    ispin = 0 if spin == Spin.up else 1
+    init_energy = eigs_shifted[ib, ik, ispin]
+    final_energy = eigs_shifted[jb, ik, ispin]
+    if final_energy > init_energy:
+        init_occ = occs[ib][ik]
+        final_occ = occs[jb][ik]
+
+        A = (
+            sum(
+                dfc.cder[ib, jb, ik, ispin, idir]
+                * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
+                for idir in range(3)
+            )
+            / 3
+        )
+        decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
+        matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
+        tdm = (
+            np.abs(A) * rspin * decel
+        )  # kweight and occ factor already accounted for with JDOS
+
+        abs_occ_factor = init_occ * (1 - final_occ)
+        em_occ_factor = (1 - init_occ) * final_occ
+        both_occ_factor = init_occ - final_occ
+
+        abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
+        em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
+        both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
+
+        smeared_wout_matrix_el = optics.get_delta(
+            x0=decel,
+            sigma=sigma,
+            nx=dfc.nedos,
+            dx=dfc.deltae,
+            ismear=dfc.ismear,
+        )
+
+        absorption = smeared_wout_matrix_el * abs_matrix_el
+        emission = smeared_wout_matrix_el * em_matrix_el
+        both = smeared_wout_matrix_el * both_matrix_el
+
+        return absorption, emission, both, tdm, ib, jb, ik
+
+    return 0, 0, 0, 0, 0, 0, 0
+
+
+def occ_dependent_alpha(
+    dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None
+):
     """Calculate the expected optical absorption given the groundstate orbital derivatives and
     eigenvalues (via dfc) and specified band occupancies.
     Templated from pymatgen.io.vasp.optics.epsilon_imag().
@@ -138,6 +202,8 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function (see
             https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of CSHIFT from
             the underlying VASP WAVEDER calculation.
+        processes: Number of processes to use for multiprocessing. If not set, defaults to one
+            less than the number of CPUs available.
 
     Returns:
         (alpha_dict, tdm_array) where alpha_dict is a dictionary of band-to-band absorption,
@@ -186,57 +252,41 @@ def occ_dependent_alpha(dfc, occs, spin=Spin.up, sigma=None, cshift=None):
         )
         else "dark"
     )
-    for ib, jb, ik in tqdm(
-        itertools.product(*iter_idx),
-        total=num_,
-        desc=f"Calculating oscillator strengths (spin {spin_string}, "
-        f"{light_dark_string})",
-    ):
-        ispin = 0 if spin == Spin.up else 1
-        init_energy = eigs_shifted[ib, ik, ispin]
-        final_energy = eigs_shifted[jb, ik, ispin]
-        if final_energy > init_energy:
-            init_occ = occs[ib][ik]
-            final_occ = occs[jb][ik]
 
-            A = (
-                sum(
-                    dfc.cder[ib, jb, ik, ispin, idir]
-                    * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
-                    for idir in range(3)
-                )
-                / 3
+    args = []
+    for ib, jb, ik in itertools.product(*iter_idx):
+        args.append(
+            (
+                ib,
+                jb,
+                ik,
+                occs,
+                dfc,
+                eigs_shifted,
+                norm_kweights,
+                rspin,
+                spin,
+                sigma,
             )
-            decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
-            matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
-            tdm_array[ib, jb, ik] = (
-                np.abs(A) * rspin * decel
-            )  # kweight and occ factor
-            # already accounted for with JDOS
+        )
 
-            abs_occ_factor = init_occ * (1 - final_occ)
-            em_occ_factor = (1 - init_occ) * final_occ
-            both_occ_factor = init_occ - final_occ
+    if processes is None:
+        processes = cpu_count() - 1
+    with Pool(processes) as pool:
+        results = pool.map(
+            _calculate_oscillator_strength,
+            tqdm(
+                args,
+                total=num_,
+                desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
+            ),
+        )
 
-            abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
-            em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
-            both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
-
-            smeared_wout_matrix_el = optics.get_delta(
-                x0=decel,
-                sigma=sigma,
-                nx=dfc.nedos,
-                dx=dfc.deltae,
-                ismear=dfc.ismear,
-            )
-
-            dielectric_dict["absorption"] += (
-                smeared_wout_matrix_el * abs_matrix_el
-            )
-            dielectric_dict["emission"] += (
-                smeared_wout_matrix_el * em_matrix_el
-            )
-            dielectric_dict["both"] += smeared_wout_matrix_el * both_matrix_el
+    for absorption, emission, both, tdm, ib, jb, ik in results:
+        dielectric_dict["absorption"] += absorption
+        dielectric_dict["emission"] += emission
+        dielectric_dict["both"] += both
+        tdm_array[ib, jb, ik] = tdm
 
     tdm_array = (
         tdm_array.real
@@ -409,6 +459,7 @@ class TASGenerator:
         step=0.01,
         light_occs=None,
         dark_occs=None,
+        processes=None,
     ):
         """
         Generates TAS spectra based on inputted occupancies, and a specified energy mesh. If the
@@ -436,6 +487,8 @@ class TASGenerator:
             dark_occs: Optional input parameter for occupancies of material in dark, otherwise
                 automatically calculated based on input temperature (temp) and carrier concentration
                 (conc) [dict]
+            processes: Number of processes to use for multiprocessing. If not set, defaults to one
+                less than the number of CPUs available.
 
         Returns:
             TAS class containing the following inputs;
@@ -507,6 +560,7 @@ class TASGenerator:
                     occs_dark[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
+                    processes=processes,
                 )
                 alpha_dark += alpha_dark_dict[
                     "both"
@@ -517,6 +571,7 @@ class TASGenerator:
                     occs_light[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
+                    processes=processes,
                 )[0]
                 for key, array in alpha_light_dict.items():
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]

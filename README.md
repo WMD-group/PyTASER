@@ -7,9 +7,7 @@
 
 # PyTASER
 
-![](PyTASER.png)
-
-***The library is undergoing changes before it is released*** 
+[![PyTASER Docs](docs/PyTASER.png)](https://pytaser.readthedocs.io/en/latest/)
 
 [Official Documentation](https://pytaser.readthedocs.io/en/latest/)
 

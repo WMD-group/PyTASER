@@ -9,7 +9,7 @@ with open("README.md") as file:
 
 setup(
     name="pytaser",
-    version="1.0.0",
+    version="1.1.0",
     description="TAS prediction tool",
     url="https://pytaser.readthedocs.io/en/latest/",
     author="Savyasanchi Aggarwal",
