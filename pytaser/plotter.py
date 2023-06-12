@@ -740,18 +740,27 @@ class TASPlotter:
         **kwargs,
         )
         if check_button is not None:
-            labels = [str(line.get_label()) for line in plot_lines]
-            visibility = [line.get_visible() for line in plot_lines]
-            line_colors = [line.get_color() for line in plot_lines]
-
-            def checkbuttons(change):
-                index = labels.index(change['owner'].description)
-                plot_lines[index].set_visible(not plot_lines[index].get_visible())
-                plt.draw()
-
-            checkboxes = [widgets.Checkbox(description=label, value=visible) for label, visible in zip(labels, visibility)]            
-            checkboxes_container = widgets.GridBox(checkboxes,layout=widgets.Layout(grid_template_columns="repeat(6, 100px)"))
+            checkboxes = []
+            for line in plot_lines:
+                checkbox = widgets.Checkbox(description=line.get_label(), value=True)
+                checkboxes.append(checkbox)
+            
+            checkboxes_container = widgets.GridBox(checkboxes, layout=widgets.Layout(grid_template_columns="repeat(6, 100px)"))
             display(checkboxes_container)
-        plt.show()
-
+            
+            
+            # Update plot based on checkbox values
+            def update_plot(change):
+                for line, checkbox in zip(plot_lines, checkboxes):
+                    line.set_visible(checkbox.value)
+                plt.draw()
+            
+            
+            # Add the observer to the checkboxes
+            for checkbox in checkboxes:
+                checkbox.observe(update_plot, 'value')
+            
+            # Initial plot update
+            update_plot(None)   
+            plt.show()
         return fig
