@@ -1,12 +1,19 @@
 Change log
 ==========
 
-v1.1.0
+v23.6.3
+-------
+
+- Remake PyTASER MP example workflow
+- Update PyPI releasing workflow
+- Update minor MPRester API issue
+
+v23.6.2
 ------
 - Add multiprocessing functionality to dramatically speed up parsing of large kpoint sets / large numbers of
   electronic bands, and add example notebook and HPC script for this.
 
-v0.2.0
+v23.6.1
 ------
 - Add functionality to parse orbital derivatives from `VASP` optics calculations, to incorporate oscillator strengths
   in the prediction of TAS spectra.
