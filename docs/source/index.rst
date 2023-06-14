@@ -139,7 +139,8 @@ Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design t
    :hidden:
 
    dft_examples
-   jdos_examples
+   mp_example
+   multiprocessing_examples
 
 
 .. toctree::

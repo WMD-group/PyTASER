@@ -70,6 +70,9 @@ Alternatively, you can set up a file in Python to run it in the command line of 
 python3 <filename.py>
 ```
 
+If using your own, locally calculated data, please follow [this](https://pytaser.readthedocs.io/en/latest/dft_examples.html) workflow.
+Otherwise, use the MP-integrated workflow [here](https://pytaser.readthedocs.io/en/latest/jdos_examples.html). 
+
 # Contributing
 
 We appreciate any contributions in the form of a pull request. 

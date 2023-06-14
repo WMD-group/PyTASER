@@ -695,7 +695,10 @@ class TASGenerator:
             A TASGenerator object.
         """
         if mpr is None:
-            mpr = MPRester(api_key=api_key)
+            if api_key is None:
+                mpr = MPRester()
+            else:
+                mpr = MPRester(api_key=api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
         if bg is not None:
