@@ -11,11 +11,11 @@
 
 [Official Documentation](https://pytaser.readthedocs.io/en/latest/)
 
-PyTASER is a Python (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from 
-DFT calculations. The goal of this library is to simulate TAS spectra for comparison with and interpretation of 
-experimental spectra. The main features include:
+PyTASER is a Python (3.9+) library for simulating differential absorption in general, and transient absorption spectroscopy (TAS) in particular, features from 
+quantum chemical calculations of crystals. The goal of this library is to simulate spectra for comparison with and interpretation of 
+experiments. The main features include:
 
-* A TAS spectrum for a pristine semiconducting crystal
+* Spectra for insulating and semiconducting crystals
 * Components from individual band-to-band transitions
 * Spectra for different conditions: temperature and carrier concentrations
 * Consideration of non-magnetic and magnetic materials
@@ -38,7 +38,7 @@ python3 setup.py build
 python3 setup.py install --user
 ```
 
-PyTASER is currently compatible with Python 3.9+ and relies on a number of open-source python packages, specifically:
+PyTASER is compatible with Python 3.9+ and relies on a number of open-source packages, specifically:
 
 * [pymatgen](https://pymatgen.org/index.html) 
 * [numpy](https://numpy.org/), [scipy](https://scipy.org/) for data structures and unit conversion
@@ -64,7 +64,7 @@ This command tries to obtain the required packages and their dependencies and in
 
 # Visualisation 
 
-The preferred method is to generate a Jupyter Notebook, as shown in the [examples](https://github.com/WMD-group/PyTASER/blob/main/examples) folder.
+One method is to generate a Jupyter Notebook, as shown in the [examples](https://github.com/WMD-group/PyTASER/blob/main/examples) folder.
 Alternatively, you can set up a file in Python to run it in the command line of the terminal:
 ```
 python3 <filename.py>
@@ -81,12 +81,11 @@ Please feel free to reach out to us if there are any questions or suggestions.
 
 Future topics we plan to build on:
 
-* Incorporating finite-temperature effects (particularly for indirect bandgaps)
-* Description of more complex optical processes (e.g. stimulated emission)
-* Direct treatment of pump-probe time delay
+* Incorporating finite-temperature effects (particularly for indirect band-to-band transitions)
+* Direct treatment of pump-probe time delay and relaxation kinetics 
 * Incorporating spin-flip processes for spin-polarised systems
 * Description of defective crystals 
 
 # Acknowledgements
 
-The project was the focus of a [UROP](https://www.imperial.ac.uk/urop/) by @savya10, supervised by @utf and @aronwalsh, with on-going developments and testing from @kavanase and @youngwonwoo.
+The project has been developed by @savya10, @kavanase and @youngwonwoo under the supervision of @utf and @aronwalsh.
