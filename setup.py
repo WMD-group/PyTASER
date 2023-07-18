@@ -9,7 +9,7 @@ with open("README.md") as file:
 
 setup(
     name="pytaser",
-    version="23.6.3",
+    version="2.0.0",
     description="TAS prediction tool",
     url="https://pytaser.readthedocs.io/en/latest/",
     author="Savyasanchi Aggarwal",
@@ -38,7 +38,7 @@ setup(
         "scipy",
         "matplotlib>=3.7.1",
         "pymatgen>=2023.05.31",
-        "setuptools"
+        "setuptools",
     ],
     extras_require={
         "tests": [
@@ -47,7 +47,6 @@ setup(
             "deepdiff",
             "monty",
             "pathlib",
-
         ],
         "docs": [
             "sphinx",
@@ -62,7 +61,7 @@ setup(
             "sphinx-autobuild",
             "sphinx_minipres",
             "sphinx_tabs",
-            "sphinx_togglebutton"
+            "sphinx_togglebutton",
         ],
     },
     data_files=["LICENSE"],

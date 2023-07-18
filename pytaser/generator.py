@@ -186,9 +186,10 @@ def _calculate_oscillator_strength(args):
 
 
 def occ_dependent_alpha(
-    dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None
+    dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None, energy_max=6,
 ):
-    """Calculate the expected optical absorption given the groundstate orbital derivatives and
+    """
+    Calculate the expected optical absorption given the groundstate orbital derivatives and
     eigenvalues (via dfc) and specified band occupancies.
     Templated from pymatgen.io.vasp.optics.epsilon_imag().
 
@@ -204,6 +205,8 @@ def occ_dependent_alpha(
             the underlying VASP WAVEDER calculation.
         processes: Number of processes to use for multiprocessing. If not set, defaults to one
             less than the number of CPUs available.
+        energy_max: Maximum band transition energy to consider (in eV). A minimum range of -6 eV to +6
+            eV is considered regardless of `energy_max`, to ensure a reasonable dielectric function output.
 
     Returns:
         (alpha_dict, tdm_array) where alpha_dict is a dictionary of band-to-band absorption,
@@ -228,26 +231,26 @@ def occ_dependent_alpha(
     rspin = (
         3 - dfc.cder.shape[3]
     )  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
-    min_band0, max_band0 = np.min(np.where(dfc.cder)[0]), np.max(
-        np.where(dfc.cder)[0]
-    )
-    min_band1, max_band1 = np.min(np.where(dfc.cder)[1]), np.max(
-        np.where(dfc.cder)[1]
-    )
+
+    # set band range to consider, based on energy_max:
+    # use -6 eV to +6 eV as minimum range, extended to -energy_max/+energy_max if energy_max > 6 eV
+    max_band_energy = max(6, energy_max)
+    min_band = np.min((eigs_shifted > -max_band_energy).nonzero()[0])
+    max_band = np.max((eigs_shifted < max_band_energy).nonzero()[0])
 
     _, _, nk, _ = dfc.cder.shape[:4]
     iter_idx = [
-        range(min_band0, max_band0 + 1),
-        range(min_band1, max_band1 + 1),
+        range(min_band, max_band + 1),
+        range(min_band, max_band + 1),
         range(nk),
     ]
-    num_ = (max_band0 - min_band0) * (max_band1 - min_band1) * nk
+    num_ = nk * (max_band - min_band)**2
     spin_string = "up" if spin == Spin.up else "down"
     light_dark_string = (
         "under illumination"
         if any(
             occs[b][k] not in [0, 1]
-            for b in range(min_band0, max_band0 + 1)
+            for b in range(min_band, max_band + 1)
             for k in range(nk)
         )
         else "dark"
@@ -290,8 +293,7 @@ def occ_dependent_alpha(
 
     tdm_array = (
         tdm_array.real
-    )  # real part of A is the TDM (imag part is zero after taking the
-    # complex conjugate)
+    )  # real part of A is the TDM (imag part is zero after taking the complex conjugate)
     alpha_dict = {}
     for key, dielectric in dielectric_dict.items():
         eps_in = dielectric * optics.edeps * np.pi / dfc.volume
@@ -561,6 +563,7 @@ class TASGenerator:
                     sigma=gaussian_width,
                     cshift=cshift,
                     processes=processes,
+                    energy_max=energy_max,
                 )
                 alpha_dark += alpha_dark_dict[
                     "both"
@@ -572,6 +575,7 @@ class TASGenerator:
                     sigma=gaussian_width,
                     cshift=cshift,
                     processes=processes,
+                    energy_max=energy_max,
                 )[0]
                 for key, array in alpha_light_dict.items():
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
