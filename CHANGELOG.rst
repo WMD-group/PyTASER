@@ -1,9 +1,14 @@
 Change log
 ==========
 
+v2.0.0
+------
+- Reduce the sum over band transitions to the energy mesh (min(-6, -energy_max), max(6, energy_max)) to
+  make parsing of VASP optics more efficient.
+- Switch to semantic versioning.
+
 v23.6.3
 -------
-
 - Remake PyTASER MP example workflow
 - Update PyPI releasing workflow
 - Update minor MPRester API issue
