@@ -142,6 +142,17 @@ def test_occ_dependent_alpha(
     # Tighter check, rtol = 2.5%:
     np.testing.assert_allclose(interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.025)
 
+    # test setting low energy_max doesn't break dielectric function:
+    alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
+        cdte_vasp_generated_class.dfc, dark_occs[Spin.up], spin=Spin.up, energy_max=4
+    )  # default sigma and cshift
+    interp_alpha_dark = np.interp(
+        sumo_abs[:, 0], egrid, alpha_dark_dict["both"]
+    )
+
+    # Looser check, rtol = 10%:
+    np.testing.assert_allclose(interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.1)
+
 
 def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
     """Test that from_vasp_outputs raises informative errors when ISYM not 0/-1"""
