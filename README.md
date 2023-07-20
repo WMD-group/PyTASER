@@ -26,16 +26,16 @@ experiments. The main features include:
 To install the module with pip (recommended): 
 
 ```
-pip install --user pytaser
+pip install pytaser
 ```
 To install directly from the git repository:
 ```
-pip install --user git+https://github.com/WMD-group/PyTASER
+pip install git+https://github.com/WMD-group/PyTASER
 ```
 To do a manual build and installation:
 ```
 python3 setup.py build
-python3 setup.py install --user
+python3 setup.py install
 ```
 
 PyTASER is compatible with Python 3.9+ and relies on a number of open-source packages, specifically:
@@ -70,14 +70,23 @@ Alternatively, you can set up a file in Python to run it in the command line of 
 python3 <filename.py>
 ```
 
-If using your own, locally calculated data, please follow [this](https://pytaser.readthedocs.io/en/latest/dft_examples.html) workflow.
-Otherwise, use the MP-integrated workflow [here](https://pytaser.readthedocs.io/en/latest/jdos_examples.html). 
+If using your own, locally calculated data, please follow [this](https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_DFT_Example.ipynb) workflow.
+Otherwise, use the MP-integrated workflow [here](https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_MP_Example.ipynb). 
 
 # Contributing
 
-We appreciate any contributions in the form of a pull request. 
-Additional test cases/example spectra performed with PyTASER would be welcomed. 
-Please feel free to reach out to us if there are any questions or suggestions. 
+We appreciate any contributions in the form of a pull request. Please see the [Contributing](https://pytaser.readthedocs.io/en/latest/contributing.html) documentation for more details.
+Additional analysis/example spectra performed with `PyTASER` would be welcomed.
+
+Please feel free to reach out to us via the [Issue Tracker](https://github.com/WMD-group/PyTASER/issues) if there are any questions or suggestions. 
+
+# Testing
+
+Unit tests are in the `tests` directory and can be run from the top directory using pytest. Automatic testing is run on the master and develop branches using GH Actions. 
+
+Please run tests and add new tests for any new features whenever submitting pull requests.
+
+# Future Work
 
 Future topics we plan to build on:
 

@@ -24,7 +24,7 @@ copyright = "2022, Savyasanchi Aggarwal"
 author = "Savyasanchi Aggarwal"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0.0"
+release = "2.0.0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -70,7 +70,7 @@ html_theme_options = {
     "home_page_in_toc": True,
 }
 
-html_logo = "_static/docs/PyTASER.png"
+html_logo = "_static/PyTASER.png"
 html_title = "PyTASER"
 
 # If true, SmartyPants will be used to convert quotes and dashes to

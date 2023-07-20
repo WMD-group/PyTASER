@@ -56,8 +56,8 @@ How to Make a **Great** Pull Request
 
 We have a few tips for writing good PRs that are accepted into the main repo:
 
-- Use the Google Code style for all of your code. Find an example `here
-  <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`__.
+- Use the Black Code style for all of your code. Find an example `here
+  <https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html>`__.
 - Your code should have (4) spaces instead of tabs.
 - If needed, update the documentation.
 - **Write tests** for new features! Good tests are 100%, absolutely necessary

@@ -1,25 +1,29 @@
 Change log
 ==========
 
+v2.0.1
+~~~~~~
+- Minor documentation and website updates.
+
 v2.0.0
-------
+~~~~~~
 - Reduce the sum over band transitions to the energy mesh (min(-6, -energy_max), max(6, energy_max)) to
   make parsing of VASP optics more efficient.
 - Switch to semantic versioning.
 
 v23.6.3
--------
+~~~~~~~
 - Remake PyTASER MP example workflow
 - Update PyPI releasing workflow
 - Update minor MPRester API issue
 
 v23.6.2
-------
+~~~~~~~
 - Add multiprocessing functionality to dramatically speed up parsing of large kpoint sets / large numbers of
   electronic bands, and add example notebook and HPC script for this.
 
 v23.6.1
-------
+~~~~~~~
 - Add functionality to parse orbital derivatives from `VASP` optics calculations, to incorporate oscillator strengths
   in the prediction of TAS spectra.
 - Add functionality to save and load `Tas` objects to `json` file, to save time on re-analysing later on.

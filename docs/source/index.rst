@@ -4,6 +4,7 @@
    contain the root `toctree` directive.
 
 
+
 Welcome to PyTASER's documentation!
 ===================================
 
@@ -25,6 +26,7 @@ Welcome to PyTASER's documentation!
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
  :target: https://img.shields.io/badge/code%20style-black-000000.svg
 
+
 ============
 Introduction
 ============
@@ -39,13 +41,15 @@ experimental spectra. The main features include:
 * Consideration of non-magnetic and magnetic materials
 * Capability to input calculated bandstructures and density of states inputs with support for https://materialsproject.org.
 
+==========
 Background
-===========
+==========
 
 TAS is a powerful pump-probe tool to characterise the excited states of materials. It can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination.
 
 The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goal here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation of the excited state back to the ground state.
 
+============
 Installation
 ============
 
@@ -68,6 +72,7 @@ To do a manual build and installation:
 	python3 setup.py build
 	python3 setup.py install
 
+===================================
 Developer’s installation (optional)
 ===================================
 
@@ -93,6 +98,7 @@ Install the code with the command:
 
 This command tries to obtain the required packages and their dependencies and install them automatically.
 
+============
 Dependencies
 ============
 
@@ -102,6 +108,7 @@ Dependencies
 * `numpy <https://numpy.org/>`__, `scipy <https://scipy.org/>`__ for data structures and unit conversion
 * `matplotlib <https://matplotlib.org/>`__ for plotting the spectra
 
+=============
 Visualisation
 =============
 
@@ -112,25 +119,41 @@ Alternatively, you can setup a ``Python`` file to run it in the command line of 
 
     python3 <filename.py>
 
+If using your own, locally calculated data, please follow `this workflow <https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_DFT_Example.ipynb>`__. Otherwise, please use the MP-integrated workflow as shown `here <https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_MP_Example.ipynb>`__.
+
+============
 Contributing
 ============
 
-We appreciate any contributions in the form of a pull request.
-Additional test cases/example spectra performed with ``PyTASER`` would be welcomed.
-Please feel free to reach out to us if there are any questions or suggestions.
+We appreciate any contributions in the form of a pull request. Please see the `Contributing <https://pytaser.readthedocs.io/en/latest/contributing.html>`__ Documentation for more details.
+Additional analysis/example spectra performed with ``PyTASER`` would be welcomed.
+
+Please feel free to reach out to us via the `Issue Tracker <https://github.com/WMD-group/PyTASER/issues>`__ if there are any questions or suggestions.
+
+=======
+Testing
+=======
+
+Unit tests are in the ``tests`` directory and can be run from the top directory using pytest. Automatic testing is run on the master and develop branches using Github Actions.
+
+Please run tests and add new tests for any new features whenever submitting pull requests.
+
+===========
+Future Work
+===========
 
 Future topics we plan to build on:
 
 * Incorporating finite-temperature effects (particularly for indirect bandgaps)
-* Description of more complex optical processes (e.g. stimulated emission)
-* Direct treatment of pump-probe time delay
+* Direct treatment of pump-probe time delay and relaxation kinetics
 * Incorporating spin-flip processes for spin-polarised systems
 * Description of defective crystals
 
+================
 Acknowledgements
 ================
 
-Developed by Savyasanchi Aggarwal and Alex Ganose. Aron Walsh helped to design the project. Thanks to group members for their support, especially Seán Kavanagh, Youngwon Woo, Anahita Manchala and Liam Harnett-Caulfield.
+Developed by Savyasanchi Aggarwal, Seán Kavanagh, Youngwon Woo and Alex Ganose. Aron Walsh designed and led the project. Thanks to group members for their support, especially Anahita Manchala and Liam Harnett-Caulfield.
 
 
 .. toctree::
