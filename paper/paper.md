@@ -11,7 +11,7 @@ authors:
   - name: Savyasanchi Aggarwal
     equal-contrib: false
     affiliation: "1, 4" # (Multiple affiliations must be quoted)
-  - name: Youngwon Woo
+  - name: Young Won Woo
     equal-contrib: false
     affiliation: "2,4"
   - name: Seán R. Kavanagh
