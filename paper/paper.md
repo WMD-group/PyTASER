@@ -67,14 +67,17 @@ However, determining the JDOS for the light state is more difficult, as the init
 excitation leads to partial occupancies in both the valence and conduction bands. The resulting 
 intra-band transitions lead to numerous fermi levels, which complicates the equation shown in 
 \autoref{eq:jdos_dark}.
-`PyTASER` overcomes this by using quasi-fermi levels [@katahara:2014; @reddy:2016] within the bands to treat the intra-band and inter-band transitions separately (`Equation [@jdos_pytaser]`), with the partial occupancies estimated using the Fermi-Dirac approximation [@zitter:1987]. This further introduces an element of control regarding both the temperature and the concentration of free carriers present in the material. The latter can be considered inversely analogous to the pump-probe time delay of experimental TAS. 
+`PyTASER` overcomes this by using quasi-fermi levels [@katahara:2014; @reddy:2016] within the bands to 
+treat the intra-band and inter-band transitions separately (\autoref{eq:jdos_pytaser}), with the partial 
+occupancies estimated using the Fermi-Dirac approximation [@zitter:1987]. This further introduces an 
+element of control regarding both the temperature and the concentration of free carriers present in the 
+material. The latter can be considered inversely analogous to the pump-probe time delay of experimental 
+TAS. 
 
-::: {jdos_pytaser .math}
-  \begin{gathered}
+\begin{equation}\label{eq:jdos_pytaser}
   \rho\left(\varepsilon, \varepsilon_{F, h}, \varepsilon_{F, e}, T\right) \\
   =\frac{2}{8 \pi^3} \sum_i \sum_{f>i} \int \delta\left[\varepsilon_{f, \boldsymbol{k}}-\varepsilon_{i, \boldsymbol{k}}-\varepsilon\right] f_{i, \boldsymbol{k}}\left(1-f_{f, \boldsymbol{k}}\right) d^3 \boldsymbol{k}
-  \end{gathered}
-:::
+\end{equation}
 In this equation, the subscripts $\varepsilon_{F, h}$ and $\varepsilon_{F, e}$  refer to the quasi-hole and quasi-electron fermi levels, respectively. The subscripts $i$ and $f$ refer to the initial and final band states. The $f$ variable is the occupancy at the respective band, at kpoint $\boldsymbol{k}$.
 
 ## Optics method
