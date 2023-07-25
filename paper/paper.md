@@ -58,12 +58,15 @@ PyTASER uses the principle of allowed vertical transitions between material band
 
 JDOS is defined as the density of allowed vertical band-band transitions based on the energetics and occupancy of each band, formalised by the equation defined in `Equation [@jdos_dark]}`. This is straightforward to resolve for dark states, as the fully occupied valence bands and unoccupied conduction bands of such states lead to well defined Fermi energies. It has seen common use in packages such as [AbiPy](https://github.com/abinit/abipy) [@abipy] and [OptaDOS](https://github.com/optados-developers/optados) [@optados].
 
-::: {jdos_dark .math}
+\begin{equation}\label{eq:jdos_dark}
   \rho(\varepsilon)=\frac{2}{8 \pi^3} \sum_v \sum_c \int \delta\left[\varepsilon_{c, \boldsymbol{k}}-\varepsilon_{v, \boldsymbol{k}}-\varepsilon\right] d^3 \boldsymbol{k}
-:::
+\end{equation}
 Here, $c$ and $v$ refer to the valence and conduction bands. $\varepsilon$ refers to the energy of the respective band at kpoint $\boldsymbol{k}$.
 
-However, determining the JDOS for the light state is more difficult, as the initial monochromatic excitation leads to partial occupancies in both the valence and conduction bands. The resulting intra-band transitions lead to numerous fermi levels, which complicates the equation shown in `Equation [@jdos_dark]`.
+However, determining the JDOS for the light state is more difficult, as the initial monochromatic 
+excitation leads to partial occupancies in both the valence and conduction bands. The resulting 
+intra-band transitions lead to numerous fermi levels, which complicates the equation shown in 
+\autoref{eq:jdos_dark}.
 `PyTASER` overcomes this by using quasi-fermi levels [@katahara:2014; @reddy:2016] within the bands to treat the intra-band and inter-band transitions separately (`Equation [@jdos_pytaser]`), with the partial occupancies estimated using the Fermi-Dirac approximation [@zitter:1987]. This further introduces an element of control regarding both the temperature and the concentration of free carriers present in the material. The latter can be considered inversely analogous to the pump-probe time delay of experimental TAS. 
 
 ::: {jdos_pytaser .math}
