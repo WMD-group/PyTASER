@@ -74,9 +74,9 @@ element of control regarding both the temperature and the concentration of free 
 material. The latter can be considered inversely analogous to the pump-probe time delay of experimental 
 TAS. 
 
-\begin{equation}\label{eq:jdos_pytaser}
-  \rho\left(\varepsilon, \varepsilon_{F, h}, \varepsilon_{F, e}, T\right) \\
-  =\frac{2}{8 \pi^3} \sum_i \sum_{f>i} \int \delta\left[\varepsilon_{f, \boldsymbol{k}}-\varepsilon_{i, \boldsymbol{k}}-\varepsilon\right] f_{i, \boldsymbol{k}}\left(1-f_{f, \boldsymbol{k}}\right) d^3 \boldsymbol{k}
+\begin{equation}
+\label{eq:jdos_pytaser}
+  \rho\left(\varepsilon, \varepsilon_{F, h}, \varepsilon_{F, e}, T\right) = \frac{2}{8 \pi^3} \sum_i \sum_{f>i} \int \delta\left[\varepsilon_{f, \boldsymbol{k}}-\varepsilon_{i, \boldsymbol{k}}-\varepsilon\right] f_{i, \boldsymbol{k}}\left(1-f_{f, \boldsymbol{k}}\right) d^3 \boldsymbol{k}
 \end{equation}
 In this equation, the subscripts $\varepsilon_{F, h}$ and $\varepsilon_{F, e}$  refer to the quasi-hole and quasi-electron fermi levels, respectively. The subscripts $i$ and $f$ refer to the initial and final band states. The $f$ variable is the occupancy at the respective band, at kpoint $\boldsymbol{k}$.
 
