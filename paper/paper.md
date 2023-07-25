@@ -82,11 +82,16 @@ In this equation, the subscripts $\varepsilon_{F, h}$ and $\varepsilon_{F, e}$  
 
 ## Optics method
 
-Alongside the JDOS method, `PyTASER` also computes the optical transition probability from the frequency dependent dielectric tensors. The band-to-band transition dipole moment can be computed using `Equation [@transition_probability] `, and is multiplied into the JDOS to estimate the effective absorption for each band transition.  By directly comparing between the 'light' and 'dark' optical absorption values as shown in \autoref{fig:figure1}, `PyTASER` can offer a more realistic, albeit more computationally expensive, TAS profile with good agreement compared to literature-reported spectra. 
+Alongside the JDOS method, `PyTASER` also computes the optical transition probability from the 
+frequency dependent dielectric tensors. The band-to-band transition dipole moment can be computed using 
+\autoref{eq:transition_probability}, and is multiplied into the JDOS to estimate the effective 
+absorption for each band transition. 
+By directly comparing between the 'light' and 'dark' optical absorption values as shown in \autoref{fig:figure1}, `PyTASER` can offer a more realistic, albeit more computationally expensive, TAS profile with good agreement compared to literature-reported spectra. 
 
-::: {transition_probability .math}
+\begin{equation}
+\label{eq:transition_probability}
   \lambda_{i,f}= \left[\left\langle \phi_{i} | \mu_{T} | \phi_{f} \right\rangle \right]^{2}
-:::
+\end{equation}
 
 [Eqn 3 - equation relating the transition probability with the orbital derivatives and transition dipole moment]
 
