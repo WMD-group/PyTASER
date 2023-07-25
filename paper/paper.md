@@ -60,7 +60,9 @@ JDOS is defined as the density of allowed vertical band-band transitions based o
 
 \begin{equation}
   \label{jdos_dark}
+  $$
   \rho(\varepsilon)=\frac{2}{8 \pi^3} \sum_v \sum_c \int \delta\left[\varepsilon_{c, \boldsymbol{k}}-\varepsilon_{v, \boldsymbol{k}}-\varepsilon\right] d^3 \boldsymbol{k}
+  $$
 \end{equation}
 Here, $c$ and $v$ refer to the valence and conduction bands. $\varepsilon refers to the energy of the respective band at kpoint $\boldsymbol{k}$.
 
@@ -69,10 +71,12 @@ However, determining the JDOS for the light state is more difficult, as the init
 
 \begin{equation}
   \label{jdos_pytaser}
+  $$
   \begin{gathered}
   \rho\left(\varepsilon, \varepsilon_{F, h}, \varepsilon_{F, e}, T\right) \\
   =\frac{2}{8 \pi^3} \sum_i \sum_{f>i} \int \delta\left[\varepsilon_{f, \boldsymbol{k}}-\varepsilon_{i, \boldsymbol{k}}-\varepsilon\right] f_{i, \boldsymbol{k}}\left(1-f_{f, \boldsymbol{k}}\right) d^3 \boldsymbol{k}
   \end{gathered}
+  $$
 \end{pytaser}
 In this equation, the subscripts $\varepsilon_{F, h}$ and $\varepsilon_{F, e}$  refer to the quasi-hole and quasi-electron fermi levels, respectively. The subscripts $i$ and $f$ refer to the initial and final band states. The $f$ variable is the occupancy at the respective band, at kpoint $\boldsymbol{k}$.
 
