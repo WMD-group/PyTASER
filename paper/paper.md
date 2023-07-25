@@ -60,9 +60,7 @@ JDOS is defined as the density of allowed vertical band-band transitions based o
 
 \begin{equation}
   \label{jdos_dark}
-  $$
   \rho(\varepsilon)=\frac{2}{8 \pi^3} \sum_v \sum_c \int \delta\left[\varepsilon_{c, \boldsymbol{k}}-\varepsilon_{v, \boldsymbol{k}}-\varepsilon\right] d^3 \boldsymbol{k}
-  $$
 \end{equation}
 Here, $c$ and $v$ refer to the valence and conduction bands. $\varepsilon refers to the energy of the respective band at kpoint $\boldsymbol{k}$.
 
