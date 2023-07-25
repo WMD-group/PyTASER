@@ -56,35 +56,33 @@ PyTASER uses the principle of allowed vertical transitions between material band
 
 ## JDOS method
 
-JDOS is defined as the density of allowed vertical band-band transitions based on the energetics and occupancy of each band, formalised by the equation defined in `Equation \eqref{jdos_dark}`. This is straightforward to resolve for dark states, as the fully occupied valence bands and unoccupied conduction bands of such states lead to well defined Fermi energies. It has seen common use in packages such as [AbiPy](https://github.com/abinit/abipy) [@abipy] and [OptaDOS](https://github.com/optados-developers/optados) [@optados].
+JDOS is defined as the density of allowed vertical band-band transitions based on the energetics and occupancy of each band, formalised by the equation defined in `Equation \ref{jdos_dark}`. This is straightforward to resolve for dark states, as the fully occupied valence bands and unoccupied conduction bands of such states lead to well defined Fermi energies. It has seen common use in packages such as [AbiPy](https://github.com/abinit/abipy) [@abipy] and [OptaDOS](https://github.com/optados-developers/optados) [@optados].
 
 \begin{equation}
-  \label{jdos_dark}
   \rho(\varepsilon)=\frac{2}{8 \pi^3} \sum_v \sum_c \int \delta\left[\varepsilon_{c, \boldsymbol{k}}-\varepsilon_{v, \boldsymbol{k}}-\varepsilon\right] d^3 \boldsymbol{k}
+  \label{jdos_dark}
 \end{equation}
-Here, $c$ and $v$ refer to the valence and conduction bands. $\varepsilon refers to the energy of the respective band at kpoint $\boldsymbol{k}$.
+Here, $c$ and $v$ refer to the valence and conduction bands. $\varepsilon$ refers to the energy of the respective band at kpoint $\boldsymbol{k}$.
 
-However, determining the JDOS for the light state is more difficult, as the initial monochromatic excitation leads to partial occupancies in both the valence and conduction bands. The resulting intra-band transitions lead to numerous fermi levels, which complicates the equation shown in `Equation \eqref{jdos_dark}`.
-`PyTASER` overcomes this by using quasi-fermi levels [@katahara:2014; @reddy:2016] within the bands to treat the intra-band and inter-band transitions separately (`Equation \eqref{jdos_pytaser}`), with the partial occupancies estimated using the Fermi-Dirac approximation [@zitter:1987]. This further introduces an element of control regarding both the temperature and the concentration of free carriers present in the material. The latter can be considered inversely analogous to the pump-probe time delay of experimental TAS. 
+However, determining the JDOS for the light state is more difficult, as the initial monochromatic excitation leads to partial occupancies in both the valence and conduction bands. The resulting intra-band transitions lead to numerous fermi levels, which complicates the equation shown in `Equation \ref{jdos_dark}`.
+`PyTASER` overcomes this by using quasi-fermi levels [@katahara:2014; @reddy:2016] within the bands to treat the intra-band and inter-band transitions separately (`Equation \ref{jdos_pytaser}`), with the partial occupancies estimated using the Fermi-Dirac approximation [@zitter:1987]. This further introduces an element of control regarding both the temperature and the concentration of free carriers present in the material. The latter can be considered inversely analogous to the pump-probe time delay of experimental TAS. 
 
 \begin{equation}
-  \label{jdos_pytaser}
-  $$
   \begin{gathered}
   \rho\left(\varepsilon, \varepsilon_{F, h}, \varepsilon_{F, e}, T\right) \\
   =\frac{2}{8 \pi^3} \sum_i \sum_{f>i} \int \delta\left[\varepsilon_{f, \boldsymbol{k}}-\varepsilon_{i, \boldsymbol{k}}-\varepsilon\right] f_{i, \boldsymbol{k}}\left(1-f_{f, \boldsymbol{k}}\right) d^3 \boldsymbol{k}
   \end{gathered}
-  $$
-\end{pytaser}
+  \label{jdos_pytaser}
+\end{equation}
 In this equation, the subscripts $\varepsilon_{F, h}$ and $\varepsilon_{F, e}$  refer to the quasi-hole and quasi-electron fermi levels, respectively. The subscripts $i$ and $f$ refer to the initial and final band states. The $f$ variable is the occupancy at the respective band, at kpoint $\boldsymbol{k}$.
 
 ## Optics method
 
-Alongside the JDOS method, `PyTASER` also computes the optical transition probability from the frequency dependent dielectric tensors. The band-to-band transition dipole moment can be computed using `Equation \eqref{transition_probability} `, and is multiplied into the JDOS to estimate the effective absorption for each band transition.  By directly comparing between the 'light' and 'dark' optical absorption values as shown in \autoref{fig:figure1}, `PyTASER` can offer a more realistic, albeit more computationally expensive, TAS profile with good agreement compared to literature-reported spectra. 
+Alongside the JDOS method, `PyTASER` also computes the optical transition probability from the frequency dependent dielectric tensors. The band-to-band transition dipole moment can be computed using `Equation \ref{transition_probability} `, and is multiplied into the JDOS to estimate the effective absorption for each band transition.  By directly comparing between the 'light' and 'dark' optical absorption values as shown in \autoref{fig:figure1}, `PyTASER` can offer a more realistic, albeit more computationally expensive, TAS profile with good agreement compared to literature-reported spectra. 
 
-$$
-  \lambda_{i,f}= \left[\left\langle \phi_{i} | \mu_{T} | \phi_{f} \right\rangle \right]^{2}
-$$ (transition_probability)
+\begin{equation}
+  \lambda_{i,f}= \left[\left\langle \phi_{i} | \mu_{T} | \phi_{f} \right\rangle \right]^{2} \label{transition_probability}
+\end{equation}
 
 [Eqn 3 - equation relating the transition probability with the orbital derivatives and transition dipole moment]
 
@@ -98,7 +96,7 @@ $$ (transition_probability)
 - Full documentation and easy-to-follow workflows, with good unit-test coverage.
 - Ability to produce publication ready figures, with a high level of manoeuvrability in plotting.
 - Interfaced with the popular materials analysis package [`pymatgen`](https://pymatgen.org/) [@pymatgen]. 
-- Currently compatible with [VASP](https://www.vasp.at/wiki/index.php/The_VASP_Manual), the most popular electronic structure calculation code [@vasp]. Other codes can also be added with small amount of coding effort. 
+- Currently compatible with [VASP](https://www.vasp.at/wiki/index.php/The_VASP_Manual), the most popular electronic structure calculation code [@vasp]. Other codes can also be added with a small amount of coding effort. 
 
 A notable feature in `PyTASER` is the ability to plot a 'decomposed' TAS spectrum, plotting the individual band transitions alongside the overall spectrum (\autoref{fig:figure2}). As a result, users can determine the exact band contributions towards different spectral features, which greatly simplifies analysis when identifying the cause of different optical processes. In experiment, this is a difficult process, requiring numerous stages of Fourier analysis and a deep understanding of quantum mechanics [@wang:2015; @kafizas:2016] - `PyTASER` greatly delimits this technical barrier, providing a wider understanding of the material being investigated. In addition to the overall spectrum, `PyTASER` can also plot the individual contributions for the separate light and dark states, showcasing their respectively contributing bands. 
 
