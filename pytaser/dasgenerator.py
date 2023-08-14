@@ -192,57 +192,41 @@ class DASGenerator:
 
 
 
-    def band_occupancies(self, temp, conc, dark=True):
+    def band_occupancies(self):
         """
         Gives band occupancies.
 
-        Args:
-            temp: Temperature of material we wish to investigate (affects the FD
-                distribution)
-            conc: Carrier concentration of holes and electrons (both are the same).
-                Inversely proportional to pump-probe time delay.
-            dark: Bool; dark = True indicates pump is on.
-
         Returns:
-            A dictionary of {Spin: occs} for all bands across all k-points.
+            Two dictionary of {Spin: occ} for all bands across all k-points.
+            One for the modified and one for the reference system.
         """
-        # Calculate the quasi-Fermi levels
-        q_fermi_e = self.dos.get_fermi(
-            -conc, temp
-        )  # quasi-electron fermi level
-        q_fermi_h = self.dos.get_fermi(conc, temp)  # quasi-hole fermi level
+        occs = {}  
+        for spin, spin_bands in self.bs.bands.items():
+            hole_mask = spin_bands < self.bg_centre
+            elec_mask = spin_bands > self.bg_centre
 
-        occs = {}
-        if dark:
-            for spin, spin_bands in self.bs.bands.items():
-                hole_mask = spin_bands < self.bg_centre
-                elec_mask = spin_bands > self.bg_centre
+            # fully occupied hole mask, completely empty electron mask
+            spin_occs = np.zeros_like(spin_bands)
+            spin_occs[hole_mask] = 1
+            spin_occs[elec_mask] = 0
 
-                # fully occupied hole mask, completely empty electron mask
-                spin_occs = np.zeros_like(spin_bands)
-                spin_occs[hole_mask] = 1
-                spin_occs[elec_mask] = 0
+            occs[spin] = spin_occs
+            
+        occs_ref={}    
+        for spin, spin_bands in self.bs_ref.bands.items():
+            hole_mask = spin_bands < self.bg_centre_ref
+            elec_mask = spin_bands > self.bg_centre_ref
 
-                occs[spin] = spin_occs
-        else:
-            for spin, spin_bands in self.bs.bands.items():
-                # Calculate the occupancies at the initial and final energy according to
-                # the Fermi-Dirac distribution
-                electron_occs = f0(spin_bands, q_fermi_e, temp)  # q-e-f
-                hole_occs = f0(spin_bands, q_fermi_h, temp)  # q-h-f
+            # fully occupied hole mask, completely empty electron mask
+            spin_occs = np.zeros_like(spin_bands)
+            spin_occs[hole_mask] = 1
+            spin_occs[elec_mask] = 0
 
-                hole_mask = spin_bands < self.bg_centre
-                elec_mask = spin_bands > self.bg_centre
+            occs_ref[spin] = spin_occs    
+        
+        return occs,occs_ref
 
-                # set occupancies equal to computed by f0
-                spin_occs = np.zeros_like(hole_occs)
-                spin_occs[hole_mask] = hole_occs[hole_mask]
-                spin_occs[elec_mask] = electron_occs[elec_mask]
-
-                occs[spin] = spin_occs
-        return occs
-
-    def generate_tas(
+    def generate_das(
         self,
         temp,
         conc,
@@ -321,9 +305,9 @@ class DASGenerator:
         occs_light = light_occs
         occs_dark = dark_occs
         if light_occs is None:
-            occs_light = self.band_occupancies(temp, conc, dark=False)
+            occs_light = self.band_occupancies()
         if dark_occs is None:
-            occs_dark = self.band_occupancies(temp, conc)
+            occs_dark = self.band_occupancies()
 
         bandgap = round(self.bs.get_band_gap()["energy"], 2)
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
@@ -342,14 +326,10 @@ class DASGenerator:
                 0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
             )
             alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
-            alpha_light_dict = {
-                key: np.zeros_like(egrid, dtype=np.complex128)
-                for key in ["absorption", "emission", "both"]
-            }
 
         for spin, spin_bands in self.bs.bands.items():
             if self.dfc is not None:
-                alpha_dark_dict, tdm_array = occ_dependent_alpha(
+                alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
                     self.dfc,
                     occs_dark[spin],
                     sigma=gaussian_width,
@@ -361,31 +341,14 @@ class DASGenerator:
                     "both"
                 ]  # stimulated emission should be
                 # zero in the dark
-                calculated_alpha_light_dict = occ_dependent_alpha(
-                    self.dfc,
-                    occs_light[spin],
-                    sigma=gaussian_width,
-                    cshift=cshift,
-                    processes=processes,
-                    energy_max=energy_max,
-                )[0]
-                for key, array in alpha_light_dict.items():
-                    alpha_light_dict[key] += calculated_alpha_light_dict[key]
+                alpha_light_dict = alpha_dark_dict                
+
+        
 
             for i in range(len(spin_bands)):
                 for f in range(len(spin_bands)):
                     if f > i:
-                        jd_light = jdos(
-                            self.bs,
-                            f,
-                            i,
-                            occs_light[spin],
-                            energy_mesh_ev,
-                            self.kpoint_weights,
-                            gaussian_width,
-                            spin=spin,
-                        )
-                        jd_dark = jdos(
+                        jd_dark = generator.jdos(
                             self.bs,
                             f,
                             i,
@@ -395,11 +358,8 @@ class DASGenerator:
                             gaussian_width,
                             spin=spin,
                         )
-                        jdos_diff = jd_light - jd_dark
                         jdos_dark_total += jd_dark
-                        jdos_light_total += jd_light
-                        tas_total += jdos_diff
-
+                        
                         new_i = i - self.vb[spin]
                         new_f = f - self.vb[spin]
 
@@ -410,22 +370,10 @@ class DASGenerator:
                             key = (new_i, new_f)
 
                         jdos_dark_if[key] = jd_dark
-                        jdos_light_if[key] = jd_light
-                        jdos_diff_if[key] = jdos_diff
-
+                        
+                        
                         if self.dfc is not None:
-                            weighted_jd_light = jdos(
-                                self.bs,
-                                f,
-                                i,
-                                occs_light[spin],
-                                energy_mesh_ev,
-                                np.array(self.kpoint_weights)
-                                * tdm_array[i, f, :],
-                                gaussian_width,
-                                spin=spin,
-                            )
-                            weighted_jd_dark = jdos(
+                            weighted_jd_dark = generator.jdos(
                                 self.bs,
                                 f,
                                 i,
@@ -436,23 +384,14 @@ class DASGenerator:
                                 gaussian_width,
                                 spin=spin,
                             )
-                            weighted_jdos_diff = (
-                                weighted_jd_light - weighted_jd_dark
-                            )
-
-                            weighted_jdos_light_if[key] = weighted_jd_light
+ 
                             weighted_jdos_dark_if[key] = weighted_jd_dark
-                            weighted_jdos_diff_if[key] = weighted_jdos_diff
-
+ 
         # need to interpolate alpha arrays onto JDOS energy mesh:
         if self.dfc is not None:
             alpha_dark = np.interp(energy_mesh_ev, egrid, alpha_dark)
-            for key, array in alpha_light_dict.items():
-                alpha_light_dict[key] = np.interp(energy_mesh_ev, egrid, array)
 
             tas_total = (
-                alpha_light_dict["absorption"]
-                - alpha_light_dict["emission"]
                 - alpha_dark
             )
 
