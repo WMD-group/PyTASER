@@ -412,3 +412,13 @@ def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
         handlelength=1.5,
         handletextpad=0.5,
     )
+
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_CDTE_DATA_DIR}/remote_baseline_plots",
+    filename="tas_cdte_scissor_bandgap_3eV.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_cdte_bandgap_scissor(plotter_cdte_bg_3_vasp):
+    """Test get_plot() for CdTe with scissored bandgap to 3 eV"""
+    return plotter_cdte_bg_3_vasp.get_plot(xaxis="energy")
