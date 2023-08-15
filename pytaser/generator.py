@@ -139,49 +139,84 @@ def _calculate_oscillator_strength(args):
     ) = args
 
     ispin = 0 if spin == Spin.up else 1
-    init_energy = eigs_shifted[ib, ik, ispin]
-    final_energy = eigs_shifted[jb, ik, ispin]
-    if final_energy > init_energy:
-        init_occ = occs[ib][ik]
-        final_occ = occs[jb][ik]
+    init_occ = occs[ib][ik]
+    final_occ = occs[jb][ik]
 
-        A = (
-            sum(
-                dfc.cder[ib, jb, ik, ispin, idir]
-                * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
-                for idir in range(3)
-            )
-            / 3
+    A = (
+        sum(
+            dfc.cder[ib, jb, ik, ispin, idir]
+            * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
+            for idir in range(3)
         )
-        decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
-        matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
-        tdm = (
-            np.abs(A) * rspin * decel
-        )  # kweight and occ factor already accounted for with JDOS
+        / 3
+    )
+    decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
+    matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
+    tdm = (
+        np.abs(A) * rspin * decel
+    )  # kweight and occ factor already accounted for with JDOS
 
-        abs_occ_factor = init_occ * (1 - final_occ)
-        em_occ_factor = (1 - init_occ) * final_occ
-        both_occ_factor = init_occ - final_occ
+    abs_occ_factor = init_occ * (1 - final_occ)
+    em_occ_factor = (1 - init_occ) * final_occ
+    both_occ_factor = init_occ - final_occ
 
-        abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
-        em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
-        both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
+    abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
+    em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
+    both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
 
-        smeared_wout_matrix_el = optics.get_delta(
-            x0=decel,
-            sigma=sigma,
-            nx=dfc.nedos,
-            dx=dfc.deltae,
-            ismear=dfc.ismear,
+    smeared_wout_matrix_el = optics.get_delta(
+        x0=decel,
+        sigma=sigma,
+        nx=dfc.nedos,
+        dx=dfc.deltae,
+        ismear=dfc.ismear,
+    )
+
+    absorption = smeared_wout_matrix_el * abs_matrix_el
+    emission = smeared_wout_matrix_el * em_matrix_el
+    both = smeared_wout_matrix_el * both_matrix_el
+
+    return absorption, emission, both, tdm, ib, jb, ik
+
+
+def get_nonzero_band_transitions(
+    dfc, occs, eigs_shifted, norm_kweights, rspin, spin, sigma, min_band, max_band, nk):
+    """Helper function to filter band transitions before (multi)processing"""
+    ispin_idx = 0 if spin == Spin.up else 1
+
+    ib_vals, jb_vals, ik_vals = np.meshgrid(
+        np.arange(min_band, max_band + 1),
+        np.arange(min_band, max_band + 1),
+        np.arange(nk),
+        indexing="ij",
+    )
+
+    init_energy_vals = eigs_shifted[ib_vals, ik_vals, ispin_idx]
+    final_energy_vals = eigs_shifted[jb_vals, ik_vals, ispin_idx]
+    init_occ_vals = occs[ib_vals, ik_vals]
+    final_occ_vals = occs[jb_vals, ik_vals]
+
+    condition = (
+        (final_energy_vals > init_energy_vals)
+        & (  # one-way transitions (emission is accounted for by occupancy factor)
+            init_occ_vals
+            >= 0.01
         )
+        & (final_occ_vals <= 0.99)  # initial occupancy >= 0.01 final occupancy <= 0.99
+)
 
-        absorption = smeared_wout_matrix_el * abs_matrix_el
-        emission = smeared_wout_matrix_el * em_matrix_el
-        both = smeared_wout_matrix_el * both_matrix_el
-
-        return absorption, emission, both, tdm, ib, jb, ik
-
-    return 0, 0, 0, 0, 0, 0, 0
+    return list(zip(
+        ib_vals[condition].ravel(),
+        jb_vals[condition].ravel(),
+        ik_vals[condition].ravel(),
+        [occs] * np.sum(condition),
+        [dfc] * np.sum(condition),
+        [eigs_shifted] * np.sum(condition),
+        [norm_kweights] * np.sum(condition),
+        [rspin] * np.sum(condition),
+        [spin] * np.sum(condition),
+        [sigma] * np.sum(condition)
+    ))
 
 
 def occ_dependent_alpha(
@@ -244,12 +279,6 @@ def occ_dependent_alpha(
     max_band = np.max((eigs_shifted < max_band_energy).nonzero()[0])
 
     _, _, nk, _ = dfc.cder.shape[:4]
-    iter_idx = [
-        range(min_band, max_band + 1),
-        range(min_band, max_band + 1),
-        range(nk),
-    ]
-    num_ = nk * (max_band - min_band) ** 2
     spin_string = "up" if spin == Spin.up else "down"
     light_dark_string = (
         "under illumination"
@@ -261,21 +290,11 @@ def occ_dependent_alpha(
         else "dark"
     )
 
-    args = [
-        (
-            ib,
-            jb,
-            ik,
-            occs,
-            dfc,
-            eigs_shifted,
-            norm_kweights,
-            rspin,
-            spin,
-            sigma,
-        )
-        for ib, jb, ik in itertools.product(*iter_idx)
-    ]
+    nonzero_transition_args = get_nonzero_band_transitions(
+        dfc, occs, eigs_shifted, norm_kweights, rspin, spin, sigma, min_band, max_band, nk
+    )
+    num_ = len(nonzero_transition_args)
+
     if processes is None:
         processes = cpu_count() - 1
     with Pool(processes) as pool:
