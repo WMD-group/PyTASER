@@ -1,6 +1,5 @@
-import itertools
 import warnings
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, Array
 
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
@@ -125,18 +124,35 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
 
 def _calculate_oscillator_strength(args):
     """Calculates the oscillator strength of a single band-band transition"""
-    (
-        ib,
-        jb,
-        ik,
-        occs,
-        dfc,
-        eigs_shifted,
-        norm_kweights,
-        rspin,
-        spin,
-        sigma,
-    ) = args
+    if len(args) == 9:  # shared memory arrays
+        ib, jb, ik, rspin, spin, sigma, nedos, deltae, ismear = args
+
+        # Convert shared arrays back to numpy arrays
+        cder = np.frombuffer(_cder.get_obj()).reshape(_cder_shape)
+        occs = np.frombuffer(_occs.get_obj()).reshape(_occs_shape)
+        eigs_shifted = np.frombuffer(_eigs_shifted.get_obj()).reshape(
+            _eigs_shifted_shape
+        )
+        norm_kweights = np.frombuffer(_norm_kweights.get_obj()).reshape(
+            _norm_kweights_shape
+        )
+
+    else:  # normal function call
+        (
+            ib,
+            jb,
+            ik,
+            rspin,
+            spin,
+            sigma,
+            nedos,
+            deltae,
+            ismear,
+            cder,
+            occs,
+            eigs_shifted,
+            norm_kweights,
+        ) = args
 
     ispin = 0 if spin == Spin.up else 1
     init_occ = occs[ib][ik]
@@ -167,9 +183,9 @@ def _calculate_oscillator_strength(args):
     smeared_wout_matrix_el = optics.get_delta(
         x0=decel,
         sigma=sigma,
-        nx=dfc.nedos,
-        dx=dfc.deltae,
-        ismear=dfc.ismear,
+        nx=nedos,
+        dx=deltae,
+        ismear=ismear,
     )
 
     absorption = smeared_wout_matrix_el * abs_matrix_el
@@ -180,7 +196,18 @@ def _calculate_oscillator_strength(args):
 
 
 def get_nonzero_band_transitions(
-    dfc, occs, eigs_shifted, norm_kweights, rspin, spin, sigma, min_band, max_band, nk):
+    occs,
+    eigs_shifted,
+    rspin,
+    spin,
+    sigma,
+    nedos,
+    deltae,
+    ismear,
+    min_band,
+    max_band,
+    nk,
+):
     """Helper function to filter band transitions before (multi)processing"""
     ispin_idx = 0 if spin == Spin.up else 1
 
@@ -197,26 +224,39 @@ def get_nonzero_band_transitions(
     final_occ_vals = occs[jb_vals, ik_vals]
 
     condition = (
-        (final_energy_vals > init_energy_vals)
-        & (  # one-way transitions (emission is accounted for by occupancy factor)
-            init_occ_vals
-            >= 0.01
-        )
-        & (final_occ_vals <= 0.99)  # initial occupancy >= 0.01 final occupancy <= 0.99
-)
+        final_energy_vals > init_energy_vals
+    ) & (  # one-way transitions (emission is accounted for by occupancy factor)
+        np.abs(init_occ_vals - final_occ_vals)
+        > 0.01  # non-negligible occupancy factor
+    )
 
-    return list(zip(
-        ib_vals[condition].ravel(),
-        jb_vals[condition].ravel(),
-        ik_vals[condition].ravel(),
-        [occs] * np.sum(condition),
-        [dfc] * np.sum(condition),
-        [eigs_shifted] * np.sum(condition),
-        [norm_kweights] * np.sum(condition),
-        [rspin] * np.sum(condition),
-        [spin] * np.sum(condition),
-        [sigma] * np.sum(condition)
-    ))
+    return list(
+        zip(
+            ib_vals[condition].ravel(),
+            jb_vals[condition].ravel(),
+            ik_vals[condition].ravel(),
+            [rspin] * np.sum(condition),
+            [spin] * np.sum(condition),
+            [sigma] * np.sum(condition),
+            [nedos] * np.sum(condition),
+            [deltae] * np.sum(condition),
+            [ismear] * np.sum(condition),
+        )
+    )
+
+
+def init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
+    global _cder, _occs, _eigs_shifted, _norm_kweights
+    global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape
+
+    _cder_shape = cder.shape
+    _cder = Array("d", cder.ravel())
+    _occs_shape = occs.shape
+    _occs = Array("d", occs.ravel())
+    _eigs_shifted_shape = eigs_shifted.shape
+    _eigs_shifted = Array("d", eigs_shifted.ravel())
+    _norm_kweights_shape = norm_kweights.shape
+    _norm_kweights = Array("d", norm_kweights.ravel())
 
 
 def occ_dependent_alpha(
@@ -291,21 +331,63 @@ def occ_dependent_alpha(
     )
 
     nonzero_transition_args = get_nonzero_band_transitions(
-        dfc, occs, eigs_shifted, norm_kweights, rspin, spin, sigma, min_band, max_band, nk
+        occs,
+        eigs_shifted,
+        rspin,
+        spin,
+        sigma,
+        dfc.nedos,
+        dfc.deltae,
+        dfc.ismear,
+        min_band,
+        max_band,
+        nk,
     )
     num_ = len(nonzero_transition_args)
 
     if processes is None:
         processes = cpu_count() - 1
-    with Pool(processes) as pool:
-        results = pool.map(
-            _calculate_oscillator_strength,
-            tqdm(
-                args,
-                total=num_,
+
+    shared_memory_args = (dfc.cder, occs, eigs_shifted, norm_kweights)
+    if (
+        len(nonzero_transition_args) < 12000
+    ):  # don't use shared memory for small arrays
+        # append shared memory arguments to the list of arguments for each process
+        nonzero_transition_args = [
+            (*arg, *shared_memory_args) for arg in nonzero_transition_args
+        ]
+
+    if processes > 1:
+        with Pool(
+            processes,
+            initializer=init_shared_memory
+            if len(nonzero_transition_args) > 12000
+            else None,
+            initargs=shared_memory_args
+            if len(nonzero_transition_args) > 12000
+            else None,
+        ) as pool:
+            results = pool.map(
+                _calculate_oscillator_strength,
+                tqdm(
+                    nonzero_transition_args,
+                    total=len(nonzero_transition_args),
+                    desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
+                ),
+            )
+    else:  # TODO: Update other this:
+        results = [
+            _calculate_oscillator_strength(arg)
+            for arg in tqdm(
+                nonzero_transition_args,
+                total=len(nonzero_transition_args),
                 desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
-            ),
-        )
+            )
+        ]
+
+    results_array = np.array(
+        results, dtype=object
+    )  # dtype=object ensures that data is preserved
 
     for absorption, emission, both, tdm, ib, jb, ik in results:
         dielectric_dict["absorption"] += absorption
