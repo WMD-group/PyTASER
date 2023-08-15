@@ -21,6 +21,7 @@ from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
+from pytaser.das import Das
 import pytaser.generator as generator
 
 
@@ -304,10 +305,8 @@ class DASGenerator:
         """
         occs_light = light_occs
         occs_dark = dark_occs
-        if light_occs is None:
-            occs_light = self.band_occupancies()
         if dark_occs is None:
-            occs_dark = self.band_occupancies()
+            occs_light,occs_dark = self.band_occupancies()
 
         bandgap = round(self.bs.get_band_gap()["energy"], 2)
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
@@ -321,16 +320,17 @@ class DASGenerator:
         jdos_dark_total = np.zeros(len(energy_mesh_ev))
         jdos_light_total = np.zeros(len(energy_mesh_ev))
 
-        if self.dfc is not None:
+
+        if self.dfc_ref is not None:
             egrid = np.arange(
-                0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
+                0, self.dfc_ref.nedos * self.dfc_ref.deltae, self.dfc_ref.deltae
             )
             alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
 
-        for spin, spin_bands in self.bs.bands.items():
-            if self.dfc is not None:
+        for spin, spin_bands in self.bs_ref.bands.items():
+            if self.dfc_ref is not None:
                 alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
-                    self.dfc,
+                    self.dfc_ref,
                     occs_dark[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
@@ -349,16 +349,85 @@ class DASGenerator:
                 for f in range(len(spin_bands)):
                     if f > i:
                         jd_dark = generator.jdos(
-                            self.bs,
+                            self.bs_ref,
                             f,
                             i,
                             occs_dark[spin],
+                            energy_mesh_ev,
+                            self.kpoint_weights_ref,
+                            gaussian_width,
+                            spin=spin,
+                        )
+                        jdos_dark_total += jd_dark
+                        
+                        new_i = i - self.vb_ref[spin]
+                        new_f = f - self.vb_ref[spin]
+
+                        if self.bs_ref.is_spin_polarized:
+                            spin_str = "up" if spin == Spin.up else "down"
+                            key = (new_i, new_f, spin_str)
+                        else:
+                            key = (new_i, new_f)
+
+                        jdos_dark_if[key] = jd_dark
+                        
+                        
+                        if self.dfc_ref is not None:
+                            weighted_jd_dark = generator.jdos(
+                                self.bs_ref,
+                                f,
+                                i,
+                                occs_dark[spin],
+                                energy_mesh_ev,
+                                np.array(self.kpoint_weights_ref)
+                                * tdm_array[i, f, :],
+                                gaussian_width,
+                                spin=spin,
+                            )
+ 
+                            weighted_jdos_dark_if[key] = weighted_jd_dark
+
+
+
+        
+        if self.dfc is not None:
+            egrid = np.arange(
+                0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
+            )
+            alpha_light = np.zeros_like(egrid, dtype=np.complex128)
+
+        for spin, spin_bands in self.bs.bands.items():
+            if self.dfc is not None:
+                alpha_light_dict, tdm_array = generator.occ_dependent_alpha(
+                    self.dfc,
+                    occs_light[spin],
+                    sigma=gaussian_width,
+                    cshift=cshift,
+                    processes=processes,
+                    energy_max=energy_max,
+                )
+                alpha_light += alpha_light_dict[
+                    "both"
+                ]  # stimulated emission should be
+                # zero in the dark
+                
+
+        
+
+            for i in range(len(spin_bands)):
+                for f in range(len(spin_bands)):
+                    if f > i:
+                        jd_light = generator.jdos(
+                            self.bs,
+                            f,
+                            i,
+                            occs_light[spin],
                             energy_mesh_ev,
                             self.kpoint_weights,
                             gaussian_width,
                             spin=spin,
                         )
-                        jdos_dark_total += jd_dark
+                        jdos_light_total += jd_light
                         
                         new_i = i - self.vb[spin]
                         new_f = f - self.vb[spin]
@@ -369,15 +438,15 @@ class DASGenerator:
                         else:
                             key = (new_i, new_f)
 
-                        jdos_dark_if[key] = jd_dark
+                        jdos_light_if[key] = jd_light
                         
                         
                         if self.dfc is not None:
-                            weighted_jd_dark = generator.jdos(
+                            weighted_jd_light = generator.jdos(
                                 self.bs,
                                 f,
                                 i,
-                                occs_dark[spin],
+                                occs_light[spin],
                                 energy_mesh_ev,
                                 np.array(self.kpoint_weights)
                                 * tdm_array[i, f, :],
@@ -385,17 +454,29 @@ class DASGenerator:
                                 spin=spin,
                             )
  
-                            weighted_jdos_dark_if[key] = weighted_jd_dark
+                            weighted_jdos_light_if[key] = weighted_jd_light
  
+    
+     
+        
+
+        tas_total = jdos_light_total-jdos_dark_total 
+               
         # need to interpolate alpha arrays onto JDOS energy mesh:
         if self.dfc is not None:
             alpha_dark = np.interp(energy_mesh_ev, egrid, alpha_dark)
+            for key, array in alpha_light_dict.items():
+                alpha_light_dict[key] = np.interp(energy_mesh_ev, egrid, array)
 
             tas_total = (
+                alpha_light_dict["absorption"]
+                - alpha_light_dict["emission"]
                 - alpha_dark
             )
 
-        return Tas(
+
+
+        return Das(
             tas_total,
             jdos_diff_if,
             jdos_light_total,
