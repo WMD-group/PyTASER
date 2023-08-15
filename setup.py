@@ -4,12 +4,13 @@ PyTASER: TAS prediction tool
 
 
 import pathlib
+
 from setuptools import find_packages, setup
 
 long_description = pathlib.Path("README.md").read_text()
 setup(
     name="pytaser",
-    version="2.0.1",
+    version="2.1.0",
     description="TAS prediction tool",
     url="https://pytaser.readthedocs.io/en/latest/",
     author="Savyasanchi Aggarwal",
