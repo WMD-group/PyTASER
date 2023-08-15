@@ -297,7 +297,7 @@ def occ_dependent_alpha(
         for key in ["absorption", "emission", "both"]
     }
     # array of shape equal to cder but without the last two dimensions (ispin, idir)
-    tdm_array = np.zeros_like(dfc.cder[:, :, :, 0, 0])  # ib, jb, ik, ispin
+    tdm_array = np.zeros_like(dfc.cder[:, :, :, 0, 0])  # ib, jb, ik
 
     norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
     eigs_shifted = dfc.eigs - dfc.efermi
@@ -349,7 +349,7 @@ def occ_dependent_alpha(
             (*arg, *shared_memory_args) for arg in nonzero_transition_args
         ]
 
-    if processes > 1:
+    if processes > 1 and len(nonzero_transition_args) > 3000:  # quicker without multiprocessing below this
         with Pool(
             processes,
             initializer=init_shared_memory
@@ -367,7 +367,7 @@ def occ_dependent_alpha(
                     desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
                 ),
             )
-    else:  # TODO: Update other this:
+    else:
         results = [
             _calculate_oscillator_strength(arg)
             for arg in tqdm(
@@ -682,7 +682,11 @@ class TASGenerator:
 
         for spin, spin_bands in self.bs.bands.items():
             if self.dfc is not None:
-                alpha_dark_dict, tdm_array = occ_dependent_alpha(
+                # _nonzero_ tdm_array values should be the same in dark or light, but this calculation gets
+                # skipped for band-band transitions where the occupancy factor is near-zero, which happens
+                # for certain band transitions in the dark but not in light and vice versa, so get both
+                # and take the nonzero values:
+                alpha_dark_dict, tdm_array_dark = occ_dependent_alpha(
                     self.dfc,
                     occs_dark[spin],
                     sigma=gaussian_width,
@@ -692,16 +696,18 @@ class TASGenerator:
                 )
                 alpha_dark += alpha_dark_dict[
                     "both"
-                ]  # stimulated emission should be
-                # zero in the dark
-                calculated_alpha_light_dict = occ_dependent_alpha(
+                ]  # stimulated emission should be zero in the dark
+                calculated_alpha_light_dict, tdm_array_light = occ_dependent_alpha(
                     self.dfc,
                     occs_light[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
                     processes=processes,
                     energy_max=energy_max,
-                )[0]
+                )
+                tdm_array_light[tdm_array_dark.nonzero()] = 0  # zero out duplicate TDM array values
+                tdm_array = tdm_array_dark + tdm_array_light
+
                 for key, array in alpha_light_dict.items():
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
 
