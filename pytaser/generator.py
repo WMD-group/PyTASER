@@ -256,23 +256,21 @@ def occ_dependent_alpha(
         else "dark"
     )
 
-    args = []
-    for ib, jb, ik in itertools.product(*iter_idx):
-        args.append(
-            (
-                ib,
-                jb,
-                ik,
-                occs,
-                dfc,
-                eigs_shifted,
-                norm_kweights,
-                rspin,
-                spin,
-                sigma,
-            )
+    args = [
+        (
+            ib,
+            jb,
+            ik,
+            occs,
+            dfc,
+            eigs_shifted,
+            norm_kweights,
+            rspin,
+            spin,
+            sigma,
         )
-
+        for ib, jb, ik in itertools.product(*iter_idx)
+    ]
     if processes is None:
         processes = cpu_count() - 1
     with Pool(processes) as pool:
@@ -528,9 +526,9 @@ class TASGenerator:
         """
         occs_light = light_occs
         occs_dark = dark_occs
-        if light_occs is None:
+        if occs_light is None:
             occs_light = self.band_occupancies(temp, conc, dark=False)
-        if dark_occs is None:
+        if occs_dark is None:
             occs_dark = self.band_occupancies(temp, conc)
 
         bandgap = round(self.bs.get_band_gap()["energy"], 2)
@@ -699,10 +697,7 @@ class TASGenerator:
             A TASGenerator object.
         """
         if mpr is None:
-            if api_key is None:
-                mpr = MPRester()
-            else:
-                mpr = MPRester(api_key=api_key)
+            mpr = MPRester() if api_key is None else MPRester(api_key=api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
         if bg is not None:

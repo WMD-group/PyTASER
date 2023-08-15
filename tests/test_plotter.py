@@ -53,7 +53,7 @@ def test_get_plot(plotter_gaas):
 )
 def test_get_plot_tas_ev(plotter_gaas):
     """Test get_plot() TAS function for GaAs with a 25% cutoff and a electronvolts xaxis"""
-    fig = plotter_gaas.get_plot(
+    return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         transition_cutoff=0.75,
@@ -63,7 +63,6 @@ def test_get_plot_tas_ev(plotter_gaas):
         ymax=None,
         yaxis="tas",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -73,7 +72,7 @@ def test_get_plot_tas_ev(plotter_gaas):
 )
 def test_get_plot_tas_lambda(plotter_gaas):
     """Test get_plot() TAS function for GaAs with a 25% cutoff and a wavelength xaxis"""
-    fig = plotter_gaas.get_plot(
+    return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
         transition_cutoff=0.75,
@@ -83,7 +82,6 @@ def test_get_plot_tas_lambda(plotter_gaas):
         ymax=None,
         yaxis="tas",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -93,7 +91,7 @@ def test_get_plot_tas_lambda(plotter_gaas):
 )
 def test_get_plot_jdos_ev(plotter_gaas):
     """Test get_plot() JDOS function for GaAs with a 25% cutoff and a electronvolts xaxis"""
-    fig = plotter_gaas.get_plot(
+    return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         transition_cutoff=0.75,
@@ -103,7 +101,6 @@ def test_get_plot_jdos_ev(plotter_gaas):
         ymax=None,
         yaxis="jdos",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -113,7 +110,7 @@ def test_get_plot_jdos_ev(plotter_gaas):
 )
 def test_get_plot_jdos_lambda(plotter_gaas):
     """Test get_plot() JDOS function for GaAs with a 25% cutoff and a wavelength xaxis"""
-    fig = plotter_gaas.get_plot(
+    return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
         transition_cutoff=0.75,
@@ -123,7 +120,6 @@ def test_get_plot_jdos_lambda(plotter_gaas):
         ymax=None,
         yaxis="jdos",
     )
-    return fig
 
 
 ## Test with CdTe, with many more transitions:
@@ -144,14 +140,13 @@ def test_get_plot_cdte(plotter_cdte):
 )
 def test_get_plot_tas_ev_cdte(plotter_cdte):
     """Test get_plot() TAS function for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte.get_plot(
+    return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="tas",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -178,14 +173,13 @@ def test_get_plot_tas_lambda_cdte(plotter_cdte):
 )
 def test_get_plot_jdos_ev_cdte(plotter_cdte):
     """Test get_plot() JDOS function for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte.get_plot(
+    return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="jdos",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -195,14 +189,13 @@ def test_get_plot_jdos_ev_cdte(plotter_cdte):
 )
 def test_get_plot_jdos_lambda_cdte(plotter_cdte):
     """Test get_plot() JDOS function for CdTe with the default cutoff and wavelength xaxis"""
-    fig = plotter_cdte.get_plot(
+    return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
         xmin=None,
         xmax=1200,
         yaxis="jdos",
     )
-    return fig
 
 
 def test_line_color_consistency(plotter_cdte):
@@ -239,7 +232,7 @@ def test_get_plot_alpha_cdte_no_waveder(plotter_cdte):
         match="The `alpha` option for yaxis can only be chosen if the "
         "TASGenerator object was created using VASP outputs!",
     ):
-        fig = plotter_cdte.get_plot(
+        plotter_cdte.get_plot(
             relevant_transitions="auto",
             xaxis="energy",
             xmin=0,
@@ -255,7 +248,7 @@ def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
         match="The `tas_absorption_only` option for yaxis can only be chosen if the "
         "TASGenerator object was created using VASP outputs!",
     ):
-        fig = plotter_cdte.get_plot(
+        plotter_cdte.get_plot(
             relevant_transitions="auto",
             xaxis="energy",
             xmin=0,
@@ -271,14 +264,13 @@ def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
 )
 def test_get_plot_tas_cdte(plotter_cdte_vasp):
     """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp.get_plot(
+    return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="tas",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -288,14 +280,13 @@ def test_get_plot_tas_cdte(plotter_cdte_vasp):
 )
 def test_get_plot_jdos_diff_cdte_vasp(plotter_cdte_vasp):
     """Test get_plot() yaxis="jdos_diff" function for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp.get_plot(
+    return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="jdos_diff",
     )
-    return fig
 
 
 # jdos_diff plot should be the same for both plotter_cdte_vasp and plotter_cdte_vasp_vr_only, so compare to same
@@ -307,14 +298,13 @@ def test_get_plot_jdos_diff_cdte_vasp(plotter_cdte_vasp):
 )
 def test_get_plot_jdos_diff_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
     """Test get_plot() yaxis="jdos_diff" for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp_vr_only.get_plot(
+    return plotter_cdte_vasp_vr_only.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="jdos_diff",
     )
-    return fig
 
 
 # jdos_diff plot should be the same as "tas" for plotter_cdte_vasp_vr_only (because no WAVEDER parsed), so compare to
@@ -326,14 +316,13 @@ def test_get_plot_jdos_diff_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
 )
 def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
     """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp_vr_only.get_plot(
+    return plotter_cdte_vasp_vr_only.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="tas",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -343,14 +332,13 @@ def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
 )
 def test_get_plot_alpha_cdte(plotter_cdte_vasp):
     """Test get_plot() yaxis="alpha" for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp.get_plot(
+    return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="alpha",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -360,14 +348,13 @@ def test_get_plot_alpha_cdte(plotter_cdte_vasp):
 )
 def test_get_plot_tas_absorption_only_cdte_vasp(plotter_cdte_vasp):
     """Test get_plot() yaxis="tas_absorption_only" function for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp.get_plot(
+    return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="tas_absorption_only",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -377,14 +364,13 @@ def test_get_plot_tas_absorption_only_cdte_vasp(plotter_cdte_vasp):
 )
 def test_get_plot_jdos_cdte(plotter_cdte_vasp):
     """Test get_plot() yaxis="jdos" function for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp.get_plot(
+    return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="jdos",
     )
-    return fig
 
 
 # jdos should be the same for plotter_cdte_vasp and plotter_cdte_vasp_vr_only, so compare to same baseline:
@@ -395,14 +381,13 @@ def test_get_plot_jdos_cdte(plotter_cdte_vasp):
 )
 def test_get_plot_jdos_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
     """Test get_plot() yaxis="jdos" for CdTe with the default cutoff and electronvolts xaxis"""
-    fig = plotter_cdte_vasp_vr_only.get_plot(
+    return plotter_cdte_vasp_vr_only.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
         xmax=5,
         yaxis="jdos",
     )
-    return fig
 
 
 @pytest.mark.mpl_image_compare(
@@ -412,7 +397,7 @@ def test_get_plot_jdos_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
 )
 def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
     """Test get_plot() yaxis="tas" for CdTe with kwargs for plt.legend()"""
-    fig = plotter_cdte_vasp.get_plot(
+    return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
         xmin=0,
@@ -427,4 +412,3 @@ def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
         handlelength=1.5,
         handletextpad=0.5,
     )
-    return fig

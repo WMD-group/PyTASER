@@ -2,11 +2,11 @@
 PyTASER: TAS prediction tool
 """
 
+
+import pathlib
 from setuptools import find_packages, setup
 
-with open("README.md") as file:
-    long_description = file.read()
-
+long_description = pathlib.Path("README.md").read_text()
 setup(
     name="pytaser",
     version="2.0.1",

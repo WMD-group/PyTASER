@@ -85,10 +85,10 @@ def test_band_occupancies(generated_class, light, conditions):
 
     for band in vb_dark_occs:
         occ_bool = all(kpoint_occ == 1 for kpoint_occ in band)
-        assert occ_bool == True
+        assert occ_bool
     for band in cb_dark_occs:
         occ_bool = all(kpoint_occ == 0 for kpoint_occ in band)
-        assert occ_bool == True
+        assert occ_bool
 
     light_occs = generated_class.band_occupancies(
         conditions[0], conditions[1], dark=False
