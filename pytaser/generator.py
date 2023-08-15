@@ -155,23 +155,16 @@ def _calculate_oscillator_strength(args):
         ) = args
 
     ispin = 0 if spin == Spin.up else 1
-    init_occ = occs[ib][ik]
-    final_occ = occs[jb][ik]
 
-    A = (
-        sum(
-            dfc.cder[ib, jb, ik, ispin, idir]
-            * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
-            for idir in range(3)
-        )
-        / 3
-    )
-    decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
+    A = np.sum(np.abs(cder[ib, jb, ik, ispin, :3] ** 2)) / 3
+    decel = eigs_shifted[jb, ik, ispin] - eigs_shifted[ib, ik, ispin]
     matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
     tdm = (
         np.abs(A) * rspin * decel
     )  # kweight and occ factor already accounted for with JDOS
 
+    init_occ = occs[ib][ik]
+    final_occ = occs[jb][ik]
     abs_occ_factor = init_occ * (1 - final_occ)
     em_occ_factor = (1 - init_occ) * final_occ
     both_occ_factor = init_occ - final_occ
@@ -343,7 +336,6 @@ def occ_dependent_alpha(
         max_band,
         nk,
     )
-    num_ = len(nonzero_transition_args)
 
     if processes is None:
         processes = cpu_count() - 1
@@ -389,11 +381,14 @@ def occ_dependent_alpha(
         results, dtype=object
     )  # dtype=object ensures that data is preserved
 
-    for absorption, emission, both, tdm, ib, jb, ik in results:
-        dielectric_dict["absorption"] += absorption
-        dielectric_dict["emission"] += emission
-        dielectric_dict["both"] += both
-        tdm_array[ib, jb, ik] = tdm
+    # Accumulate the results
+    dielectric_dict["absorption"] += results_array[:, 0].sum()
+    dielectric_dict["emission"] += results_array[:, 1].sum()
+    dielectric_dict["both"] += results_array[:, 2].sum()
+
+    indices = results_array[:, 4:7].astype(int).T  # ib, jb, ik
+    tdm_values = results_array[:, 3]
+    tdm_array[indices[0], indices[1], indices[2]] = tdm_values
 
     tdm_array = (
         tdm_array.real
