@@ -1,5 +1,7 @@
 import ast
+
 from monty.json import MontyDecoder
+
 
 class Tas:
     """

@@ -1,19 +1,18 @@
 import itertools
-from tqdm import tqdm
 import warnings
-import numpy as np
 from multiprocessing import Pool, cpu_count
 
+import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import optics
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
+from tqdm import tqdm
 
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
-
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -186,7 +185,13 @@ def _calculate_oscillator_strength(args):
 
 
 def occ_dependent_alpha(
-    dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None, energy_max=6,
+    dfc,
+    occs,
+    spin=Spin.up,
+    sigma=None,
+    cshift=None,
+    processes=None,
+    energy_max=6,
 ):
     """
     Calculate the expected optical absorption given the groundstate orbital derivatives and
@@ -244,7 +249,7 @@ def occ_dependent_alpha(
         range(min_band, max_band + 1),
         range(nk),
     ]
-    num_ = nk * (max_band - min_band)**2
+    num_ = nk * (max_band - min_band) ** 2
     spin_string = "up" if spin == Spin.up else "down"
     light_dark_string = (
         "under illumination"
@@ -379,7 +384,9 @@ class TASGenerator:
             A TASGenerator object.
         """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
-        warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
+        warnings.filterwarnings(
+            "ignore", message="No POTCAR file with matching TITEL fields"
+        )
         vr = Vasprun(vasprun_file)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
@@ -393,9 +400,13 @@ class TASGenerator:
                 )
                 if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)
-                raise ValueError(f"ISYM must be set to 0 and {lvel_error_message}")
+                raise ValueError(
+                    f"ISYM must be set to 0 and {lvel_error_message}"
+                )
 
-            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(vr, waveder)
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
+                vr, waveder
+            )
         else:
             dfc = None
 

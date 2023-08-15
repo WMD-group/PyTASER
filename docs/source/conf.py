@@ -13,7 +13,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath("../../"))
 # from pytaser import __version__
 
 
@@ -50,7 +50,7 @@ extensions = [
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -66,7 +66,7 @@ html_theme_options = {
     "path_to_docs": "docs/source",
     "use_repository_button": True,
     "use_issues_button": True,
-    "use_edit_page_button": True, # add button to suggest edits
+    "use_edit_page_button": True,  # add button to suggest edits
     "home_page_in_toc": True,
 }
 
