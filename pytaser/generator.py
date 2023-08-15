@@ -364,12 +364,22 @@ class TASGenerator:
         self.cb = get_cbm_vbm_index(self.bs)[1]
 
     @classmethod
-    def from_vasp_outputs(cls, vasprun_file, waveder_file=None):
-        """Create a TASGenerator object from VASP output files."""
+    def from_vasp_outputs(cls, vasprun_file, waveder_file=None, bg=None):
+        """
+        Create a TASGenerator object from VASP output files.
+
+        Args:
+            vasprun_file: Path to vasprun.xml file (to generate bandstructure object).
+            waveder_file: Path to WAVEDER file (to generate dielectric function calculator object,
+            to compute orbital derivatives and transition dipole moments).
+            bg: Experimental bandgap of the material, used to rigidly shift the DFT results to match
+            this value. If None (default), the bandgap of the DFT calculation will be used.
+
+        Returns:
+            A TASGenerator object.
+        """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
-        warnings.filterwarnings(
-            "ignore", message="No POTCAR file with matching TITEL fields"
-        )
+        warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
         vr = Vasprun(vasprun_file)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
@@ -381,20 +391,30 @@ class TASGenerator:
                     "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
                     "previous calculation this should only require 1 or 2 electronic steps!"
                 )
-                if vr.incar.get("ISYM", 2) not in [-1, 0]:
-                    isym_error_message = "ISYM must be set to 0 and "
-                    raise ValueError(isym_error_message + lvel_error_message)
-                else:
+                if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)
-            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
-                vr, waveder
-            )
+                raise ValueError(f"ISYM must be set to 0 and {lvel_error_message}")
+
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(vr, waveder)
         else:
             dfc = None
+
+        bs = vr.get_band_structure()
+        dos = vr.complete_dos
+
+        if bg is not None:  # apply scissor shift
+            if dfc is not None:
+                eigs_shifted = dfc.eigs - dfc.efermi
+                scissor = bg - bs.get_band_gap()["energy"]
+                # shift dfc.eigs[eigs_shifted > 0] up by scissor:
+                dfc.eigs[eigs_shifted > 0] += scissor
+
+            bs, dos = set_bandgap(bs, dos, bg)
+
         return cls(
-            vr.get_band_structure(),
+            bs,
             vr.actual_kpoints_weights,
-            vr.complete_dos,
+            dos,
             dfc,
         )
 
