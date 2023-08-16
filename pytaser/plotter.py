@@ -13,16 +13,12 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def ev_to_lambda(ev):
     """Convert photon energies from eV to a wavelength in nm."""
-    wavelength = ((scpc.h * scpc.c) / (ev * scpc.electron_volt)) * 10e8
-    return wavelength
+    return ((scpc.h * scpc.c) / (ev * scpc.electron_volt)) * 10e8
 
 
 def lambda_to_ev(lambda_float):
     """Convert photon energies from a wavelength in nm to eV."""
-    electronvolts = (10e8 * (scpc.h * scpc.c)) / (
-        lambda_float * scpc.electron_volt
-    )
-    return electronvolts
+    return (10e8 * (scpc.h * scpc.c)) / (lambda_float * scpc.electron_volt)
 
 
 def cutoff_transitions(dictionary, cutoff, ind_xmin, ind_xmax):
