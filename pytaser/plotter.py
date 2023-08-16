@@ -263,16 +263,15 @@ class TASPlotter:
                 self.alpha_light_dict is not None
                 and "jdos_diff" not in yaxis.lower()
             ):
+                max_jdos_diff = np.max(
+                    [
+                        np.abs(vals).max()
+                        for vals in self.weighted_jdos_diff_if.values()
+                    ]
+                )
                 transition_dict = {
                     k: v
-                    / max(
-                        [
-                            np.max(np.abs(vals_list))
-                            for vals_list in list(
-                                self.weighted_jdos_diff_if.values()
-                            )
-                        ]
-                    )
+                    / max_jdos_diff
                     for k, v in self.weighted_jdos_diff_if.items()
                 }
                 if "tas" in yaxis.lower():
