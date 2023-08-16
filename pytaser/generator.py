@@ -342,22 +342,20 @@ def occ_dependent_alpha(
 
     shared_memory_args = (dfc.cder, occs, eigs_shifted, norm_kweights)
     if (
-        len(nonzero_transition_args) < 12000
-    ):  # don't use shared memory for small arrays
+        len(nonzero_transition_args) <= 2.5e6
+    ) or processes < 2:  # don't use multiprocessing for small arrays
         # append shared memory arguments to the list of arguments for each process
         nonzero_transition_args = [
             (*arg, *shared_memory_args) for arg in nonzero_transition_args
         ]
 
-    if processes > 1 and len(nonzero_transition_args) > 3000:  # quicker without multiprocessing below this
+    if (
+        processes > 1 and len(nonzero_transition_args) > 2.5e6
+    ):  # quicker without multiprocessing below this arg length
         with Pool(
             processes,
-            initializer=init_shared_memory
-            if len(nonzero_transition_args) > 12000
-            else None,
-            initargs=shared_memory_args
-            if len(nonzero_transition_args) > 12000
-            else None,
+            initializer=init_shared_memory,
+            initargs=shared_memory_args,
         ) as pool:
             results = pool.map(
                 _calculate_oscillator_strength,
@@ -697,7 +695,10 @@ class TASGenerator:
                 alpha_dark += alpha_dark_dict[
                     "both"
                 ]  # stimulated emission should be zero in the dark
-                calculated_alpha_light_dict, tdm_array_light = occ_dependent_alpha(
+                (
+                    calculated_alpha_light_dict,
+                    tdm_array_light,
+                ) = occ_dependent_alpha(
                     self.dfc,
                     occs_light[spin],
                     sigma=gaussian_width,
@@ -705,7 +706,9 @@ class TASGenerator:
                     processes=processes,
                     energy_max=energy_max,
                 )
-                tdm_array_light[tdm_array_dark.nonzero()] = 0  # zero out duplicate TDM array values
+                tdm_array_light[
+                    tdm_array_dark.nonzero()
+                ] = 0  # zero out duplicate TDM array values
                 tdm_array = tdm_array_dark + tdm_array_light
 
                 for key, array in alpha_light_dict.items():
