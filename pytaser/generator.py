@@ -361,7 +361,6 @@ def occ_dependent_alpha(
                 _calculate_oscillator_strength,
                 tqdm(
                     nonzero_transition_args,
-                    total=len(nonzero_transition_args),
                     desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
                 ),
             )
@@ -370,7 +369,6 @@ def occ_dependent_alpha(
             _calculate_oscillator_strength(arg)
             for arg in tqdm(
                 nonzero_transition_args,
-                total=len(nonzero_transition_args),
                 desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
             )
         ]
