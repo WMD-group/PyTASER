@@ -1,9 +1,9 @@
 Change log
 ==========
 
-v2.1.1
+v2.1.2
 ~~~~~~
-- Remove broken link from docs
+- Remove broken links from docs
 
 v2.1.0
 ~~~~~~
