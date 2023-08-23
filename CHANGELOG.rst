@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2.1.1
+~~~~~~
+- Remove broken link from docs
+
 v2.1.0
 ~~~~~~
 - Add `bg` option to `TASGenerator.from_vasp_outputs()` to allow scissor shifting of the bandgap to match experiment.
