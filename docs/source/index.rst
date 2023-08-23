@@ -163,7 +163,6 @@ Developed by Savyasanchi Aggarwal, Seán Kavanagh, Youngwon Woo and Alex Ganose.
 
    dft_examples
    mp_example
-   multiprocessing_examples
 
 
 .. toctree::
