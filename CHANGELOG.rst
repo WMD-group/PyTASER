@@ -1,6 +1,12 @@
 Change log
 ==========
 
+v2.1.0
+~~~~~~
+- Add `bg` option to `TASGenerator.from_vasp_outputs()` to allow scissor shifting of the bandgap to match experiment.
+- Implement vectorised band filtering functions, massive speedup in processing times.
+- Implement memory sharing for large arrays within multiprocessing.
+
 v2.0.1
 ~~~~~~
 - Minor documentation and website updates.

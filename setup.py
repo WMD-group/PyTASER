@@ -2,14 +2,15 @@
 PyTASER: TAS prediction tool
 """
 
+
+import pathlib
+
 from setuptools import find_packages, setup
 
-with open("README.md") as file:
-    long_description = file.read()
-
+long_description = pathlib.Path("README.md").read_text()
 setup(
     name="pytaser",
-    version="2.0.1",
+    version="2.1.0",
     description="TAS prediction tool",
     url="https://pytaser.readthedocs.io/en/latest/",
     author="Savyasanchi Aggarwal",
@@ -39,6 +40,8 @@ setup(
         "matplotlib>=3.7.1",
         "pymatgen>=2023.05.31",
         "setuptools",
+        "mp-api!=0.34.0,!=0.34.1,!=0.34.2",
+        # bug: boto3 added as an unnecessary requirement (https://github.com/materialsproject/pymatgen/issues/3241, https://github.com/materialsproject/api/pull/836)
     ],
     extras_require={
         "tests": [

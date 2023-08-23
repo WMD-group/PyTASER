@@ -1,11 +1,11 @@
-import pytest
 import os
+from unittest import mock
 
 import numpy as np
+import pytest
 from deepdiff import DeepDiff
-from monty.serialization import loadfn, dumpfn
+from monty.serialization import dumpfn, loadfn
 from pymatgen.electronic_structure.core import Spin
-from unittest import mock
 
 from pytaser import generator
 
@@ -85,10 +85,10 @@ def test_band_occupancies(generated_class, light, conditions):
 
     for band in vb_dark_occs:
         occ_bool = all(kpoint_occ == 1 for kpoint_occ in band)
-        assert occ_bool == True
+        assert occ_bool
     for band in cb_dark_occs:
         occ_bool = all(kpoint_occ == 0 for kpoint_occ in band)
-        assert occ_bool == True
+        assert occ_bool
 
     light_occs = generated_class.band_occupancies(
         conditions[0], conditions[1], dark=False
@@ -129,29 +129,41 @@ def test_occ_dependent_alpha(
         sumo_abs[:, 0], egrid, alpha_dark_dict["both"]
     )
     # rtol set to 10% as energy mesh truncation gives small (but tolerable) mismatches as E approaches 5 eV
-    np.testing.assert_allclose(interp_alpha_dark[egrid<5], sumo_abs[:, 1][egrid<5], rtol=0.1)
+    np.testing.assert_allclose(
+        interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.1
+    )
 
     # test with energy_max increased (tighter match!)
     alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
-        cdte_vasp_generated_class.dfc, dark_occs[Spin.up], spin=Spin.up, energy_max=10
+        cdte_vasp_generated_class.dfc,
+        dark_occs[Spin.up],
+        spin=Spin.up,
+        energy_max=10,
     )  # default sigma and cshift
     interp_alpha_dark = np.interp(
         sumo_abs[:, 0], egrid, alpha_dark_dict["both"]
     )
 
     # Tighter check, rtol = 2.5%:
-    np.testing.assert_allclose(interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.025)
+    np.testing.assert_allclose(
+        interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.025
+    )
 
     # test setting low energy_max doesn't break dielectric function:
     alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
-        cdte_vasp_generated_class.dfc, dark_occs[Spin.up], spin=Spin.up, energy_max=4
+        cdte_vasp_generated_class.dfc,
+        dark_occs[Spin.up],
+        spin=Spin.up,
+        energy_max=4,
     )  # default sigma and cshift
     interp_alpha_dark = np.interp(
         sumo_abs[:, 0], egrid, alpha_dark_dict["both"]
     )
 
     # Looser check, rtol = 10%:
-    np.testing.assert_allclose(interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.1)
+    np.testing.assert_allclose(
+        interp_alpha_dark[egrid < 5], sumo_abs[:, 1][egrid < 5], rtol=0.1
+    )
 
 
 def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
