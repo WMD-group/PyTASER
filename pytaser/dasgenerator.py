@@ -22,7 +22,7 @@ from pymatgen.io.vasp.outputs import Vasprun, Waveder
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
 from pytaser.das import Das
-import pytaser.generator as generator
+import pytaser.generatorsam as generator
 
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -59,16 +59,24 @@ class DASGenerator:
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = FermiDos(dos)
-        self.bg_centre = (bs.get_cbm()["energy"] + bs.get_vbm()["energy"]) / 2
         self.dfc = dfc
         
+
         
         self.bs_ref = bs_ref
         self.kpoint_weights_ref = kpoint_weights_ref
         self.dos_ref = FermiDos(dos_ref)
-        self.bg_centre_ref = (bs_ref.get_cbm()["energy"] + bs_ref.get_vbm()["energy"]) / 2
         self.dfc_ref = dfc_ref
 
+        if self.bs.is_metal():
+          self.bg_centre = bs.efermi
+          self.bg_centre_ref = bs_ref.efermi
+          print("Is metal")
+        else:    
+          self.bg_centre = (bs.get_cbm()["energy"] + bs.get_vbm()["energy"]) / 2
+          self.bg_centre_ref = (bs_ref.get_cbm()["energy"] + bs_ref.get_vbm()["energy"]) / 2
+
+        
         # Lucas
         # if self.bs.is_metal():
         #     raise ValueError("System is metallic, cannot compute TAS")
@@ -308,7 +316,7 @@ class DASGenerator:
         if dark_occs is None:
             occs_light,occs_dark = self.band_occupancies()
 
-        bandgap = round(self.bs.get_band_gap()["energy"], 2)
+        bandgap = round(self.bs_ref.get_band_gap()["energy"], 2)
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
         jdos_dark_if = {}
@@ -322,10 +330,16 @@ class DASGenerator:
 
 
         if self.dfc_ref is not None:
-            egrid = np.arange(
+            egrid_ref = np.arange(
                 0, self.dfc_ref.nedos * self.dfc_ref.deltae, self.dfc_ref.deltae
             )
-            alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
+            if len(egrid_ref)>self.dfc_ref.nedos:
+                egrid_ref=np.delete(egrid_ref, len(egrid_ref)-1)
+            
+
+            
+            alpha_dark = np.zeros_like(egrid_ref, dtype=np.complex128)
+            
 
         for spin, spin_bands in self.bs_ref.bands.items():
             if self.dfc_ref is not None:
@@ -341,7 +355,6 @@ class DASGenerator:
                     "both"
                 ]  # stimulated emission should be
                 # zero in the dark
-                alpha_light_dict = alpha_dark_dict                
 
         
 
@@ -394,11 +407,19 @@ class DASGenerator:
             egrid = np.arange(
                 0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
             )
+            if len(egrid)>self.dfc_ref.nedos:
+                egrid=np.delete(egrid, len(egrid)-1)
+                
             alpha_light = np.zeros_like(egrid, dtype=np.complex128)
+            alpha_light_dict = {
+                key: np.zeros_like(egrid, dtype=np.complex128)
+                for key in ["absorption", "emission", "both"]
+            }
+            
 
         for spin, spin_bands in self.bs.bands.items():
             if self.dfc is not None:
-                alpha_light_dict, tdm_array = generator.occ_dependent_alpha(
+                calculated_alpha_light_dict, tdm_array = generator.occ_dependent_alpha(
                     self.dfc,
                     occs_light[spin],
                     sigma=gaussian_width,
@@ -406,9 +427,10 @@ class DASGenerator:
                     processes=processes,
                     energy_max=energy_max,
                 )
-                alpha_light += alpha_light_dict[
+                alpha_light += calculated_alpha_light_dict[
                     "both"
-                ]  # stimulated emission should be
+                ] 
+                alpha_light_dict["both"] += calculated_alpha_light_dict["both"]# stimulated emission should be
                 # zero in the dark
                 
 
@@ -464,16 +486,18 @@ class DASGenerator:
                
         # need to interpolate alpha arrays onto JDOS energy mesh:
         if self.dfc is not None:
-            alpha_dark = np.interp(energy_mesh_ev, egrid, alpha_dark)
+            alpha_dark = np.interp(energy_mesh_ev, egrid_ref, alpha_dark)
+            alpha_light = np.interp(energy_mesh_ev, egrid, alpha_light)
             for key, array in alpha_light_dict.items():
                 alpha_light_dict[key] = np.interp(energy_mesh_ev, egrid, array)
 
-            tas_total = (
-                alpha_light_dict["absorption"]
-                - alpha_light_dict["emission"]
-                - alpha_dark
-            )
-
+                tas_total = (alpha_light-alpha_dark)
+                
+                # tas_total = (
+                #      alpha_light_dict["absorption"]
+                #      - alpha_light_dict["emission"]
+                #      - alpha_dark
+                # )
 
 
         return Das(
