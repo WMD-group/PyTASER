@@ -1,9 +1,10 @@
+from pathlib import Path
+
 import pytest
 from monty.serialization import loadfn
 
 from pytaser.generator import TASGenerator
 from pytaser.plotter import TASPlotter
-from pathlib import Path
 
 
 @pytest.fixture(scope="package")
@@ -52,13 +53,26 @@ def cdte_generated_class(datapath_cdte):
 
 @pytest.fixture(scope="package")
 def cdte_vasp_generated_class(examplepath_cdte):
-    return TASGenerator.from_vasp_outputs(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml",
-                                          waveder_file=examplepath_cdte / "k666_Optics/WAVEDER")
+    return TASGenerator.from_vasp_outputs(
+        vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml",
+        waveder_file=examplepath_cdte / "k666_Optics/WAVEDER",
+    )
+
+
+@pytest.fixture(scope="package")
+def cdte_vasp_bg_3_generated_class(examplepath_cdte):
+    return TASGenerator.from_vasp_outputs(
+        vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml",
+        waveder_file=examplepath_cdte / "k666_Optics/WAVEDER",
+        bg=3,
+    )
 
 
 @pytest.fixture(scope="package")
 def cdte_vasp_generated_class_vr_only(examplepath_cdte):
-    return TASGenerator.from_vasp_outputs(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml")
+    return TASGenerator.from_vasp_outputs(
+        vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml"
+    )
 
 
 @pytest.fixture(name="dark", scope="module")
@@ -116,9 +130,7 @@ def cdte_tas_object(
 
 
 @pytest.fixture(scope="module")
-def cdte_vasp_tas_object(
-    cdte_vasp_generated_class, cdte_conditions
-):
+def cdte_vasp_tas_object(cdte_vasp_generated_class, cdte_conditions):
     return cdte_vasp_generated_class.generate_tas(
         cdte_conditions[0],
         cdte_conditions[1],
@@ -142,6 +154,14 @@ def cdte_vasp_tas_object_vr_only(
 
 
 @pytest.fixture(scope="module")
+def cdte_vasp_tas_bg_3_object(cdte_vasp_bg_3_generated_class, cdte_conditions):
+    return cdte_vasp_bg_3_generated_class.generate_tas(
+        cdte_conditions[0],
+        cdte_conditions[1],
+    )
+
+
+@pytest.fixture(scope="module")
 def plotter_gaas(tas_object, conditions):
     return TASPlotter(
         tas_object,
@@ -156,12 +176,22 @@ def plotter_cdte(cdte_tas_object, cdte_conditions):
         material_name="CdTe",
     )
 
+
 @pytest.fixture(scope="module")
 def plotter_cdte_vasp(cdte_vasp_tas_object, cdte_conditions):
     return TASPlotter(
         cdte_vasp_tas_object,
         material_name="CdTe",
     )
+
+
+@pytest.fixture(scope="module")
+def plotter_cdte_bg_3_vasp(cdte_vasp_tas_bg_3_object, cdte_conditions):
+    return TASPlotter(
+        cdte_vasp_tas_bg_3_object,
+        material_name="CdTe",
+    )
+
 
 @pytest.fixture(scope="module")
 def plotter_cdte_vasp_vr_only(cdte_vasp_tas_object_vr_only, cdte_conditions):

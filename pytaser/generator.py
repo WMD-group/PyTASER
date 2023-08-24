@@ -1,19 +1,17 @@
-import itertools
-from tqdm import tqdm
 import warnings
-import numpy as np
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, Array
 
+import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import optics
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
+from tqdm import tqdm
 
 from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
-
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -126,67 +124,142 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
 
 def _calculate_oscillator_strength(args):
     """Calculates the oscillator strength of a single band-band transition"""
-    (
-        ib,
-        jb,
-        ik,
-        occs,
-        dfc,
-        eigs_shifted,
-        norm_kweights,
-        rspin,
-        spin,
-        sigma,
-    ) = args
+    if len(args) == 9:  # shared memory arrays
+        ib, jb, ik, rspin, spin, sigma, nedos, deltae, ismear = args
+
+        # Convert shared arrays back to numpy arrays
+        cder = np.frombuffer(_cder.get_obj()).reshape(_cder_shape)
+        occs = np.frombuffer(_occs.get_obj()).reshape(_occs_shape)
+        eigs_shifted = np.frombuffer(_eigs_shifted.get_obj()).reshape(
+            _eigs_shifted_shape
+        )
+        norm_kweights = np.frombuffer(_norm_kweights.get_obj()).reshape(
+            _norm_kweights_shape
+        )
+
+    else:  # normal function call
+        (
+            ib,
+            jb,
+            ik,
+            rspin,
+            spin,
+            sigma,
+            nedos,
+            deltae,
+            ismear,
+            cder,
+            occs,
+            eigs_shifted,
+            norm_kweights,
+        ) = args
 
     ispin = 0 if spin == Spin.up else 1
-    init_energy = eigs_shifted[ib, ik, ispin]
-    final_energy = eigs_shifted[jb, ik, ispin]
-    if final_energy > init_energy:
-        init_occ = occs[ib][ik]
-        final_occ = occs[jb][ik]
 
-        A = (
-            sum(
-                dfc.cder[ib, jb, ik, ispin, idir]
-                * np.conjugate(dfc.cder[ib, jb, ik, ispin, idir])
-                for idir in range(3)
-            )
-            / 3
+    A = np.sum(np.abs(cder[ib, jb, ik, ispin, :3] ** 2)) / 3
+    decel = eigs_shifted[jb, ik, ispin] - eigs_shifted[ib, ik, ispin]
+    matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
+    tdm = (
+        np.abs(A) * rspin * decel
+    )  # kweight and occ factor already accounted for with JDOS
+
+    init_occ = occs[ib][ik]
+    final_occ = occs[jb][ik]
+    abs_occ_factor = init_occ * (1 - final_occ)
+    em_occ_factor = (1 - init_occ) * final_occ
+    both_occ_factor = init_occ - final_occ
+
+    abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
+    em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
+    both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
+
+    smeared_wout_matrix_el = optics.get_delta(
+        x0=decel,
+        sigma=sigma,
+        nx=nedos,
+        dx=deltae,
+        ismear=ismear,
+    )
+
+    absorption = smeared_wout_matrix_el * abs_matrix_el
+    emission = smeared_wout_matrix_el * em_matrix_el
+    both = smeared_wout_matrix_el * both_matrix_el
+
+    return absorption, emission, both, tdm, ib, jb, ik
+
+
+def get_nonzero_band_transitions(
+    occs,
+    eigs_shifted,
+    rspin,
+    spin,
+    sigma,
+    nedos,
+    deltae,
+    ismear,
+    min_band,
+    max_band,
+    nk,
+):
+    """Helper function to filter band transitions before (multi)processing"""
+    ispin_idx = 0 if spin == Spin.up else 1
+
+    ib_vals, jb_vals, ik_vals = np.meshgrid(
+        np.arange(min_band, max_band + 1),
+        np.arange(min_band, max_band + 1),
+        np.arange(nk),
+        indexing="ij",
+    )
+
+    init_energy_vals = eigs_shifted[ib_vals, ik_vals, ispin_idx]
+    final_energy_vals = eigs_shifted[jb_vals, ik_vals, ispin_idx]
+    init_occ_vals = occs[ib_vals, ik_vals]
+    final_occ_vals = occs[jb_vals, ik_vals]
+
+    condition = (
+        final_energy_vals > init_energy_vals
+    ) & (  # one-way transitions (emission is accounted for by occupancy factor)
+        np.abs(init_occ_vals - final_occ_vals)
+        > 0.01  # non-negligible occupancy factor
+    )
+
+    return list(
+        zip(
+            ib_vals[condition].ravel(),
+            jb_vals[condition].ravel(),
+            ik_vals[condition].ravel(),
+            [rspin] * np.sum(condition),
+            [spin] * np.sum(condition),
+            [sigma] * np.sum(condition),
+            [nedos] * np.sum(condition),
+            [deltae] * np.sum(condition),
+            [ismear] * np.sum(condition),
         )
-        decel = dfc.eigs[jb, ik, ispin] - dfc.eigs[ib, ik, ispin]
-        matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
-        tdm = (
-            np.abs(A) * rspin * decel
-        )  # kweight and occ factor already accounted for with JDOS
+    )
 
-        abs_occ_factor = init_occ * (1 - final_occ)
-        em_occ_factor = (1 - init_occ) * final_occ
-        both_occ_factor = init_occ - final_occ
 
-        abs_matrix_el = abs_occ_factor * matrix_el_wout_occ_factor
-        em_matrix_el = em_occ_factor * matrix_el_wout_occ_factor
-        both_matrix_el = both_occ_factor * matrix_el_wout_occ_factor
+def init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
+    global _cder, _occs, _eigs_shifted, _norm_kweights
+    global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape
 
-        smeared_wout_matrix_el = optics.get_delta(
-            x0=decel,
-            sigma=sigma,
-            nx=dfc.nedos,
-            dx=dfc.deltae,
-            ismear=dfc.ismear,
-        )
-
-        absorption = smeared_wout_matrix_el * abs_matrix_el
-        emission = smeared_wout_matrix_el * em_matrix_el
-        both = smeared_wout_matrix_el * both_matrix_el
-
-        return absorption, emission, both, tdm, ib, jb, ik
-
-    return 0, 0, 0, 0, 0, 0, 0
+    _cder_shape = cder.shape
+    _cder = Array("d", cder.ravel())
+    _occs_shape = occs.shape
+    _occs = Array("d", occs.ravel())
+    _eigs_shifted_shape = eigs_shifted.shape
+    _eigs_shifted = Array("d", eigs_shifted.ravel())
+    _norm_kweights_shape = norm_kweights.shape
+    _norm_kweights = Array("d", norm_kweights.ravel())
 
 
 def occ_dependent_alpha(
-    dfc, occs, spin=Spin.up, sigma=None, cshift=None, processes=None, energy_max=6,
+    dfc,
+    occs,
+    spin=Spin.up,
+    sigma=None,
+    cshift=None,
+    processes=None,
+    energy_max=6,
 ):
     """
     Calculate the expected optical absorption given the groundstate orbital derivatives and
@@ -224,7 +297,7 @@ def occ_dependent_alpha(
         for key in ["absorption", "emission", "both"]
     }
     # array of shape equal to cder but without the last two dimensions (ispin, idir)
-    tdm_array = np.zeros_like(dfc.cder[:, :, :, 0, 0])  # ib, jb, ik, ispin
+    tdm_array = np.zeros_like(dfc.cder[:, :, :, 0, 0])  # ib, jb, ik
 
     norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
     eigs_shifted = dfc.eigs - dfc.efermi
@@ -239,12 +312,6 @@ def occ_dependent_alpha(
     max_band = np.max((eigs_shifted < max_band_energy).nonzero()[0])
 
     _, _, nk, _ = dfc.cder.shape[:4]
-    iter_idx = [
-        range(min_band, max_band + 1),
-        range(min_band, max_band + 1),
-        range(nk),
-    ]
-    num_ = nk * (max_band - min_band)**2
     spin_string = "up" if spin == Spin.up else "down"
     light_dark_string = (
         "under illumination"
@@ -256,40 +323,68 @@ def occ_dependent_alpha(
         else "dark"
     )
 
-    args = []
-    for ib, jb, ik in itertools.product(*iter_idx):
-        args.append(
-            (
-                ib,
-                jb,
-                ik,
-                occs,
-                dfc,
-                eigs_shifted,
-                norm_kweights,
-                rspin,
-                spin,
-                sigma,
-            )
-        )
+    nonzero_transition_args = get_nonzero_band_transitions(
+        occs,
+        eigs_shifted,
+        rspin,
+        spin,
+        sigma,
+        dfc.nedos,
+        dfc.deltae,
+        dfc.ismear,
+        min_band,
+        max_band,
+        nk,
+    )
 
     if processes is None:
         processes = cpu_count() - 1
-    with Pool(processes) as pool:
-        results = pool.map(
-            _calculate_oscillator_strength,
-            tqdm(
-                args,
-                total=num_,
-                desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
-            ),
-        )
 
-    for absorption, emission, both, tdm, ib, jb, ik in results:
-        dielectric_dict["absorption"] += absorption
-        dielectric_dict["emission"] += emission
-        dielectric_dict["both"] += both
-        tdm_array[ib, jb, ik] = tdm
+    shared_memory_args = (dfc.cder, occs, eigs_shifted, norm_kweights)
+    if (
+        len(nonzero_transition_args) <= 2.5e6
+    ) or processes < 2:  # don't use multiprocessing for small arrays
+        # append shared memory arguments to the list of arguments for each process
+        nonzero_transition_args = [
+            (*arg, *shared_memory_args) for arg in nonzero_transition_args
+        ]
+
+    if (
+        processes > 1 and len(nonzero_transition_args) > 2.5e6
+    ):  # quicker without multiprocessing below this arg length
+        with Pool(
+            processes,
+            initializer=init_shared_memory,
+            initargs=shared_memory_args,
+        ) as pool:
+            results = pool.map(
+                _calculate_oscillator_strength,
+                tqdm(
+                    nonzero_transition_args,
+                    desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
+                ),
+            )
+    else:
+        results = [
+            _calculate_oscillator_strength(arg)
+            for arg in tqdm(
+                nonzero_transition_args,
+                desc=f"Calculating oscillator strengths (spin {spin_string}, {light_dark_string})",
+            )
+        ]
+
+    results_array = np.array(
+        results, dtype=object
+    )  # dtype=object ensures that data is preserved
+
+    # Accumulate the results
+    dielectric_dict["absorption"] += results_array[:, 0].sum()
+    dielectric_dict["emission"] += results_array[:, 1].sum()
+    dielectric_dict["both"] += results_array[:, 2].sum()
+
+    indices = results_array[:, 4:7].astype(int).T  # ib, jb, ik
+    tdm_values = results_array[:, 3]
+    tdm_array[indices[0], indices[1], indices[2]] = tdm_values
 
     tdm_array = (
         tdm_array.real
@@ -366,8 +461,20 @@ class TASGenerator:
         self.cb = get_cbm_vbm_index(self.bs)[1]
 
     @classmethod
-    def from_vasp_outputs(cls, vasprun_file, waveder_file=None):
-        """Create a TASGenerator object from VASP output files."""
+    def from_vasp_outputs(cls, vasprun_file, waveder_file=None, bg=None):
+        """
+        Create a TASGenerator object from VASP output files.
+
+        Args:
+            vasprun_file: Path to vasprun.xml file (to generate bandstructure object).
+            waveder_file: Path to WAVEDER file (to generate dielectric function calculator object,
+            to compute orbital derivatives and transition dipole moments).
+            bg: Experimental bandgap of the material, used to rigidly shift the DFT results to match
+            this value. If None (default), the bandgap of the DFT calculation will be used.
+
+        Returns:
+            A TASGenerator object.
+        """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
         warnings.filterwarnings(
             "ignore", message="No POTCAR file with matching TITEL fields"
@@ -383,20 +490,34 @@ class TASGenerator:
                     "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
                     "previous calculation this should only require 1 or 2 electronic steps!"
                 )
-                if vr.incar.get("ISYM", 2) not in [-1, 0]:
-                    isym_error_message = "ISYM must be set to 0 and "
-                    raise ValueError(isym_error_message + lvel_error_message)
-                else:
+                if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)
+                raise ValueError(
+                    f"ISYM must be set to 0 and {lvel_error_message}"
+                )
+
             dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
                 vr, waveder
             )
         else:
             dfc = None
+
+        bs = vr.get_band_structure()
+        dos = vr.complete_dos
+
+        if bg is not None:  # apply scissor shift
+            if dfc is not None:
+                eigs_shifted = dfc.eigs - dfc.efermi
+                scissor = bg - bs.get_band_gap()["energy"]
+                # shift dfc.eigs[eigs_shifted > 0] up by scissor:
+                dfc.eigs[eigs_shifted > 0] += scissor
+
+            bs, dos = set_bandgap(bs, dos, bg)
+
         return cls(
-            vr.get_band_structure(),
+            bs,
             vr.actual_kpoints_weights,
-            vr.complete_dos,
+            dos,
             dfc,
         )
 
@@ -528,9 +649,9 @@ class TASGenerator:
         """
         occs_light = light_occs
         occs_dark = dark_occs
-        if light_occs is None:
+        if occs_light is None:
             occs_light = self.band_occupancies(temp, conc, dark=False)
-        if dark_occs is None:
+        if occs_dark is None:
             occs_dark = self.band_occupancies(temp, conc)
 
         bandgap = round(self.bs.get_band_gap()["energy"], 2)
@@ -557,7 +678,11 @@ class TASGenerator:
 
         for spin, spin_bands in self.bs.bands.items():
             if self.dfc is not None:
-                alpha_dark_dict, tdm_array = occ_dependent_alpha(
+                # _nonzero_ tdm_array values should be the same in dark or light, but this calculation gets
+                # skipped for band-band transitions where the occupancy factor is near-zero, which happens
+                # for certain band transitions in the dark but not in light and vice versa, so get both
+                # and take the nonzero values:
+                alpha_dark_dict, tdm_array_dark = occ_dependent_alpha(
                     self.dfc,
                     occs_dark[spin],
                     sigma=gaussian_width,
@@ -567,16 +692,23 @@ class TASGenerator:
                 )
                 alpha_dark += alpha_dark_dict[
                     "both"
-                ]  # stimulated emission should be
-                # zero in the dark
-                calculated_alpha_light_dict = occ_dependent_alpha(
+                ]  # stimulated emission should be zero in the dark
+                (
+                    calculated_alpha_light_dict,
+                    tdm_array_light,
+                ) = occ_dependent_alpha(
                     self.dfc,
                     occs_light[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
                     processes=processes,
                     energy_max=energy_max,
-                )[0]
+                )
+                tdm_array_light[
+                    tdm_array_dark.nonzero()
+                ] = 0  # zero out duplicate TDM array values
+                tdm_array = tdm_array_dark + tdm_array_light
+
                 for key, array in alpha_light_dict.items():
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
 
@@ -699,10 +831,7 @@ class TASGenerator:
             A TASGenerator object.
         """
         if mpr is None:
-            if api_key is None:
-                mpr = MPRester()
-            else:
-                mpr = MPRester(api_key=api_key)
+            mpr = MPRester() if api_key is None else MPRester(api_key=api_key)
         mp_dos = mpr.get_dos_by_material_id(mpid)
         mp_bs = mpr.get_bandstructure_by_material_id(mpid, line_mode=False)
         if bg is not None:
