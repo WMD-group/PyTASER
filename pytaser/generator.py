@@ -181,6 +181,11 @@ def _calculate_oscillator_strength(args):
         ismear=ismear,
     )
 
+    """Lucas. Probably it is best to just change np.arange to np.linspace within optics.get_delta."""
+    if len(smeared_wout_matrix_el)>nedos:
+                smeared_wout_matrix_el=np.delete(smeared_wout_matrix_el, len(smeared_wout_matrix_el)-1)
+ 
+
     absorption = smeared_wout_matrix_el * abs_matrix_el
     emission = smeared_wout_matrix_el * em_matrix_el
     both = smeared_wout_matrix_el * both_matrix_el
@@ -292,6 +297,9 @@ def occ_dependent_alpha(
     if cshift is None:
         cshift = dfc.cshift
     egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
+    """Lucas. Probably it is best to just change np.arange to np.linspace."""
+    if len(egrid)>dfc.nedos:
+                egrid=np.delete(egrid, len(egrid)-1)
     dielectric_dict = {
         key: np.zeros_like(egrid, dtype=np.complex128)
         for key in ["absorption", "emission", "both"]
@@ -375,7 +383,7 @@ def occ_dependent_alpha(
 
     results_array = np.array(
         results, dtype=object
-    )  # dtype=object ensures that data is preserved
+    )  # dtype=object ensures that data is preserved               
 
     # Accumulate the results
     dielectric_dict["absorption"] += results_array[:, 0].sum()
