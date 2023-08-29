@@ -55,7 +55,7 @@ class Das:
         temp,
         conc,
         alpha_dark=None,
-        alpha_light_dict=None,
+        alpha_light=None,
         weighted_jdos_light_if=None,
         weighted_jdos_dark_if=None,
         weighted_jdos_diff_if=None,
@@ -71,7 +71,7 @@ class Das:
         self.temp = temp
         self.conc = conc
         self.alpha_dark = alpha_dark
-        self.alpha_light_dict = alpha_light_dict
+        self.alpha_light = alpha_light
         self.weighted_jdos_light_if = weighted_jdos_light_if
         self.weighted_jdos_dark_if = weighted_jdos_dark_if
         self.weighted_jdos_diff_if = weighted_jdos_diff_if

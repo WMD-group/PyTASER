@@ -10,7 +10,7 @@ import itertools
 from tqdm import tqdm
 import warnings
 import numpy as np
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, Array
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
@@ -23,7 +23,7 @@ from pytaser.kpoints import get_kpoint_weights
 from pytaser.tas import Tas
 from pytaser.das import Das
 import pytaser.generator as generator
-import pytaser.createinternalDas as InternalDas
+import pytaser.createinternalDas as createinternalDas
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -59,8 +59,8 @@ class DASGenerator:
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
         warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
 
-        newSystem = createinternalDas.internalAS.internal_from_vasp(vasprun_file_newSystem,waveder_file_newSystem)
-        referenceSystem = createinternalDas.internalAS.internal_from_vasp(vasprun_file_ref,waveder_file_ref) 
+        newSystem = createinternalDas.internalAs.internal_from_vasp(vasprun_file_newSystem,waveder_file_newSystem)
+        referenceSystem = createinternalDas.internalAs.internal_from_vasp(vasprun_file_ref,waveder_file_ref) 
                   
         return cls(newSystem, referenceSystem)
  
@@ -81,8 +81,8 @@ class DASGenerator:
         Returns:
             A TASGenerator object.
         """
-        newSystem = createinternalDas.internalAS.internal_from_mpid( mpid, bg=None, api_key=None, mpr=None)
-        referenceSystem = createinternalDas.internalAS.internal_from_mpid(mpid_ref,bg_ref,api_key=None, mpr_ref=None))         
+        newSystem = createinternalDas.internalAs.internal_from_mpid( mpid, bg=None, api_key=None, mpr=None)
+        referenceSystem = createinternalDas.internalAs.internal_from_mpid(mpid_ref,bg_ref,api_key=None, mpr_ref=None)         
         
         return cls(newSystem, referenceSystem)
 
@@ -186,6 +186,11 @@ class DASGenerator:
         )
         if len(egrid)>self.newSystem.dfc.nedos:
             egrid=np.delete(egrid, len(egrid)-1)
+            
+        alpha_light_dict = {
+                key: np.zeros_like(egrid, dtype=np.complex128)
+                for key in ["absorption", "emission", "both"]
+            }
 
 
         alpha_dark = np.zeros_like(egrid_ref, dtype=np.complex128)
@@ -195,37 +200,35 @@ class DASGenerator:
 
             
 
-        jdos_dark_total,jdos_dark_if,alpha_dark,weighted_jdos_dark_if=createInternalDas.internalAS.generate_AS(self.referenceSystem,
+        jdos_dark_total,jdos_dark_if,alpha_dark,weighted_jdos_dark_if=createinternalDas.internalAs.generate_As(self.referenceSystem,
                                                                                         temp,
                                                                                         conc,
-                                                                                        energy_min=0,
-                                                                                        energy_max=5,
-                                                                                        gaussian_width=0.1,
-                                                                                        cshift=None,
-                                                                                        step=0.01,
-                                                                                        light_occs=None,
-                                                                                        dark_occs=None,
-                                                                                        processes=None,)
+                                                                                        energy_min,
+                                                                                        energy_max,
+                                                                                        gaussian_width,
+                                                                                        cshift,
+                                                                                        step,
+                                                                                        light_occs,
+                                                                                        dark_occs,
+                                                                                        processes)
         
-        jdos_light_total,jdos_light_if,alpha_light,weighted_jdos_light_if=createInternalDas.internalAS.generate_AS(self.newSystem,
+        jdos_light_total,jdos_light_if,alpha_light,weighted_jdos_light_if=createinternalDas.internalAs.generate_As(self.newSystem,
                                                                                         temp,
                                                                                         conc,
-                                                                                        energy_min=0,
-                                                                                        energy_max=5,
-                                                                                        gaussian_width=0.1,
-                                                                                        cshift=None,
-                                                                                        step=0.01,
-                                                                                        light_occs=None,
-                                                                                        dark_occs=None,
-                                                                                        processes=None,)            
+                                                                                        energy_min,
+                                                                                        energy_max,
+                                                                                        gaussian_width,
+                                                                                        cshift,
+                                                                                        step,
+                                                                                        light_occs,
+                                                                                        dark_occs,
+                                                                                        processes)            
                     
 
         tas_total = jdos_light_total-jdos_dark_total 
                
         # need to interpolate alpha arrays onto JDOS energy mesh:
-        if self.dfc is not None:
-            alpha_dark = np.interp(energy_mesh_ev, egrid_ref, alpha_dark)
-            alpha_light = np.interp(energy_mesh_ev, egrid, alpha_light)           
+        if self.referenceSystem.dfc and self.newSystem.dfc is not None:         
             tas_total = (alpha_light-alpha_dark)    
             
 
@@ -240,10 +243,10 @@ class DASGenerator:
             bandgap,
             temp,
             conc,
-            alpha_dark if self.dfc is not None else None,
-            alpha_light_dict if self.dfc is not None else None,
-            weighted_jdos_light_if if self.dfc is not None else None,
-            weighted_jdos_dark_if if self.dfc is not None else None,
-            weighted_jdos_diff_if if self.dfc is not None else None,
+            alpha_dark if self.referenceSystem.dfc is not None else None,
+            alpha_light if self.newSystem.dfc is not None else None,
+            weighted_jdos_light_if if self.newSystem.dfc is not None else None,
+            weighted_jdos_dark_if if self.referenceSystem.dfc is not None else None,
+            weighted_jdos_diff_if if self.referenceSystem.dfc is not None else None,
         )
 

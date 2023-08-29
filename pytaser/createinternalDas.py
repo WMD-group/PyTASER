@@ -10,7 +10,7 @@ import itertools
 from tqdm import tqdm
 import warnings
 import numpy as np
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, Array
 
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
@@ -583,27 +583,8 @@ class internalAs:
                 spin_occs[elec_mask] = 0
 
             occs[spin] = spin_occs
-            
-        occs_ref={}    
-        for spin, spin_bands in self.bs_ref.bands.items():
-            hole_mask = spin_bands < self.bg_centre_ref
-            elec_mask = spin_bands > self.bg_centre_ref
-
-            # fully occupied hole mask, completely empty electron mask
-            spin_occs = np.zeros_like(spin_bands)
-            if self.bs.is_metal():
-                print("Here")
-                spin_occs[hole_mask] = f0(spin_bands, self.bg_centre_ref, temp)[hole_mask]
-                spin_occs[elec_mask] = f0(spin_bands, self.bg_centre_ref, temp)[elec_mask]
-            else:    
-                spin_occs[hole_mask] = 1
-                spin_occs[elec_mask] = 0
-
-            occs_ref[spin] = spin_occs  
-
-
-
-        return occs,occs_ref
+        
+        return occs
 
     def generate_As(
         self,
@@ -684,9 +665,9 @@ class internalAs:
         occs_light = light_occs
         occs_dark = dark_occs
         if dark_occs is None:
-            occs_light,occs_dark = self.band_occupancies(temp)
+            occs_dark = self.band_occupancies(temp)
 
-        bandgap = round(self.bs_ref.get_band_gap()["energy"], 2)
+
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
         jdos_light_if = {}
         jdos_dark_if = {}
@@ -699,22 +680,20 @@ class internalAs:
         jdos_light_total = np.zeros(len(energy_mesh_ev))
 
 
-        if self.dfc_ref is not None:
+        if self.dfc is not None:
             egrid_ref = np.arange(
-                0, self.dfc_ref.nedos * self.dfc_ref.deltae, self.dfc_ref.deltae
+                0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
             )
-            if len(egrid_ref)>self.dfc_ref.nedos:
+            if len(egrid_ref)>self.dfc.nedos:
                 egrid_ref=np.delete(egrid_ref, len(egrid_ref)-1)
-            
-
             
             alpha_dark = np.zeros_like(egrid_ref, dtype=np.complex128)
             
 
-        for spin, spin_bands in self.bs_ref.bands.items():
-            if self.dfc_ref is not None:
+        for spin, spin_bands in self.bs.bands.items():
+            if self.dfc is not None:
                 alpha_dark_dict, tdm_array = generator.occ_dependent_alpha(
-                    self.dfc_ref,
+                    self.dfc,
                     occs_dark[spin],
                     sigma=gaussian_width,
                     cshift=cshift,
@@ -732,21 +711,21 @@ class internalAs:
                 for f in range(len(spin_bands)):
                     if f > i:
                         jd_dark = generator.jdos(
-                            self.bs_ref,
+                            self.bs,
                             f,
                             i,
                             occs_dark[spin],
                             energy_mesh_ev,
-                            self.kpoint_weights_ref,
+                            self.kpoint_weights,
                             gaussian_width,
                             spin=spin,
                         )
                         jdos_dark_total += jd_dark
                         
-                        new_i = i - self.vb_ref[spin]
-                        new_f = f - self.vb_ref[spin]
+                        new_i = i - self.vb[spin]
+                        new_f = f - self.vb[spin]
 
-                        if self.bs_ref.is_spin_polarized:
+                        if self.bs.is_spin_polarized:
                             spin_str = "up" if spin == Spin.up else "down"
                             key = (new_i, new_f, spin_str)
                         else:
@@ -755,14 +734,14 @@ class internalAs:
                         jdos_dark_if[key] = jd_dark
                         
                         
-                        if self.dfc_ref is not None:
+                        if self.dfc is not None:
                             weighted_jd_dark = generator.jdos(
-                                self.bs_ref,
+                                self.bs,
                                 f,
                                 i,
                                 occs_dark[spin],
                                 energy_mesh_ev,
-                                np.array(self.kpoint_weights_ref)
+                                np.array(self.kpoint_weights)
                                 * tdm_array[i, f, :],
                                 gaussian_width,
                                 spin=spin,
@@ -772,24 +751,10 @@ class internalAs:
 
 
 
-        tas_total = jdos_light_total-jdos_dark_total 
-               
         # need to interpolate alpha arrays onto JDOS energy mesh:
         if self.dfc is not None:
             alpha_dark = np.interp(energy_mesh_ev, egrid_ref, alpha_dark)
-            alpha_light = np.interp(energy_mesh_ev, egrid, alpha_light)
-            for key, array in alpha_light_dict.items():
-                alpha_light_dict[key] = np.interp(energy_mesh_ev, egrid, array)
-
-                tas_total = (alpha_light-alpha_dark)
-                
-                # tas_total = (
-                #      alpha_light_dict["absorption"]
-                #      - alpha_light_dict["emission"]
-                #      - alpha_dark
-                # )
-
-
+           
         return (
             jdos_dark_total,
             jdos_dark_if,
