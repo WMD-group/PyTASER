@@ -44,7 +44,7 @@ class Das:
 
     def __init__(
         self,
-        tas_total,
+        das_total,
         jdos_diff_if,
         jdos_light_total,
         jdos_light_if,
@@ -60,7 +60,7 @@ class Das:
         weighted_jdos_dark_if=None,
         weighted_jdos_diff_if=None,
     ):
-        self.tas_total = tas_total
+        self.das_total = das_total
         self.jdos_diff_if = jdos_diff_if
         self.jdos_light_total = jdos_light_total
         self.jdos_light_if = jdos_light_if
