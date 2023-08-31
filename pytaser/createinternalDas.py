@@ -309,6 +309,9 @@ def occ_dependent_alpha(
     if cshift is None:
         cshift = dfc.cshift
     egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
+ 
+
+    
     
     """Lucas. Probably it is best to just change np.arange to np.linspace."""
     if len(egrid)>dfc.nedos:
@@ -686,9 +689,8 @@ class internalAs:
             )
             if len(egrid_ref)>self.dfc.nedos:
                 egrid_ref=np.delete(egrid_ref, len(egrid_ref)-1)
-            
-            alpha_dark = np.zeros_like(egrid_ref, dtype=np.complex128)
-            
+
+            alpha_dark = np.zeros_like(egrid_ref, dtype=np.complex128)    
 
         for spin, spin_bands in self.bs.bands.items():
             if self.dfc is not None:

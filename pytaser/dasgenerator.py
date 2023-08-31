@@ -6,23 +6,10 @@ Created on Thu Aug  3 16:42:36 2023
 @author: lucasverga
 """
 
-import itertools
-from tqdm import tqdm
 import warnings
 import numpy as np
-from multiprocessing import Pool, cpu_count, Array
-
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.electronic_structure.dos import FermiDos, f0
-from pymatgen.ext.matproj import MPRester
-from pymatgen.io.vasp import optics
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
-from pymatgen.io.vasp.outputs import Vasprun, Waveder
-
-from pytaser.kpoints import get_kpoint_weights
-from pytaser.tas import Tas
 from pytaser.das import Das
-import pytaser.generator as generator
 import pytaser.createinternalDas as createinternalDas
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
