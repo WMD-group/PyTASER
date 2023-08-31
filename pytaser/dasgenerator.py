@@ -161,7 +161,6 @@ class DASGenerator:
                                                                                         gaussian_width,
                                                                                         cshift,
                                                                                         step,
-                                                                                        newSys_occs,
                                                                                         ref_occs,
                                                                                         processes)
         
@@ -174,7 +173,6 @@ class DASGenerator:
                                                                                         cshift,
                                                                                         step,
                                                                                         newSys_occs,
-                                                                                        ref_occs,
                                                                                         processes)            
                     
 
