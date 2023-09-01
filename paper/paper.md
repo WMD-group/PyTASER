@@ -58,7 +58,7 @@ PyTASER is a Python package for simulating TAS spectra for crystalline materials
 TAS is a powerful tool used to characterise the optical properties and time-evolution of electronically excited states in materials. This is achieved by comparing the differences in optical absorption spectra between the ground 'dark' state and a photo-excited 'light' state, with a variable time delay between the two measurements to incorporate the time evolution of the excited state [@porter:1997; @berera:2009]. \autoref{eq:tas_spectrum} shows how this can be calculated.
 
 \begin{equation}\label{eq:tas_spectrum}
-  \\Delta\alpha(\Delta t) =  \alpha_{light}(\Delta t) - \alpha_{dark}
+  \Delta \alpha(\Delta t) =  \alpha_{light}(\Delta t) - \alpha_{dark}
 \end{equation}
 Here, $\alpha$ refers to the effective absorption of the material system at the specified light conditions. $\Delta t$ refers to the time-delay between initial photo-excitation and absorption measurement. 
 
@@ -81,37 +81,37 @@ JDOS is defined as the density of allowed vertical band-to-band transitions base
 Here, $c$ and $v$ refer to the conduction and valence bands respectively. $\varepsilon$ refers to the energy of the respective band at kpoint $\boldsymbol{k}$.
 
 Determining the JDOS for the light state is more difficult, as the initial 'pump' excitation leads to partial occupancies in both the valence and conduction bands, which can contribute to additional *intra*-band optical transitions.
-`PyTASER` uses quasi-Fermi levels [@nelson2003physics; @dresselhaus2001solid] within the bands to address both intra-band and inter-band transitions (\autoref{eq:jdos_pytaser}). The partial occupancies ($f_{i,k}$ and $f_{f,k}$ in \autoref{eq:jdos_pytaser}) within the bands can be estimated by using the Fermi-Dirac distribution [@zannoni1999quantization; dirac1926theory] centred at these quasi-Fermi levels, as the light excitation causes (rapid) thermalisation of the material, resulting in excess charge carriers (holes and electrons).
+`PyTASER` uses quasi-Fermi levels [@nelson2003physics; @dresselhaus2001solid] within the bands to address both intra-band and inter-band transitions (\autoref{eq:jdos_pytaser}). The partial occupancies ($f_{i,k}$ and $f_{f,k}$ in \autoref{eq:jdos_pytaser}) within the bands can be estimated by using the Fermi-Dirac distribution [@zannoni1999quantization; @dirac1926theory] centred at these quasi-Fermi levels, as the light excitation causes (rapid) thermalisation of the material, resulting in excess charge carriers (holes and electrons).
 The use of Fermi-Dirac statistics introduces two variables; the effective temperature and concentration of free carriers in the material. The latter is related to the strength of the initial pump, as well as the pump-probe time delay. These can be used to understand the time-evolution of the material's excited state.
 This approach introduces two variables; the effective temperature and concentration of free carriers in the material. The latter is related to the strength of the initial pump, as well as the pump-probe time delay.
-%
+
 \begin{equation}
 \label{eq:jdos_pytaser}
   \rho\left(\varepsilon, \varepsilon_{F, h}, \varepsilon_{F, e}, T\right) = \frac{2}{8 \pi^3} \sum_i \sum_{f>i} \int \delta\left[\varepsilon_{f, \boldsymbol{k}}-\varepsilon_{i, \boldsymbol{k}}-\varepsilon\right] f_{i, \boldsymbol{k}}\left(1-f_{f, \boldsymbol{k}}\right) d^3 \boldsymbol{k}
 \end{equation}
-%
+
 Here, the subscripts $\varepsilon_{F, h}$ and $\varepsilon_{F, e}$  refer to the quasi-hole and quasi-electron Fermi levels, respectively. The subscripts $i$ and $f$ refer to the initial and final band states. The $f$ variable is the occupancy at the respective band at k-point $\boldsymbol{k}$.
 
 ## Optics method
 
 `PyTASER` can also compute the optical transition probability from the frequency-dependent dielectric functions. The transition dipole moment, \autoref{eq:transition_probability}, is used to estimate the effective absorption strength for each band-to-band transition. 
-%
+
 \begin{equation}
 \label{eq:transition_probability}
   \lambda_{i,f}= \left[\left\langle \phi_{i} | \mu_{T} | \phi_{f} \right\rangle \right]^{2}
 \end{equation}
-%
+
 This naturally takes into account dipole selection rules, for example, forbidden $g$ → $g$ transitions at the $\Gamma$ point in a centrosymmetric crystal. Spin selection rules are also enforced for open-shell materials. By directly comparing the 'no pump' and 'pump' optical absorption values, shown in \autoref{fig:figure1}, this approach can offer a more realistic, albeit more computationally expensive, TAS profile.
 
 ## Differential absorption 
 
 Beyond TAS, we have also included a function to calculate a direct differential absorption spectrum, i.e. 
-%
+
 \begin{equation}
 \label{eq:da}
   \Delta A(\lambda) = A_{final}(\lambda) - A_{initial}(\lambda)
 \end{equation}
-%
+
 Here, A_{final} could represent any change in the environment of the system such as de-lithiation in a battery or a transition state in a catalytic cycle. One caveat we emphasise is that the reliability of the predicted spectra depends on the quality of the underlying optical absorption spectra. There will certainly be cases where the inclusion of excitonic, thermal, and/or relativistic effects is necessary.
 
 # Statement of need
