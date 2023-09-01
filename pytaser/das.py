@@ -64,7 +64,7 @@ class Das:
         self.jdos_newSys_total=jdos_newSys_total
         self.jdos_newSys_if=jdos_newSys_if
         self.jdos_ref_total=jdos_ref_total
-        self.dos_ref_if=jdos_ref_if
+        self.jdos_ref_if=jdos_ref_if
         self.energy_mesh_ev=energy_mesh_ev
         self.bandgap_newSys=bandgap_newSys
         self.bandgap_ref=bandgap_ref
