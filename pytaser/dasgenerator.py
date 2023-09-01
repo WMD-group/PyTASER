@@ -84,7 +84,6 @@ class DASGenerator:
     def generate_das(
         self,
         temp,
-        conc,
         energy_min=0,
         energy_max=5,
         gaussian_width=0.1,
@@ -104,8 +103,6 @@ class DASGenerator:
 
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
-            conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
-                Inversely proportional to pump-probe time delay.
             energy_min: Minimum band transition energy to consider for energy mesh (eV)
             energy_max: Maximum band transition energy to consider for energy mesh (eV)
             gaussian_width: Width of gaussian curve
@@ -135,7 +132,6 @@ class DASGenerator:
                 - energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
                 - bandgap: Bandgap of the system, in eV, rounded to 2 decimal points
                 - temp: Temperature of the system, in K
-                - conc: Carrier concentration of the system, in cm^-3
                 - alpha_ref: Absorption coefficient of the reference system, in cm^-1 (only
                     calculated if the DASGenerator has been generated from VASP outputs)
                 - alpha_newSys: Absorption coefficient of the new system, in cm^-1 (only
@@ -151,11 +147,12 @@ class DASGenerator:
                     the transition [dict]
         """
         bandgap_ref = round(self.referenceSystem.bs.get_band_gap()["energy"], 2)
+        bandgap_newSys = round(self.newSystem.bs.get_band_gap()["energy"], 2)
+
         energy_mesh_ev = np.arange(energy_min, energy_max, step)            
 
         jdos_ref_total,jdos_ref_if,alpha_ref,weighted_jdos_ref_if=createinternalDas.internalAs.generate_As(self.referenceSystem,
                                                                                         temp,
-                                                                                        conc,
                                                                                         energy_min,
                                                                                         energy_max,
                                                                                         gaussian_width,
@@ -166,7 +163,6 @@ class DASGenerator:
         
         jdos_newSys_total,jdos_newSys_if,alpha_newSys,weighted_jdos_newSys_if=createinternalDas.internalAs.generate_As(self.newSystem,
                                                                                         temp,
-                                                                                        conc,
                                                                                         energy_min,
                                                                                         energy_max,
                                                                                         gaussian_width,
@@ -194,11 +190,11 @@ class DASGenerator:
             jdos_ref_total,
             jdos_ref_if,
             energy_mesh_ev,
+            bandgap_newSys,
             bandgap_ref,
             temp,
-            conc,
-            alpha_ref if self.referenceSystem.dfc is not None else None,
             alpha_newSys if self.newSystem.dfc is not None else None,
+            alpha_ref if self.referenceSystem.dfc is not None else None,
             weighted_jdos_newSys_if if self.newSystem.dfc is not None else None,
             weighted_jdos_ref_if if self.referenceSystem.dfc is not None else None,
             weighted_jdos_diff_if if self.referenceSystem.dfc is not None else None,
