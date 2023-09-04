@@ -121,8 +121,6 @@ class DASGenerator:
         Returns:
             DAS class containing the following inputs;
                 - das_total: overall deltaT DAS spectrum for new system - reference system.
-                - jdos_diff_if: JDOS difference (from reference system to new system) across 
-                the energy mesh for a specific band transition i (initial) -> f (final) [dict]
                 - jdos_newSys_total: overall JDOS for the new system. 
                 - jdos_newSys_if: JDOS for the new system across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
@@ -140,9 +138,6 @@ class DASGenerator:
                     mesh for a specific band transition i (initial) -> f (final), weighted by the
                     oscillator strength of the transition [dict]
                 - weighted_jdos_newSys_if: JDOS of new system across the energy mesh for a specific band
-                    transition i (initial) -> f (final), weighted by the oscillator strength of
-                    the transition [dict]
-                - weighted_jdos_ref_if: JDOS of reference system across the energy mesh for a specific band
                     transition i (initial) -> f (final), weighted by the oscillator strength of
                     the transition [dict]
         """
@@ -172,9 +167,6 @@ class DASGenerator:
                                                                                         processes)            
                     
 
-        # need to fix the creation of jdos_diff_if and weighted_jdos_diff_if
-        jdos_diff_if=jdos_newSys_if
-        weighted_jdos_diff_if=weighted_jdos_newSys_if
 
         das_total = jdos_newSys_total-jdos_ref_total                
         # need to interpolate alpha arrays onto JDOS energy mesh:
@@ -184,7 +176,6 @@ class DASGenerator:
 
         return Das(
             das_total,
-            jdos_diff_if,
             jdos_newSys_total,
             jdos_newSys_if,
             jdos_ref_total,
@@ -197,6 +188,5 @@ class DASGenerator:
             alpha_ref if self.referenceSystem.dfc is not None else None,
             weighted_jdos_newSys_if if self.newSystem.dfc is not None else None,
             weighted_jdos_ref_if if self.referenceSystem.dfc is not None else None,
-            weighted_jdos_diff_if if self.referenceSystem.dfc is not None else None,
         )
 

@@ -44,7 +44,6 @@ class Das:
     def __init__(
         self,
         das_total,
-        jdos_diff_if,
         jdos_newSys_total,
         jdos_newSys_if,
         jdos_ref_total,
@@ -57,10 +56,8 @@ class Das:
         alpha_ref=None,
         weighted_jdos_newSys_if=None,
         weighted_jdos_ref_if=None,
-        weighted_jdos_diff_if=None,
     ):
         self.das_total=das_total
-        self.jdos_diff_if=jdos_diff_if    
         self.jdos_newSys_total=jdos_newSys_total
         self.jdos_newSys_if=jdos_newSys_if
         self.jdos_ref_total=jdos_ref_total
@@ -73,7 +70,6 @@ class Das:
         self.alpha_ref=alpha_ref
         self.weighted_jdos_newSys_if=weighted_jdos_newSys_if 
         self.weighted_jdos_ref_if=weighted_jdos_ref_if
-        self.weighted_jdos_diff_if=weighted_jdos_diff_if
 
     def as_dict(self):
         """
@@ -83,7 +79,6 @@ class Das:
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "das_total": self.das_total,
-            "jdos_diff_if": self.jdos_diff_if,
             "jdos_newSys_total": self.jdos_newSys_total,
             "jdos_newSys_if": self.jdos_newSys_if,
             "jdos_ref_total": self.jdos_ref_total,
@@ -96,7 +91,6 @@ class Das:
             "alpha_ref": self.alpha_ref,
             "weighted_jdos_newSys_if": self.weighted_jdos_newSys_if,
             "weighted_jdos_ref_if": self.weighted_jdos_ref_if,
-            "weighted_jdos_diff_if": self.weighted_jdos_diff_if,
         }
         for key, value in json_dict.items():
             if isinstance(value, dict):
