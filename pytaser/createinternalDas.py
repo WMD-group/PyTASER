@@ -205,7 +205,7 @@ class internalAs:
 
 
         if self.dfc is not None:
-            egrid = np.linspace(0, dfc.nedos * dfc.deltae, dfc.nedos, endpoint=False)
+            egrid = np.linspace(0, self.dfc.nedos * self.dfc.deltae, self.dfc.nedos, endpoint=False)
 
             alpha_dark = np.zeros_like(egrid, dtype=np.complex128)    
 
