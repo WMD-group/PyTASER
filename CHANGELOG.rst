@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2.1.3
+~~~~~~
+- Change of np.arange to np.linspace to avoid e_grid arrays with sizes different from NEDOS. (see the warning on numpy.arange documentation)
+
 v2.1.2
 ~~~~~~
 - Remove broken links from docs

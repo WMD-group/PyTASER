@@ -179,12 +179,7 @@ def _calculate_oscillator_strength(args):
         nx=nedos,
         dx=deltae,
         ismear=ismear,
-    )
-
-    """Lucas. Probably it is best to just change np.arange to np.linspace within optics.get_delta."""
-    if len(smeared_wout_matrix_el)>nedos:
-                smeared_wout_matrix_el=np.delete(smeared_wout_matrix_el, len(smeared_wout_matrix_el)-1)
- 
+    ) 
 
     absorption = smeared_wout_matrix_el * abs_matrix_el
     emission = smeared_wout_matrix_el * em_matrix_el
@@ -296,10 +291,9 @@ def occ_dependent_alpha(
         sigma = dfc.sigma
     if cshift is None:
         cshift = dfc.cshift
-    egrid = np.arange(0, dfc.nedos * dfc.deltae, dfc.deltae)
-    """Lucas. Probably it is best to just change np.arange to np.linspace."""
-    if len(egrid)>dfc.nedos:
-                egrid=np.delete(egrid, len(egrid)-1)
+
+    egrid = np.linspace(0, dfc.nedos * dfc.deltae, dfc.nedos, endpoint=False)
+
     dielectric_dict = {
         key: np.zeros_like(egrid, dtype=np.complex128)
         for key in ["absorption", "emission", "both"]
@@ -675,9 +669,9 @@ class TASGenerator:
         jdos_light_total = np.zeros(len(energy_mesh_ev))
 
         if self.dfc is not None:
-            egrid = np.arange(
-                0, self.dfc.nedos * self.dfc.deltae, self.dfc.deltae
-            )
+            egrid = np.linspace(
+                0, self.dfc.nedos * self.dfc.deltae, self.dfc.nedos,endpoint=False
+                                        )
             alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
             alpha_light_dict = {
                 key: np.zeros_like(egrid, dtype=np.complex128)
