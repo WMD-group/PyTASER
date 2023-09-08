@@ -179,7 +179,7 @@ def _calculate_oscillator_strength(args):
         nx=nedos,
         dx=deltae,
         ismear=ismear,
-    )
+    ) 
 
     absorption = smeared_wout_matrix_el * abs_matrix_el
     emission = smeared_wout_matrix_el * em_matrix_el
@@ -291,7 +291,9 @@ def occ_dependent_alpha(
         sigma = dfc.sigma
     if cshift is None:
         cshift = dfc.cshift
+
     egrid = np.linspace(0, dfc.nedos * dfc.deltae, dfc.nedos, endpoint=False)
+
     dielectric_dict = {
         key: np.zeros_like(egrid, dtype=np.complex128)
         for key in ["absorption", "emission", "both"]
@@ -375,7 +377,7 @@ def occ_dependent_alpha(
 
     results_array = np.array(
         results, dtype=object
-    )  # dtype=object ensures that data is preserved
+    )  # dtype=object ensures that data is preserved               
 
     # Accumulate the results
     dielectric_dict["absorption"] += results_array[:, 0].sum()
