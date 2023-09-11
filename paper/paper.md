@@ -23,6 +23,7 @@ authors:
     equal-contrib: false
     affiliation: "1, 3"	
   - name: Lucas G. Verga
+    orcid: 0000-0002-7453-238X
     equal-contrib: false
     affiliation: "1" # (Multiple affiliations must be quoted)		
   - name: Alex M. Ganose
@@ -67,7 +68,7 @@ The drawback of modern TAS is that the spectra are often difficult to interpret 
 
 With `PyTASER`, we provide a simple yet powerful method to simulate TAS for crystalline materials, using data obtained from first principles calculations. This will not only assist experimentalists in comparing their data with theoretical estimates, but also encourage the mapping of a material's electronic structure with its optical properties under excitation, providing a wider understanding of complex materials. 
 
-PyTASER uses the principle of allowed vertical optical transitions between material bands to identify the possible excitations that can occur in the respective ground 'dark' and excited 'light' stages. It does this by calculating the effective absorption for each state; a product of the material's joint density of states (JDOS) and the transition probability for each band transition. These are based on post-processing of density functional theory calculations. Once calculated, `PyTASER` then compares the change in electronic transitions between the dark and light states. 
+PyTASER uses the principle of allowed vertical optical transitions between material bands to identify the possible excitations that can occur in the respective ground 'dark' and excited 'light' stages. It does this by calculating the effective absorption for each state; a product of the material's joint density of states (JDOS) and the transition probability for each band transition. These are based on post-processing of density functional theory calculations for the ground state. Once calculated, `PyTASER` then compares the change in electronic transitions between the dark and light states. 
 
 ![Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited `light` state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots. \label{fig:figure1}](Fig1.pdf){width=100mm}
 
@@ -83,7 +84,6 @@ Here, $c$ and $v$ refer to the conduction and valence bands respectively. $\vare
 Determining the JDOS for the light state is more difficult, as the initial 'pump' excitation leads to partial occupancies in both the valence and conduction bands, which can contribute to additional *intra*-band optical transitions.
 `PyTASER` uses quasi-Fermi levels [@nelson2003physics; @dresselhaus2001solid] within the bands to address both intra-band and inter-band transitions (\autoref{eq:jdos_pytaser}). The partial occupancies ($f_{i,k}$ and $f_{f,k}$ in \autoref{eq:jdos_pytaser}) within the bands can be estimated by using the Fermi-Dirac distribution [@zannoni1999quantization; @dirac1926theory] centred at these quasi-Fermi levels, as the light excitation causes (rapid) thermalisation of the material, resulting in excess charge carriers (holes and electrons).
 The use of Fermi-Dirac statistics introduces two variables; the effective temperature and concentration of free carriers in the material. The latter is related to the strength of the initial pump, as well as the pump-probe time delay. These can be used to understand the time-evolution of the material's excited state.
-This approach introduces two variables; the effective temperature and concentration of free carriers in the material. The latter is related to the strength of the initial pump, as well as the pump-probe time delay.
 
 \begin{equation}
 \label{eq:jdos_pytaser}
@@ -105,7 +105,7 @@ This naturally takes into account dipole selection rules, for example, forbidden
 
 ## Differential absorption 
 
-Beyond TAS, we have also included a function to calculate a direct differential absorption spectrum, i.e. 
+Beyond TAS, we have also included a function to calculate a direct differential absorption spectrum, i.e., the difference between the ground state optical absorption spectra of two systems, that can be calculated using \autoref{eq:da}.  
 
 \begin{equation}
 \label{eq:da}
