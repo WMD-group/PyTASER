@@ -23,6 +23,7 @@ authors:
     equal-contrib: false
     affiliation: "1, 3"	
   - name: Lucas G. Verga
+    orcid: 0000-0002-7453-238X
     equal-contrib: false
     affiliation: "1" # (Multiple affiliations must be quoted)		
   - name: Alex M. Ganose
@@ -65,7 +66,7 @@ The drawback of modern TAS is that the spectra are often difficult to interpret 
 
 `PyTASER` is a Python package for simulating TAS spectra for crystalline materials from first-principles electronic structure calculations. This facilitates mapping from the electronic band structure of a material to changes in its optical properties upon excitation. The code allows input of local data from density functional theory (DFT) calculations, and is also interfaced with the Materials Project database [@materials_project] to allow rapid or high-throughput predictions based on the pre-computed electronic structures found there. This will not only assist experimentalists in comparing their data with theoretical estimates, but also encourage a wider understanding of complex materials and their associated optical properties. 
 
-`PyTASER` identifies the allowed vertical optical transitions between the material's electronic bands to determine the possible excitations that can occur in the respective ground 'dark' and excited 'light' stages. It does this by calculating the effective absorption for each state; a product of the material's joint density of states (JDOS) and the transition probability for each band transition. These are based on post-processing of density functional theory calculations. Once calculated, `PyTASER` then compares the change in electronic transitions between the dark and light states. 
+`PyTASER` identifies the allowed vertical optical transitions between the material's electronic bands to determine the possible excitations that can occur in the respective ground 'dark' and excited 'light' stages. It does this by calculating the effective absorption for each state; a product of the material's joint density of states (JDOS) and the transition probability for each band transition. These are based on post-processing of ground-state density functional theory calculations. Once calculated, `PyTASER` then compares the change in electronic transitions between the dark and light states. 
 
 ![Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited `light` state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots. \label{fig:figure1}](Fig1.pdf){width=100mm}
 
@@ -102,7 +103,7 @@ This naturally takes into account dipole selection rules, for example, forbidden
 
 ## Differential absorption 
 
-Beyond TAS, we have also included a function to calculate a direct differential absorption spectrum, i.e. 
+Beyond TAS, we have also included a function to calculate a direct differential absorption spectrum (the difference between the ground-state optical absorption spectra of two systems), calculated using \autoref{eq:da}. 
 
 \begin{equation}
 \label{eq:da}
