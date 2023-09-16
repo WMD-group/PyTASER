@@ -1,5 +1,5 @@
 """"
-PyTASER: TAS prediction tool
+PyTASER: transient absorption prediction tool
 """
 
 
