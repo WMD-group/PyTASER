@@ -62,11 +62,11 @@ TAS is a powerful tool used to characterise the optical properties and time-evol
 Here, $\alpha$ refers to the effective absorption of the material system at the specified light conditions. $\Delta t$ refers to the time-delay between initial photo-excitation and absorption measurement. 
 
 The approach is widely used to understand microscopic processes in photochemical and electrochemical transformations, including complex phenomena such as electron trapping and carrier recombination [@clarke:2010; @kafizas:2016], which dictate performance across many optoelectronic applications, such as solar cells [@kavanagh2021rapid], photocatalysts [@pastor2022electronic] and LEDs [@huang2021perovskite]. 
-The drawback of modern TAS is that the spectra are often difficult to interpret - especially for crystals, where specific valence and conduction band structures can give rise to complex features. As a result, it is difficult for experimentalists to test optical properties for materials, especially between different experimental setups.
+The drawback of modern TAS is that the spectra are often difficult to interpret - especially for crystals, where specific valence and conduction band structures can give rise to complex features. As a result, experimental researchers are often bottlenecked by analysis and interpretation when testing for optical properties of materials using TAS. This is especially relevant when comparing between often-varying experimental setups.
 
 `PyTASER` is a Python package for simulating TAS spectra for crystalline materials from first-principles electronic structure calculations. This facilitates mapping from the electronic band structure of a material to changes in its optical properties upon excitation. The code allows input of local data from density functional theory (DFT) calculations, and is also interfaced with the Materials Project database [@materials_project] to allow rapid or high-throughput predictions based on the pre-computed electronic structures found there. This will not only assist experimentalists in comparing their data with theoretical estimates, but also encourage a wider understanding of complex materials and their associated optical properties. 
 
-`PyTASER` identifies the allowed vertical optical transitions between the material's electronic bands to determine the possible excitations that can occur in the respective ground 'dark' and excited 'light' stages. It does this by calculating the effective absorption for each state; a product of the material's joint density of states (JDOS) and the transition probability for each band transition. These are based on post-processing of ground-state density functional theory calculations. Once calculated, `PyTASER` then compares the change in electronic transitions between the dark and light states. 
+`PyTASER` identifies the allowed vertical optical transitions between the electronic bands of the material to determine the possible excitations that can occur in the respective ground 'dark' and excited 'light' stages. It does this by calculating the effective absorption for each state; a product of the joint density of states (JDOS) in the material and the transition probability for each band transition. These are based on post-processing of ground-state density functional theory calculations. Once calculated, `PyTASER` then compares the change in electronic transitions between the dark and light states. 
 
 ![Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited `light` state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots. \label{fig:figure1}](Fig1.pdf){width=100mm}
 
@@ -81,7 +81,7 @@ Here, $c$ and $v$ refer to the conduction and valence bands respectively. $\vare
 
 Determining the JDOS for the light state is more difficult, as the initial 'pump' excitation leads to partial occupancies in both the valence and conduction bands, which can contribute to additional optical transitions within these bands.
 `PyTASER` uses quasi-Fermi levels [@nelson2003physics; @dresselhaus2001solid] to address such band transitions, deviating from specific valence-to-conduction band transitions to favour initial-to-final band transitions (\autoref{eq:jdos_pytaser}). The partial occupancies ($f_{i,k}$ and $f_{f,k}$ in \autoref{eq:jdos_pytaser}) centred at these quasi-Fermi levels can be estimated by using the Fermi-Dirac distribution [@zannoni1999quantization; @dirac1926theory] as the light excitation introduces excess charge carriers (holes and electrons) into the material.
-The use of Fermi-Dirac statistics introduces two variables; the effective temperature and concentration of free carriers in the material. The latter is related to the strength of the initial pump, as well as the pump-probe time delay. These can be used to understand the time-evolution of the material's excited state.
+The use of Fermi-Dirac statistics introduces two variables; the effective temperature and concentration of free carriers in the material. The latter is related to the strength of the initial pump, as well as the pump-probe time delay. These can be used to understand the time-evolution of the excited state in the material.
 
 \begin{equation}
 \label{eq:jdos_pytaser}
@@ -107,10 +107,10 @@ Beyond TAS, we have also included a function to calculate a direct differential 
 
 \begin{equation}
 \label{eq:da}
-  \Delta A(\lambda) = A_{final}(\lambda) - A_{initial}(\lambda)
+  \Delta \alpha(\lambda) = \alpha_{final}(\lambda) - \alpha_{initial}(\lambda)
 \end{equation}
 
-Here, $A_{final}$ could represent any change in the environment of the system such as de-lithiation in a battery or a transition state in a catalytic cycle. One caveat we emphasise is that the reliability of the predicted spectra depends on the quality of the underlying optical absorption spectra. There will certainly be cases where the inclusion of excitonic, thermal, and/or relativistic effects is necessary.
+Here, $\alpha_{final}$ could represent any change in the environment of the system such as de-lithiation in a battery or a transition state in a catalytic cycle. One caveat we emphasise is that the reliability of the predicted spectra depends on the quality of the underlying optical absorption spectra. There will certainly be cases where the inclusion of excitonic, thermal, and/or relativistic effects is necessary.
 
 # Statement of need
 
@@ -124,7 +124,7 @@ Here, $A_{final}$ could represent any change in the environment of the system su
 - Interfaced with the popular materials analysis package [`pymatgen`](https://pymatgen.org/) [@pymatgen]. 
 - Currently compatible with [VASP](https://www.vasp.at/wiki/index.php/The_VASP_Manual), the most popular electronic structure calculation code [@vasp]. Other codes can also be added with a small amount of coding effort. 
 
-A notable feature in `PyTASER` is the ability to decompose individual band transitions alongside the overall spectrum (\autoref{fig:figure2}). As a result, users can determine the band contributions to different spectral features. In experiments, this is a difficult process, requiring numerous stages of analysis and a deep understanding of the material's electronic structure [@wang:2015; @kafizas:2016]. By identifying the key bands, this feature greatly simplifies the process of identifying atomistic origins of electronic states, which is important for identifying the decay kinetics of such states.
+A notable feature in `PyTASER` is the ability to decompose individual band transitions alongside the overall spectrum (\autoref{fig:figure2}). As a result, users can determine the band contributions to different spectral features. In experiments, this is a difficult process, requiring numerous stages of analysis and a deep understanding of the electronic structure of the material [@wang:2015; @kafizas:2016]. By identifying the key bands, this feature greatly simplifies the process of identifying atomistic origins of electronic states, which is important for identifying the decay kinetics of such states.
 In addition to the overall spectrum, `PyTASER` can plot individual contributions for the separate light and dark states, showcasing their respective contributing transitions. 
 
 ![A 'decomposed' TAS spectrum for GaAs, calculated using data from the Materials Project. This plot indicates that the '-1,0' (orange) and '-2,-1' (pink) band transitions contribute most towards the TAS spectrum in the bandgap (blue, dashed) region, in these conditions. \label{fig:figure2}](Fig2.png){width=100mm}
