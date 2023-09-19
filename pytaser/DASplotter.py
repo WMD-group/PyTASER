@@ -246,11 +246,11 @@ class dasplotter:
             return output_list_of_curves
 
         if yaxis.lower() == "das":
-            abs_label = "ΔA (a.u.)"
+            abs_label = "Absorption (cm$^{-1}$)"
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
                 self.das_total[xmin_ind:xmax_ind],
-                label="DAS",
+                label="ΔA",
                 color="black",
                 lw=2.5,
                 alpha=0.75,  # make semi-transparent to show if overlapping lines
