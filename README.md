@@ -11,9 +11,7 @@
 
 [Official Documentation](https://pytaser.readthedocs.io/en/latest/)
 
-PyTASER is a Python (3.9+) library for simulating differential absorption in general, and transient absorption spectroscopy (TAS) in particular, features from 
-quantum chemical calculations of crystals. The goal of this library is to simulate spectra for comparison with and interpretation of 
-experiments. The main features include:
+PyTASER is a Python (3.9+) library for simulating differential absorption in general, and transient absorption spectroscopy (TAS) in particular, features from quantum chemical calculations of crystals. The goal of this library is to simulate spectra for comparison with and interpretation of experiments. The main features include:
 
 * Spectra for insulating and semiconducting crystals
 * Components from individual band-to-band transitions
@@ -64,8 +62,8 @@ This command tries to obtain the required packages and their dependencies and in
 
 # Visualisation 
 
-One method is to generate a Jupyter Notebook, as shown in the [examples](https://github.com/WMD-group/PyTASER/blob/main/examples) folder.
-Alternatively, you can set up a file in Python to run it in the command line of the terminal:
+One approach is to use a Jupyter Notebook, as shown in the [examples](https://github.com/WMD-group/PyTASER/blob/main/examples) folder.
+Alternatively, you can set up a file in Python to run in the command line of the terminal:
 ```
 python3 <filename.py>
 ```
@@ -82,7 +80,7 @@ Please feel free to reach out to us via the [Issue Tracker](https://github.com/W
 
 # Testing
 
-Unit tests are in the `tests` directory and can be run from the top directory using pytest. Automatic testing is run on the master and develop branches using GH Actions. 
+Unit tests are in the `tests` directory and can be run from the top directory using [pytest](https://pytest.org). Automatic testing is run on the master and develop branches using Github Actions. 
 
 Please run tests and add new tests for any new features whenever submitting pull requests.
 
