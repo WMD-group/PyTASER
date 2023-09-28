@@ -9,7 +9,7 @@ Created on Thu Aug  3 16:42:36 2023
 import warnings
 import numpy as np
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
-from pytaser.das import Das
+from pytaser.tas import Das
 import pytaser.createinternalDas as createinternalDas
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -173,7 +173,6 @@ class DASGenerator:
         if self.referenceSystem.dfc and self.newSystem.dfc is not None:         
             das_total = (alpha_newSys-alpha_ref)    
             
-
         return Das(
             das_total,
             jdos_newSys_total,
