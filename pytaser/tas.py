@@ -133,8 +133,6 @@ class Tas:
 
         d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
         d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
-        del d_decoded["@module"]
-        del d_decoded["@class"]
         return cls(**d_decoded)
 
 class Das:
@@ -242,7 +240,5 @@ class Das:
 
         d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
         d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
-        del d_decoded["@module"]
-        del d_decoded["@class"]
 
         return cls(**d_decoded)   
