@@ -15,9 +15,9 @@ def test_ev_to_lambda():
     assert round(ev_to_lambda(input_ev), 2) == 495.94
 
 
-def test_lamda_to_ev():
-    input_lamda = 495.94
-    assert round(lambda_to_ev(input_lamda), 2) == 2.5
+def test_lambda_to_ev():
+    input_lambda = 495.94
+    assert round(lambda_to_ev(input_lambda), 2) == 2.5
 
 
 def test_cutoff_transitions(plotter_gaas):
