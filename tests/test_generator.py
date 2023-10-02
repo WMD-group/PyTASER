@@ -7,7 +7,7 @@ from deepdiff import DeepDiff
 from monty.serialization import dumpfn, loadfn
 from pymatgen.electronic_structure.core import Spin
 
-from pytaser import generator
+from pytaser import generator, tas
 
 
 def test_gaussian(datapath_gaas):
@@ -305,6 +305,50 @@ def test_save_and_load_tas_to_json(
             )
 
         os.remove("tas.json")  # cleanup
+
+
+def test_save_and_load_tas_to_dict(
+    tas_object, cdte_tas_object, cdte_vasp_tas_object
+):
+    for tas_object in [tas_object, cdte_tas_object, cdte_vasp_tas_object]:
+        tas_as_dict = tas_object.as_dict()
+        tas_object_loaded = tas.Tas.from_dict(tas_as_dict)
+
+        # assert attributes are equal:
+        np.testing.assert_array_almost_equal(
+            tas_object.tas_total, tas_object_loaded.tas_total, decimal=1
+        )
+        for dict_attribute in [
+            "jdos_diff_if",
+            "jdos_light_if",
+            "jdos_dark_if",
+            "alpha_light_dict",
+            "weighted_jdos_light_if",
+            "weighted_jdos_dark_if",
+            "weighted_jdos_diff_if",
+        ]:
+            if getattr(tas_object, dict_attribute) is not None:
+                for key, array in getattr(tas_object, dict_attribute).items():
+                    np.testing.assert_array_almost_equal(
+                        array, getattr(tas_object_loaded, dict_attribute)[key]
+                    )
+        np.testing.assert_array_almost_equal(
+            tas_object.jdos_light_total, tas_object_loaded.jdos_light_total
+        )
+        np.testing.assert_array_almost_equal(
+            tas_object.jdos_dark_total, tas_object_loaded.jdos_dark_total
+        )
+        np.testing.assert_array_almost_equal(
+            tas_object.energy_mesh_ev, tas_object_loaded.energy_mesh_ev
+        )
+        assert tas_object.bandgap == tas_object_loaded.bandgap
+        assert tas_object.temp == tas_object_loaded.temp
+        assert tas_object.conc == tas_object_loaded.conc
+
+        if tas_object.alpha_dark is not None:
+            np.testing.assert_array_almost_equal(
+                tas_object.alpha_dark, tas_object_loaded.alpha_dark
+            )
 
 
 def test_generate_tas(generated_class, light, dark, tas_object, conditions):
