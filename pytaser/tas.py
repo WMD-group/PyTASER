@@ -134,4 +134,9 @@ class Tas:
 
         d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
         d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
+
+        for monty_key in ["@module", "@class"]:
+            if monty_key in d_decoded.keys():
+                d_decoded.pop(monty_key)
+
         return cls(**d_decoded)

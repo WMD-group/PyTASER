@@ -1,6 +1,11 @@
 Change log
 ==========
 
+v2.1.4
+~~~~~~
+- Addition of MAPI example outputs download instructions to DFT example by @youngwonwoo.
+- Update to `from_dict()` method for `Tas` objects by @kavanase & @LucasGVerga
+
 v2.1.3
 ~~~~~~
 - Change of np.arange to np.linspace to avoid e_grid arrays with sizes different from NEDOS. (see the warning on numpy.arange documentation)
