@@ -11,13 +11,16 @@ from scipy.signal import argrelextrema
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+
 def ev_to_lambda(ev):
     """Convert photon energies from eV to a wavelength in nm."""
     return ((scpc.h * scpc.c) / (ev * scpc.electron_volt)) * 10e8
 
+
 def lambda_to_ev(lambda_float):
     """Convert photon energies from a wavelength in nm to eV."""
     return (10e8 * (scpc.h * scpc.c)) / (lambda_float * scpc.electron_volt)
+
 
 def cutoff_transitions(dictionary, cutoff, ind_xmin, ind_xmax):
     """Output a list of transitions from a dict, with any that fall below a percentage cutoff of
@@ -50,7 +53,7 @@ class TASPlotter:
 
     def __init__(
         self,
-        container, 
+        container,
         material_name=None,
         system_name=None,
         reference_name=None,
@@ -61,14 +64,13 @@ class TASPlotter:
         self.system_name = system_name
         self.energy_mesh_lambda = ev_to_lambda(self.energy_mesh_ev)
         self.temp = container.temp
-        
+
         if isinstance(container, Tas):
             self.fill_container_tas(container)
         else:
-            self.fill_container_das(container)     
+            self.fill_container_das(container)
 
-
-    def fill_container_tas(self,container):
+    def fill_container_tas(self, container):
         self.tas_total = container.tas_total
         self.jdos_diff_if = container.jdos_diff_if
         self.jdos_light_total = container.jdos_light_total
@@ -86,27 +88,28 @@ class TASPlotter:
 
         return None
 
-
-    def fill_container_das(self,container):
+    def fill_container_das(self, container):
         self.das_total = container.das_total
         self.alpha_newSys = container.alpha_newSys
         self.alpha_ref = container.alpha_ref
         self.bandgap_ref = container.bandgap_ref
-        if self.bandgap_ref<=0.01:
-            print("Band gap < 0.01. Settiing to 0.01 eV to avoid division by zero when converting energies from eV to wavelength in nm.")
+        if self.bandgap_ref <= 0.01:
+            print(
+                "Band gap < 0.01. Settiing to 0.01 eV to avoid division by zero when converting energies from eV to wavelength in nm."
+            )
             self.bandgap_ref_lambda = ev_to_lambda(0.01)
         else:
             self.bandgap_ref_lambda = ev_to_lambda(self.bandgap_ref)
 
         self.bandgap_newSys = container.bandgap_newSys
-        if self.bandgap_newSys<=0.01:
-            print("Band gap < 0.01. Settiing to 0.01 eV to avoid division by zero when converting energies from eV to wavelength in nm.")
+        if self.bandgap_newSys <= 0.01:
+            print(
+                "Band gap < 0.01. Settiing to 0.01 eV to avoid division by zero when converting energies from eV to wavelength in nm."
+            )
             self.bandgap_newSys_lambda = ev_to_lambda(0.01)
-        else:    
+        else:
             self.bandgap_newSys_lambda = ev_to_lambda(self.bandgap_newSys)
-        return None    
-
-
+        return None
 
     def get_plot(
         self,
@@ -195,7 +198,7 @@ class TASPlotter:
         energy_mesh = 0
         bg = 0
         bg_ref = 0
-        bg_newSys = 0        
+        bg_newSys = 0
         plt.figure(figsize=(12, 8))
         xmin_ind = 0
         xmax_ind = -1
@@ -210,7 +213,7 @@ class TASPlotter:
                 bg = self.bandgap_ref_lambda
                 bg_ref = self.bandgap_ref_lambda
                 bg_newSys = self.bandgap_newSys_lambda
-            else:             
+            else:
                 bg = self.bandgap_lambda
             plt.xlabel("Wavelength (nm)", fontsize=30)
 
@@ -224,7 +227,7 @@ class TASPlotter:
                 bg = self.bandgap_ref
                 bg_ref = self.bandgap_ref
                 bg_newSys = self.bandgap_newSys
-            else:    
+            else:
                 bg = self.bandgap
             plt.xlabel("Energy (eV)", fontsize=30)
 
@@ -318,8 +321,7 @@ class TASPlotter:
                     ]
                 )
                 transition_dict = {
-                    k: v
-                    / max_jdos_diff
+                    k: v / max_jdos_diff
                     for k, v in self.weighted_jdos_diff_if.items()
                 }
                 if "tas" in yaxis.lower():
@@ -656,20 +658,14 @@ class TASPlotter:
                             )
 
         elif yaxis.lower() == "das":
-            if (
-                (self.system_name is not None)
-            ):
+            if self.system_name is not None:
                 # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
-                label_name = re.sub(
-                    r"(\d)", r"$_{\1}$", self.system_name
-                )
-            if (
-                (self.reference_name is not None)
-            ):
+                label_name = re.sub(r"(\d)", r"$_{\1}$", self.system_name)
+            if self.reference_name is not None:
                 # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
                 labe_name_ref = re.sub(
                     r"(\d)", r"$_{\1}$", self.reference_name
-                )    
+                )
             abs_label = "Absorption (cm$^{-1}$)"
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
@@ -695,8 +691,7 @@ class TASPlotter:
                 lw=2.5,
                 alpha=0.75,  # make semi-transparent to show if overlapping lines
             )
-        
-        
+
         plt.ylabel(abs_label, fontsize=30)
         y_axis_min, y_axis_max = plt.gca().get_ylim()
 
@@ -706,7 +701,7 @@ class TASPlotter:
         if ymin is None:
             ymin = y_axis_min
 
-        if yaxis.lower() == "das":        
+        if yaxis.lower() == "das":
             if bg_ref is not None and bg_newSys is not None:
                 y_bg = np.linspace(ymin, ymax)
                 x_bg_ref = np.empty(len(y_bg), dtype=float)
@@ -714,8 +709,20 @@ class TASPlotter:
                 x_bg_newSys = np.empty(len(y_bg), dtype=float)
                 x_bg_newSys.fill(bg_newSys)
 
-                plt.plot(x_bg_ref, y_bg, label=labe_name_ref+" Bandgap",color="red", ls="--")
-                plt.plot(x_bg_newSys, y_bg, label=label_name+ " Bandgap",color="blue", ls="--")
+                plt.plot(
+                    x_bg_ref,
+                    y_bg,
+                    label=labe_name_ref + " Bandgap",
+                    color="red",
+                    ls="--",
+                )
+                plt.plot(
+                    x_bg_newSys,
+                    y_bg,
+                    label=label_name + " Bandgap",
+                    color="blue",
+                    ls="--",
+                )
         else:
             if bg is not None:
                 y_bg = np.linspace(ymin, ymax)
@@ -723,7 +730,6 @@ class TASPlotter:
                 x_bg.fill(bg)
 
                 plt.plot(x_bg, y_bg, label="Bandgap", ls="--")
-       
 
         if xaxis == "wavelength" and any(i is None for i in [xmax, xmin]):
             # rescale xmax so it doesn't extend to near-infinity and xmin so
@@ -768,18 +774,14 @@ class TASPlotter:
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
 
-        if yaxis.lower() == "das": 
-            if (
-                (self.material_name is not None)
-            ):
+        if yaxis.lower() == "das":
+            if self.material_name is not None:
                 # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
                 formatted_material_name = re.sub(
                     r"(\d)", r"$_{\1}$", self.material_name
                 )
             plt.title(
-                abs_label
-                + " spectrum of "
-                + formatted_material_name,
+                abs_label + " spectrum of " + formatted_material_name,
                 fontsize=25,
             )
         else:
