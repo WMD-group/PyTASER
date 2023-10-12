@@ -91,7 +91,7 @@ class TASPlotter:
 
     def fill_container_das(self, container):
         self.das_total = container.das_total
-        self.alpha_newSys = container.alpha_newSys
+        self.alpha_new_sys = container.alpha_new_sys
         self.alpha_ref = container.alpha_ref
         self.bandgap_ref = container.bandgap_ref
         if self.bandgap_ref <= 0.01:
@@ -102,14 +102,14 @@ class TASPlotter:
         else:
             self.bandgap_ref_lambda = ev_to_lambda(self.bandgap_ref)
 
-        self.bandgap_newSys = container.bandgap_newSys
-        if self.bandgap_newSys <= 0.01:
+        self.bandgap_new_sys = container.bandgap_new_sys
+        if self.bandgap_new_sys <= 0.01:
             print(
                 "Band gap < 0.01. Settiing to 0.01 eV to avoid division by zero when converting energies from eV to wavelength in nm."
             )
-            self.bandgap_newSys_lambda = ev_to_lambda(0.01)
+            self.bandgap_new_sys_lambda = ev_to_lambda(0.01)
         else:
-            self.bandgap_newSys_lambda = ev_to_lambda(self.bandgap_newSys)
+            self.bandgap_new_sys_lambda = ev_to_lambda(self.bandgap_new_sys)
         return None
 
     def get_plot(
@@ -199,7 +199,7 @@ class TASPlotter:
         energy_mesh = 0
         bg = 0
         bg_ref = 0
-        bg_newSys = 0
+        bg_new_sys = 0
         plt.figure(figsize=(12, 8))
         xmin_ind = 0
         xmax_ind = -1
@@ -213,7 +213,7 @@ class TASPlotter:
             if yaxis.lower() == "das":
                 bg = self.bandgap_ref_lambda
                 bg_ref = self.bandgap_ref_lambda
-                bg_newSys = self.bandgap_newSys_lambda
+                bg_new_sys = self.bandgap_new_sys_lambda
             else:
                 bg = self.bandgap_lambda
             plt.xlabel("Wavelength (nm)", fontsize=30)
@@ -227,7 +227,7 @@ class TASPlotter:
             if yaxis.lower() == "das":
                 bg = self.bandgap_ref
                 bg_ref = self.bandgap_ref
-                bg_newSys = self.bandgap_newSys
+                bg_new_sys = self.bandgap_new_sys
             else:
                 bg = self.bandgap
             plt.xlabel("Energy (eV)", fontsize=30)
@@ -686,7 +686,7 @@ class TASPlotter:
             )
             plt.plot(
                 energy_mesh[xmin_ind:xmax_ind],
-                self.alpha_newSys[xmin_ind:xmax_ind],
+                self.alpha_new_sys[xmin_ind:xmax_ind],
                 label=labe_name_ref,
                 color="blue",
                 lw=2.5,
@@ -703,12 +703,12 @@ class TASPlotter:
             ymin = y_axis_min
 
         if yaxis.lower() == "das":
-            if bg_ref is not None and bg_newSys is not None:
+            if bg_ref is not None and bg_new_sys is not None:
                 y_bg = np.linspace(ymin, ymax)
                 x_bg_ref = np.empty(len(y_bg), dtype=float)
                 x_bg_ref.fill(bg_ref)
-                x_bg_newSys = np.empty(len(y_bg), dtype=float)
-                x_bg_newSys.fill(bg_newSys)
+                x_bg_new_sys = np.empty(len(y_bg), dtype=float)
+                x_bg_new_sys.fill(bg_new_sys)
 
                 plt.plot(
                     x_bg_ref,
@@ -718,7 +718,7 @@ class TASPlotter:
                     ls="--",
                 )
                 plt.plot(
-                    x_bg_newSys,
+                    x_bg_new_sys,
                     y_bg,
                     label=label_name + " Bandgap",
                     color="blue",

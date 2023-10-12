@@ -149,24 +149,24 @@ class Das:
     A container class for the data from DASGenerator.
 
     Args:
-        das_total: overall DAS spectrum between newSystem and reference system.
+        das_total: overall DAS spectrum between new_system and reference system.
         jdos_diff_if: JDOS difference (from reference to newsystem) across the energy mesh for a
             specific band transition i (initial) -> f (final) [dict]
-        jdos_newSys_total: overall JDOS for the new system under the specified
+        jdos_new_sys_total: overall JDOS for the new system under the specified
             conditions
-        jdos_newSys_if: JDOS for the new system across the energy mesh for a specific band
+        jdos_new_sys_if: JDOS for the new system across the energy mesh for a specific band
             transition i (initial) -> f (final) [dict]
         jdos_ref_total: overall JDOS for the reference system under the specified
             conditions
         jdos_ref_if: JDOS for the reference system across the energy mesh for a specific band
             transition i (initial) -> f (final) [dict]
         energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
-        bandgap_newSys: Bandgap of the new system in electronvolts (eV).
+        bandgap_new_sys: Bandgap of the new system in electronvolts (eV).
         bandgap_ref: Bandgap of the reference system in electronvolts (eV).
         temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
-        alpha_newSys: Absorption coefficient of the new system in the dark, in cm^-1.
+        alpha_new_sys: Absorption coefficient of the new system in the dark, in cm^-1.
         alpha_ref: Absorption coefficient of the reference system in the dark, in cm^-1.
-        weighted_jdos_newSys_if: JDOS weighted by the transition dipole matrix (TDM) for the new system
+        weighted_jdos_new_sys_if: JDOS weighted by the transition dipole matrix (TDM) for the new system
             across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
         weighted_jdos_ref_if: JDOS weighted by the transition dipole matrix (TDM) for the reference system
             across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
@@ -178,31 +178,31 @@ class Das:
     def __init__(
         self,
         das_total,
-        jdos_newSys_total,
-        jdos_newSys_if,
+        jdos_new_sys_total,
+        jdos_new_sys_if,
         jdos_ref_total,
         jdos_ref_if,
         energy_mesh_ev,
-        bandgap_newSys,
+        bandgap_new_sys,
         bandgap_ref,
         temp,
-        alpha_newSys=None,
+        alpha_new_sys=None,
         alpha_ref=None,
-        weighted_jdos_newSys_if=None,
+        weighted_jdos_new_sys_if=None,
         weighted_jdos_ref_if=None,
     ):
         self.das_total = das_total
-        self.jdos_newSys_total = jdos_newSys_total
-        self.jdos_newSys_if = jdos_newSys_if
+        self.jdos_new_sys_total = jdos_new_sys_total
+        self.jdos_new_sys_if = jdos_new_sys_if
         self.jdos_ref_total = jdos_ref_total
         self.jdos_ref_if = jdos_ref_if
         self.energy_mesh_ev = energy_mesh_ev
-        self.bandgap_newSys = bandgap_newSys
+        self.bandgap_new_sys = bandgap_new_sys
         self.bandgap_ref = bandgap_ref
         self.temp = temp
-        self.alpha_newSys = alpha_newSys
+        self.alpha_new_sys = alpha_new_sys
         self.alpha_ref = alpha_ref
-        self.weighted_jdos_newSys_if = weighted_jdos_newSys_if
+        self.weighted_jdos_new_sys_if = weighted_jdos_new_sys_if
         self.weighted_jdos_ref_if = weighted_jdos_ref_if
 
     def as_dict(self):
@@ -213,17 +213,17 @@ class Das:
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "das_total": self.das_total,
-            "jdos_newSys_total": self.jdos_newSys_total,
-            "jdos_newSys_if": self.jdos_newSys_if,
+            "jdos_new_sys_total": self.jdos_new_sys_total,
+            "jdos_new_sys_if": self.jdos_new_sys_if,
             "jdos_ref_total": self.jdos_ref_total,
             "jdos_ref_if": self.jdos_ref_if,
             "energy_mesh_ev": self.energy_mesh_ev,
-            "bandgap_newSys": self.bandgap_newSys,
+            "bandgap_new_sys": self.bandgap_new_sys,
             "bandgap_ref": self.bandgap_ref,
             "temp": self.temp,
-            "alpha_newSys": self.alpha_newSys,
+            "alpha_new_sys": self.alpha_new_sys,
             "alpha_ref": self.alpha_ref,
-            "weighted_jdos_newSys_if": self.weighted_jdos_newSys_if,
+            "weighted_jdos_new_sys_if": self.weighted_jdos_new_sys_if,
             "weighted_jdos_ref_if": self.weighted_jdos_ref_if,
         }
         for key, value in json_dict.items():

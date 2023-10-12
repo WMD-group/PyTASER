@@ -22,27 +22,27 @@ class DASGenerator:
     dos object.
 
     Args:
-        newSystem: Internal_Abs object from internal_abs_generator for the new system
-        referenceSystem: Internal_Abs object from internal_abs_generator for the reference system
+        new_system: Internal_Abs object from internal_abs_generator for the new system
+        reference_system: Internal_Abs object from internal_abs_generator for the reference system
     Attributes:
-        newSystem: Internal_Abs object from internal_abs_generator for the new system
-        referenceSystem: Internal_Abs object from internal_abs_generator for the reference system
+        new_system: Internal_Abs object from internal_abs_generator for the new system
+        reference_system: Internal_Abs object from internal_abs_generator for the reference system
     """
 
     def __init__(
         self,
-        newSystem,
-        referenceSystem,
+        new_system,
+        reference_system,
     ):
-        self.newSystem = newSystem
-        self.referenceSystem = referenceSystem
+        self.new_system = new_system
+        self.reference_system = reference_system
 
     @classmethod
     def from_vasp_outputs(
         cls,
-        vasprun_file_newSystem,
+        vasprun_file_new_system,
         vasprun_file_ref,
-        waveder_file_newSystem=None,
+        waveder_file_new_system=None,
         waveder_file_ref=None,
     ):
         """
@@ -52,9 +52,9 @@ class DASGenerator:
         followed by the waveder files for the new system and the reference system.
 
         Args:
-            vasprun_file_newSystem: The vasprun.xml file for the new system.
+            vasprun_file_new_system: The vasprun.xml file for the new system.
             vasprun_file_ref: The vasprun.xml file for the reference system.
-            waveder_file_newSystem: The WAVEDER file for the new system.
+            waveder_file_new_system: The WAVEDER file for the new system.
             waveder_file_ref: The WAVEDER file for the reference system.
         Returns:
             A DASGenerator object containing the Internal_Abs object for the new system and reference system.
@@ -64,14 +64,14 @@ class DASGenerator:
             "ignore", message="No POTCAR file with matching TITEL fields"
         )
 
-        newSystem = Internal_Abs.internal_from_vasp(
-            vasprun_file_newSystem, waveder_file_newSystem
+        new_system = Internal_Abs.internal_from_vasp(
+            vasprun_file_new_system, waveder_file_new_system
         )
-        referenceSystem = Internal_Abs.internal_from_vasp(
+        reference_system = Internal_Abs.internal_from_vasp(
             vasprun_file_ref, waveder_file_ref
         )
 
-        return cls(newSystem, referenceSystem)
+        return cls(new_system, reference_system)
 
     @classmethod
     def from_mpid(
@@ -102,14 +102,14 @@ class DASGenerator:
         Returns:
             A DASGenerator object containing the Internal_Abs object for the new system and reference system.
         """
-        newSystem = Internal_Abs.internal_from_mpid(
+        new_system = Internal_Abs.internal_from_mpid(
             mpid, bg=None, api_key=None, mpr=None
         )
-        referenceSystem = Internal_Abs.internal_from_mpid(
+        reference_system = Internal_Abs.internal_from_mpid(
             mpid_ref, bg_ref, api_key=None, mpr_ref=None
         )
 
-        return cls(newSystem, referenceSystem)
+        return cls(new_system, reference_system)
 
     def generate_das(
         self,
@@ -119,7 +119,7 @@ class DASGenerator:
         gaussian_width=0.1,
         cshift=None,
         step=0.01,
-        newSys_occs=None,
+        new_sys_occs=None,
         ref_occs=None,
         processes=None,
     ):
@@ -141,7 +141,7 @@ class DASGenerator:
                 CSHIFT from the underlying VASP WAVEDER calculation. (only relevant if the
                 DASGenerator has been generated from VASP outputs)
             step: Interval between energy points in the energy mesh.
-            newSys_occs: Optional input parameter for occupancies of the new system, otherwise
+            new_sys_occs: Optional input parameter for occupancies of the new system, otherwise
                 automatically calculated based on input temperature (temp)
             reference_occs: Optional input parameter for occupancies of the reference system, otherwise
                 automatically calculated based on input temperature (temp)
@@ -151,8 +151,8 @@ class DASGenerator:
         Returns:
             DAS class containing the following inputs;
                 - das_total: overall deltaT DAS spectrum for new system - reference system.
-                - jdos_newSys_total: overall JDOS for the new system.
-                - jdos_newSys_if: JDOS for the new system across the energy mesh for a specific band
+                - jdos_new_sys_total: overall JDOS for the new system.
+                - jdos_new_sys_if: JDOS for the new system across the energy mesh for a specific band
                     transition i (initial) -> f (final) [dict]
                 - jdos_ref_total: overall JDOS for the reference system.
                 - jdos_ref_if: JDOS for the reference system across the energy mesh for a specific band
@@ -162,19 +162,19 @@ class DASGenerator:
                 - temp: Temperature of the system, in K
                 - alpha_ref: Absorption coefficient of the reference system, in cm^-1 (only
                     calculated if the DASGenerator has been generated from VASP outputs)
-                - alpha_newSys: Absorption coefficient of the new system, in cm^-1 (only
+                - alpha_new_sys: Absorption coefficient of the new system, in cm^-1 (only
                     calculated if the DASGenerator has been generated from VASP outputs
                 - weighted_jdos_diff_if: JDOS difference (from reference to new system) across the energy
                     mesh for a specific band transition i (initial) -> f (final), weighted by the
                     oscillator strength of the transition [dict]
-                - weighted_jdos_newSys_if: JDOS of new system across the energy mesh for a specific band
+                - weighted_jdos_new_sys_if: JDOS of new system across the energy mesh for a specific band
                     transition i (initial) -> f (final), weighted by the oscillator strength of
                     the transition [dict]
         """
         bandgap_ref = round(
-            self.referenceSystem.bs.get_band_gap()["energy"], 2
+            self.reference_system.bs.get_band_gap()["energy"], 2
         )
-        bandgap_newSys = round(self.newSystem.bs.get_band_gap()["energy"], 2)
+        bandgap_new_sys = round(self.new_system.bs.get_band_gap()["energy"], 2)
 
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
 
@@ -184,7 +184,7 @@ class DASGenerator:
             alpha_ref,
             weighted_jdos_ref_if,
         ) = Internal_Abs.generate_abs(
-            self.referenceSystem,
+            self.reference_system,
             temp,
             energy_min,
             energy_max,
@@ -196,43 +196,43 @@ class DASGenerator:
         )
 
         (
-            jdos_newSys_total,
-            jdos_newSys_if,
-            alpha_newSys,
-            weighted_jdos_newSys_if,
+            jdos_new_sys_total,
+            jdos_new_sys_if,
+            alpha_new_sys,
+            weighted_jdos_new_sys_if,
         ) = Internal_Abs.generate_abs(
-            self.newSystem,
+            self.new_system,
             temp,
             energy_min,
             energy_max,
             gaussian_width,
             cshift,
             step,
-            newSys_occs,
+            new_sys_occs,
             processes,
         )
 
-        das_total = jdos_newSys_total - jdos_ref_total
+        das_total = jdos_new_sys_total - jdos_ref_total
         # need to interpolate alpha arrays onto JDOS energy mesh:
-        if self.referenceSystem.dfc and self.newSystem.dfc is not None:
-            das_total = alpha_newSys - alpha_ref
+        if self.reference_system.dfc and self.new_system.dfc is not None:
+            das_total = alpha_new_sys - alpha_ref
 
         return Das(
             das_total,
-            jdos_newSys_total,
-            jdos_newSys_if,
+            jdos_new_sys_total,
+            jdos_new_sys_if,
             jdos_ref_total,
             jdos_ref_if,
             energy_mesh_ev,
-            bandgap_newSys,
+            bandgap_new_sys,
             bandgap_ref,
             temp,
-            alpha_newSys if self.newSystem.dfc is not None else None,
-            alpha_ref if self.referenceSystem.dfc is not None else None,
-            weighted_jdos_newSys_if
-            if self.newSystem.dfc is not None
+            alpha_new_sys if self.new_system.dfc is not None else None,
+            alpha_ref if self.reference_system.dfc is not None else None,
+            weighted_jdos_new_sys_if
+            if self.new_system.dfc is not None
             else None,
             weighted_jdos_ref_if
-            if self.referenceSystem.dfc is not None
+            if self.reference_system.dfc is not None
             else None,
         )

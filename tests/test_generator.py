@@ -472,17 +472,17 @@ def test_DAS_from_vasprun(
             decimal=1,
         )
 
-    assert das_class_vr_only.jdos_newSys_total.size
+    assert das_class_vr_only.jdos_new_sys_total.size
     np.testing.assert_allclose(
-        das_class_vr_only.jdos_newSys_total.any(),
-        das_class_with_waveder.jdos_newSys_total.any(),
+        das_class_vr_only.jdos_new_sys_total.any(),
+        das_class_with_waveder.jdos_new_sys_total.any(),
         rtol=1e-4,
     )
 
-    assert das_class_vr_only.jdos_newSys_if
-    for key, array in das_class_vr_only.jdos_newSys_if.items():
+    assert das_class_vr_only.jdos_new_sys_if
+    for key, array in das_class_vr_only.jdos_new_sys_if.items():
         np.testing.assert_allclose(
-            array, das_class_with_waveder.jdos_newSys_if[key], rtol=1e-4
+            array, das_class_with_waveder.jdos_new_sys_if[key], rtol=1e-4
         )
 
     assert das_class_vr_only.jdos_ref_total.size
@@ -505,14 +505,14 @@ def test_DAS_from_vasprun(
         rtol=1e-4,
     )
     assert (
-        das_class_vr_only.bandgap_newSys
-        == das_class_with_waveder.bandgap_newSys
+        das_class_vr_only.bandgap_new_sys
+        == das_class_with_waveder.bandgap_new_sys
     )
     assert das_class_vr_only.bandgap_ref == das_class_with_waveder.bandgap_ref
     assert das_class_vr_only.temp == tio2_das_conditions[2]
     assert das_class_vr_only.temp == das_class_with_waveder.temp
 
-    assert das_class_vr_only.alpha_newSys is None
+    assert das_class_vr_only.alpha_new_sys is None
     assert das_class_vr_only.alpha_ref is None
 
 
@@ -522,17 +522,17 @@ def test_generate_das(das_class_with_waveder, das_object, tio2_das_conditions):
         das_class_with_waveder.das_total, das_object.das_total, rtol=1e-3
     )
 
-    assert das_class_with_waveder.jdos_newSys_total.size
+    assert das_class_with_waveder.jdos_new_sys_total.size
     np.testing.assert_allclose(
-        das_class_with_waveder.jdos_newSys_total,
-        das_object.jdos_newSys_total,
+        das_class_with_waveder.jdos_new_sys_total,
+        das_object.jdos_new_sys_total,
         rtol=1e-3,
     )
 
-    assert das_class_with_waveder.jdos_newSys_if
-    for key, array in das_class_with_waveder.jdos_newSys_if.items():
+    assert das_class_with_waveder.jdos_new_sys_if
+    for key, array in das_class_with_waveder.jdos_new_sys_if.items():
         np.testing.assert_allclose(
-            array, das_object.jdos_newSys_if[key], rtol=1e-3
+            array, das_object.jdos_new_sys_if[key], rtol=1e-3
         )
 
     assert das_class_with_waveder.jdos_ref_total.size
@@ -555,14 +555,14 @@ def test_generate_das(das_class_with_waveder, das_object, tio2_das_conditions):
         rtol=1e-3,
     )
 
-    assert das_class_with_waveder.bandgap_newSys == das_object.bandgap_newSys
+    assert das_class_with_waveder.bandgap_new_sys == das_object.bandgap_new_sys
     assert das_class_with_waveder.bandgap_ref == das_object.bandgap_ref
     assert das_class_with_waveder.temp == tio2_das_conditions[2]
     assert das_class_with_waveder.temp == das_object.temp
 
-    assert das_class_with_waveder.alpha_newSys.size
+    assert das_class_with_waveder.alpha_new_sys.size
     np.testing.assert_allclose(
-        das_class_with_waveder.alpha_newSys, das_object.alpha_newSys, rtol=1e-3
+        das_class_with_waveder.alpha_new_sys, das_object.alpha_new_sys, rtol=1e-3
     )
 
     assert das_class_with_waveder.alpha_ref.size
@@ -570,10 +570,10 @@ def test_generate_das(das_class_with_waveder, das_object, tio2_das_conditions):
         das_class_with_waveder.alpha_ref, das_object.alpha_ref, rtol=1e-3
     )
 
-    assert das_class_with_waveder.weighted_jdos_newSys_if
-    for key, array in das_class_with_waveder.weighted_jdos_newSys_if.items():
+    assert das_class_with_waveder.weighted_jdos_new_sys_if
+    for key, array in das_class_with_waveder.weighted_jdos_new_sys_if.items():
         np.testing.assert_allclose(
-            array, das_object.weighted_jdos_newSys_if[key], rtol=1e-3
+            array, das_object.weighted_jdos_new_sys_if[key], rtol=1e-3
         )
 
     assert das_class_with_waveder.weighted_jdos_ref_if

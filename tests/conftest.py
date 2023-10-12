@@ -95,20 +95,20 @@ def cdte_vasp_generated_class_vr_only(examplepath_cdte):
 
 @pytest.fixture(scope="package")
 def tio2_das_vasp_generated_class_vr_only(examplepath_tio2_das):
-    vasprun_newSys = examplepath_tio2_das / "mp554278-monoclinic/vasprun.xml"
+    vasprun_new_sys = examplepath_tio2_das / "mp554278-monoclinic/vasprun.xml"
     vasprun_ref = examplepath_tio2_das / "mp2657-tetragonal/vasprun.xml"
-    return DASGenerator.from_vasp_outputs(vasprun_newSys, vasprun_ref)
+    return DASGenerator.from_vasp_outputs(vasprun_new_sys, vasprun_ref)
 
 
 @pytest.fixture(scope="package")
 def tio2_das_vasp_generated_class(examplepath_tio2_das):
-    vasprun_newSys = examplepath_tio2_das / "mp554278-monoclinic/vasprun.xml"
+    vasprun_new_sys = examplepath_tio2_das / "mp554278-monoclinic/vasprun.xml"
     vasprun_ref = examplepath_tio2_das / "mp2657-tetragonal/vasprun.xml"
-    waveder_newSys = examplepath_tio2_das / "mp554278-monoclinic/WAVEDER"
+    waveder_new_sys = examplepath_tio2_das / "mp554278-monoclinic/WAVEDER"
     waveder_ref = examplepath_tio2_das / "mp2657-tetragonal/WAVEDER"
 
     return DASGenerator.from_vasp_outputs(
-        vasprun_newSys, vasprun_ref, waveder_newSys, waveder_ref
+        vasprun_new_sys, vasprun_ref, waveder_new_sys, waveder_ref
     )
 
 
