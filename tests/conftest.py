@@ -5,6 +5,7 @@ from monty.serialization import loadfn
 
 from pytaser.generator import TASGenerator
 from pytaser.plotter import TASPlotter
+from pytaser.dasgenerator import DASGenerator
 
 
 @pytest.fixture(scope="package")
@@ -24,6 +25,16 @@ def examplepath_cdte():
     """Path to CdTe examples folder"""
     return Path(__file__).parent.parent / "examples/CdTe"
 
+@pytest.fixture(scope="package")
+def examplepath_gaas():
+    """Path to GaAs examples folder"""
+    return Path(__file__).parent.parent / "examples/GaAs"
+
+@pytest.fixture(scope="package")
+def examplepath_tio2_das():
+    """Path to TiO2_DAS examples folder"""
+    return Path(__file__).parent.parent / "examples/TiO2-DAS"
+
 
 @pytest.fixture(scope="package")
 def conditions():  # return [temperature, carrier conc, bandgap] in that order
@@ -34,6 +45,9 @@ def conditions():  # return [temperature, carrier conc, bandgap] in that order
 def cdte_conditions():  # return [temperature, carrier conc, bandgap] in that order
     return [300, 1e23, 0.67]
 
+@pytest.fixture(scope="package")
+def tio2_das_conditions():  # return [energy_min, energy_max, temperature, c shift] in that order
+    return [0,10,300,1e-3]
 
 @pytest.fixture(scope="package")
 def generated_class(datapath_gaas):
@@ -74,6 +88,49 @@ def cdte_vasp_generated_class_vr_only(examplepath_cdte):
         vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml"
     )
 
+@pytest.fixture(scope="package")
+def tio2_das_vasp_generated_class_vr_only(examplepath_tio2_das):
+    vasprun_newSys=examplepath_tio2_das / "mp554278-monoclinic/vasprun.xml"
+    vasprun_ref=examplepath_tio2_das / "mp2657-tetragonal/vasprun.xml"
+    return DASGenerator.from_vasp_outputs(vasprun_newSys,vasprun_ref)
+
+
+
+@pytest.fixture(scope="package")
+def tio2_das_vasp_generated_class(examplepath_tio2_das):
+    vasprun_newSys=examplepath_tio2_das / "mp554278-monoclinic/vasprun.xml"
+    vasprun_ref=examplepath_tio2_das / "mp2657-tetragonal/vasprun.xml"
+    waveder_newSys=examplepath_tio2_das / "mp554278-monoclinic/WAVEDER"
+    waveder_ref=examplepath_tio2_das / "mp2657-tetragonal/WAVEDER"
+
+    return DASGenerator.from_vasp_outputs(vasprun_newSys,vasprun_ref,
+                                          waveder_newSys,waveder_ref
+    )
+
+
+
+@pytest.fixture(scope="package")
+def das_class_vr_only(tio2_das_vasp_generated_class_vr_only, tio2_das_conditions):
+    return  tio2_das_vasp_generated_class_vr_only.generate_das(
+        energy_min=tio2_das_conditions[0], 
+        energy_max=tio2_das_conditions[1], 
+        temp=tio2_das_conditions[2], 
+        cshift=tio2_das_conditions[3],
+        processes=1)
+
+
+
+@pytest.fixture(scope="package")
+def das_class_with_waveder(tio2_das_vasp_generated_class,tio2_das_conditions):
+    return tio2_das_vasp_generated_class.generate_das(
+        energy_min=tio2_das_conditions[0],
+        energy_max=tio2_das_conditions[1],
+        temp=tio2_das_conditions[2],
+        cshift=tio2_das_conditions[3],
+        processes=1,
+    )
+
+
 
 @pytest.fixture(name="dark", scope="module")
 def dark_occs_generated(generated_class, conditions):
@@ -101,17 +158,10 @@ def cdte_light_occs_generated(cdte_generated_class, cdte_conditions):
     )
 
 
-@pytest.fixture(scope="module")
-def tas_object(generated_class, conditions, dark, light):
-    return generated_class.generate_tas(
-        conditions[0],
-        conditions[1],
-        energy_min=0,
-        energy_max=4,
-        step=0.15,
-        light_occs=light,
-        dark_occs=dark,
-    )
+
+@pytest.fixture(scope="package")
+def tas_object(datapath_gaas):
+    return loadfn(datapath_gaas / "tas_gaas.json")
 
 
 @pytest.fixture(scope="module")
@@ -128,6 +178,10 @@ def cdte_tas_object(
         dark_occs=cdte_dark,
     )
 
+
+@pytest.fixture(scope="package")
+def das_object(examplepath_tio2_das):
+    return loadfn(examplepath_tio2_das / "TiO2_das.json.gz")
 
 @pytest.fixture(scope="module")
 def cdte_vasp_tas_object(cdte_vasp_generated_class, cdte_conditions):
