@@ -153,7 +153,9 @@ Future topics we plan to build on:
 Acknowledgements
 ================
 
-Developed by Savyasanchi Aggarwal, Seán Kavanagh, Youngwon Woo and Alex Ganose. Aron Walsh designed and led the project. Thanks to group members for their support, especially Anahita Manchala and Liam Harnett-Caulfield.
+Developed by Savyasanchi Aggarwal, Seán Kavanagh, Lucas Verga, Youngwon Woo and Alex Ganose. Aron Walsh
+designed and led the project. Thanks to group members for their support, especially Anahita Manchala and
+Liam Harnett-Caulfield.
 
 
 .. toctree::

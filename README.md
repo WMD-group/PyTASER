@@ -95,4 +95,4 @@ Future topics we plan to build on:
 
 # Acknowledgements
 
-The project has been developed by @savya10, @kavanase and @youngwonwoo under the supervision of @utf and @aronwalsh.
+The project has been developed by @savya10, @kavanase, @LucasGVerga and @youngwonwoo, under the supervision of @utf and @aronwalsh.
