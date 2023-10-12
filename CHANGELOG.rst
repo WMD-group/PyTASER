@@ -1,9 +1,14 @@
 Change log
 ==========
 
+v2.2.0
+~~~~~~
+- Initial version of differential absorption spectra (DAS) functionality.
+
 v2.1.4
 ~~~~~~
-- Added the first version of the differential adsorption spectra DAS functionality. 
+- Addition of MAPI example outputs download instructions to DFT example by @youngwonwoo.
+- Update to `from_dict()` method for `Tas` objects by @kavanase & @LucasGVerga
 
 v2.1.3
 ~~~~~~
