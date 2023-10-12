@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Aug  3 16:42:36 2023
 
@@ -7,10 +6,12 @@ Created on Thu Aug  3 16:42:36 2023
 """
 
 import warnings
+
 import numpy as np
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
-from pytaser.tas import Das
+
 import pytaser.createinternalDas as createinternalDas
+from pytaser.tas import Das
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 

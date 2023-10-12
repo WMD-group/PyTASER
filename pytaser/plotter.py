@@ -2,12 +2,13 @@ import gettext
 import re
 import warnings
 from collections import defaultdict
-from pytaser.tas import Tas
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as scpc
 from scipy.signal import argrelextrema
+
+from pytaser.tas import Tas
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Thu Aug  25 16:47:12 2023
 
@@ -7,8 +6,8 @@ Created on Thu Aug  25 16:47:12 2023
 """
 
 import warnings
-import numpy as np
 
+import numpy as np
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.electronic_structure.dos import FermiDos, f0
 from pymatgen.ext.matproj import MPRester
@@ -16,9 +15,8 @@ from pymatgen.io.vasp import optics
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
-from pytaser.kpoints import get_kpoint_weights
 import pytaser.generator as generator
-
+from pytaser.kpoints import get_kpoint_weights
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 

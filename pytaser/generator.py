@@ -1,5 +1,5 @@
 import warnings
-from multiprocessing import Pool, cpu_count, Array
+from multiprocessing import Array, Pool, cpu_count
 
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
@@ -179,7 +179,7 @@ def _calculate_oscillator_strength(args):
         nx=nedos,
         dx=deltae,
         ismear=ismear,
-    ) 
+    )
 
     absorption = smeared_wout_matrix_el * abs_matrix_el
     emission = smeared_wout_matrix_el * em_matrix_el
@@ -377,7 +377,7 @@ def occ_dependent_alpha(
 
     results_array = np.array(
         results, dtype=object
-    )  # dtype=object ensures that data is preserved               
+    )  # dtype=object ensures that data is preserved
 
     # Accumulate the results
     dielectric_dict["absorption"] += results_array[:, 0].sum()
@@ -670,8 +670,11 @@ class TASGenerator:
 
         if self.dfc is not None:
             egrid = np.linspace(
-                0, self.dfc.nedos * self.dfc.deltae, self.dfc.nedos,endpoint=False
-                                        )
+                0,
+                self.dfc.nedos * self.dfc.deltae,
+                self.dfc.nedos,
+                endpoint=False,
+            )
             alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
             alpha_light_dict = {
                 key: np.zeros_like(egrid, dtype=np.complex128)
