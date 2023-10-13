@@ -9,6 +9,14 @@ pytaser.generator module
    :undoc-members:
    :show-inheritance:
 
+pytaser.das_generator module
+---------------------
+
+.. automodule:: pytaser.das_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pytaser.kpoints module
 -----------------------------
 
@@ -24,11 +32,5 @@ pytaser.plotter module
    :undoc-members:
    :show-inheritance:
 
-pytaser.tas module
----------------------
 
-.. automodule:: pytaser.tas
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
