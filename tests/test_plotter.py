@@ -51,7 +51,7 @@ def test_get_plot(plotter_gaas):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_das_ev(plotter_tio2_das):
-    """Test get_plot() DAS function for TiO@ with a electronvolts xaxis"""
+    """Test get_plot() DAS function for TiO2 with a electronvolts xaxis"""
     plot_das_ev=plotter_tio2_das.get_plot(
         xaxis="energy",
         transition_cutoff=0.01,
@@ -69,7 +69,7 @@ def test_get_plot_das_ev(plotter_tio2_das):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_nm(plotter_tio2_das):
-    """Test get_plot() DAS function for TiO@ with a wavelength xaxis"""
+    """Test get_plot() DAS function for TiO2 with a wavelength xaxis"""
     plot_das_nm=plotter_tio2_das.get_plot(
         xaxis="wavelength",
         transition_cutoff=0.01,
