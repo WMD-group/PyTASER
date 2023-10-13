@@ -60,7 +60,7 @@ Additional contributions have been provided by:
    :alt: GitHub commits from youngwonwoo
 
 | **Lucas Verga** |LucasGVerga| |0000-0002-7453-238X|
-| PhD student, UCL & Imperial College London
+| Postdoc, Imperial College London
 
 .. |0000-0002-7453-238X| image:: _static/orcid.svg
    :target: https://orcid.org/0000-0002-7453-238X

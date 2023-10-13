@@ -8,7 +8,7 @@ from pytaser.plotter import ev_to_lambda, lambda_to_ev
 _file_path = os.path.dirname(__file__)
 _DATA_DIR = os.path.join(_file_path, "data_gaas")
 _CDTE_DATA_DIR = os.path.join(_file_path, "data_cdte")
-
+_TIO2_DAS_DATA_DIR = os.path.join(_file_path, "data_tio2_das")
 
 def test_ev_to_lambda():
     input_ev = 2.5
@@ -45,6 +45,43 @@ def test_get_plot(plotter_gaas):
 # <pytest --mpl --mpl-generate-summary=html test_plotter.py>
 # pytest --mpl-generate-path=data_gaas/remote_baseline_plots test_plotter.py
 
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
+    filename="TiO2_das_energy.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_das_ev(plotter_tio2_das):
+    """Test get_plot() DAS function for TiO@ with a electronvolts xaxis"""
+    plot_das_ev=plotter_tio2_das.get_plot(
+        xaxis="energy",
+        transition_cutoff=0.01,
+        xmin=0,
+        xmax=10,
+        yaxis="das",
+    )
+    plot_das_ev.legend(loc="upper center",
+                fontsize=12)
+    return plot_das_ev
+
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
+    filename="TiO2_das_nm.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
+def test_get_plot_tas_nm(plotter_tio2_das):
+    """Test get_plot() DAS function for TiO@ with a wavelength xaxis"""
+    plot_das_nm=plotter_tio2_das.get_plot(
+        xaxis="wavelength",
+        transition_cutoff=0.01,
+        xmin=200,
+        xmax=1200,
+        yaxis="das",
+    )
+    plot_das_nm.legend(loc="upper center",
+                fontsize=12)
+
+    return plot_das_nm
+
 
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
@@ -63,7 +100,6 @@ def test_get_plot_tas_ev(plotter_gaas):
         ymax=None,
         yaxis="tas",
     )
-
 
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
