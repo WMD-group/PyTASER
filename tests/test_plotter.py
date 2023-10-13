@@ -52,35 +52,29 @@ def test_get_plot(plotter_gaas):
 )
 def test_get_plot_das_ev(plotter_tio2_das):
     """Test get_plot() DAS function for TiO2 with a electronvolts xaxis"""
-    plot_das_ev=plotter_tio2_das.get_plot(
+    return plotter_tio2_das.get_plot(
         xaxis="energy",
         transition_cutoff=0.01,
         xmin=0,
         xmax=10,
         yaxis="das",
     )
-    plot_das_ev.legend(loc="upper center",
-                fontsize=12)
-    return plot_das_ev
+
 
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
     filename="TiO2_das_nm.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
-def test_get_plot_tas_nm(plotter_tio2_das):
+def test_get_plot_das_nm(plotter_tio2_das):
     """Test get_plot() DAS function for TiO2 with a wavelength xaxis"""
-    plot_das_nm=plotter_tio2_das.get_plot(
+    return plotter_tio2_das.get_plot(
         xaxis="wavelength",
         transition_cutoff=0.01,
         xmin=200,
         xmax=1200,
         yaxis="das",
     )
-    plot_das_nm.legend(loc="upper center",
-                fontsize=12)
-
-    return plot_das_nm
 
 
 @pytest.mark.mpl_image_compare(
