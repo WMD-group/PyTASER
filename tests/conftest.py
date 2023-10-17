@@ -242,6 +242,13 @@ def plotter_cdte_vasp(cdte_vasp_tas_object, cdte_conditions):
         material_name="CdTe",
     )
 
+@pytest.fixture(scope="module")
+def plotter_tio2_das(das_object, tio2_das_conditions):
+    return TASPlotter(das_object, 
+                      material_name="TiO2",
+                      system_name="Monoclinic",
+                      reference_name="Tetragonal"
+                      ) 
 
 @pytest.fixture(scope="module")
 def plotter_cdte_bg_3_vasp(cdte_vasp_tas_bg_3_object, cdte_conditions):
