@@ -36,10 +36,12 @@ jobs:
           pip install numpy
           pip install -e .
           pip install -e .[tests]
+
       - name: Check package versions
         run: |
           pip show -V pymatgen
           pip show -V pytest
+
       - name: Test
         run:  |
           pytest tests/test_generator.py  # test generator
@@ -49,14 +51,16 @@ jobs:
           # to run the following image comparison tests and see relative differences, use the CLI
           # pytest --mpl --mpl-generate-summary=html tests/test_plotter.py
 
-      # Download test plots
-      # - name: Archive test plots
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: output-plots
-      #     path: tests/remote_baseline
+      - name: Generate GH Actions test plots
+        if: always()  # always generate the plots, even if the tests fail
+        run: |
+          # Generate the test plots in case there were any failures:
+          pytest --mpl-generate-path=tests/remote_baseline_plots tests/test_plotter.py
 
-      # - name: Download a single artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: output-plots
+      # Upload test plots
+      - name: Archive test plots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: output-plots
+          path: tests/remote_baseline_plots
