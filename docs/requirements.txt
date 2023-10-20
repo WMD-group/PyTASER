@@ -19,6 +19,5 @@ numpy>=1.21
 scipy
 setuptools
 monty
-deepdiff
 pytest-mpl
 pytest

@@ -47,7 +47,6 @@ setup(
         "tests": [
             "pytest>=7.1.3",
             "pytest-mpl==0.15.1",
-            "deepdiff",
             "monty",
             "pathlib",
         ],

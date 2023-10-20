@@ -31,21 +31,23 @@ Welcome to PyTASER's documentation!
 Introduction
 ============
 
-``PyTASER`` is a ``Python`` (3.9+) library built for simulating transient absorption spectroscopy (TAS) features from
-DFT calculations. The goal of this library is to simulate TAS spectra for comparison with and interpretation of
-experimental spectra. The main features include:
+``PyTASER`` is a ``Python`` library for simulating differential absorption spectra in compounds using
+quantum chemical calculations, including transient (TAS) and differential (DAS) absorption spectroscopies.
+The goal of this library is to simulate spectra for comparison with and interpretation of experiments.
+The main features include:
 
-* An interactive TAS spectrum for a pristine semiconducting crystal
-* Isolated spectra for individual band transitions
-* Spectra for different conditions: temperature and carrier concentrations
-* Consideration of non-magnetic and magnetic materials
+* Transient (TAS) and differential (DAS) absorption spectra for insulating and semiconducting crystals
+  (using DFT or database calculations)
+* Plotting contributions from individual band-to-band transitions
+* TAS spectra for different conditions: temperature and carrier concentrations
+* Customisable plotting.
 * Capability to input calculated bandstructures and density of states inputs with support for https://materialsproject.org.
 
 ==========
 Background
 ==========
 
-TAS is a powerful pump-probe tool to characterise the excited states of materials. It can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination.
+TAS is a powerful pump-probe tool to characterise the excited states of materials, while DAS can be used to represent how changes in a system affects its ground-state optical absorption spectra. These techniques can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination.
 
 The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goal here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation of the excited state back to the ground state.
 
@@ -153,7 +155,9 @@ Future topics we plan to build on:
 Acknowledgements
 ================
 
-Developed by Savyasanchi Aggarwal, Seán Kavanagh, Youngwon Woo and Alex Ganose. Aron Walsh designed and led the project. Thanks to group members for their support, especially Anahita Manchala and Liam Harnett-Caulfield.
+Developed by Savyasanchi Aggarwal, Seán Kavanagh, Lucas Verga, Youngwon Woo and Alex Ganose. Aron Walsh
+designed and led the project. Thanks to group members for their support, especially Anahita Manchala and
+Liam Harnett-Caulfield.
 
 
 .. toctree::

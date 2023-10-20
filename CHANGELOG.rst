@@ -1,6 +1,10 @@
 Change log
 ==========
 
+v2.2.0
+~~~~~~
+- Initial version of differential absorption spectra (DAS) functionality.
+
 v2.1.4
 ~~~~~~
 - Addition of MAPI example outputs download instructions to DFT example by @youngwonwoo.

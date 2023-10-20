@@ -6,5 +6,4 @@ pymatgen>=2023.05.31
 matplotlib>=3.7.1
 scipy
 setuptools
-deepdiff
 pathlib

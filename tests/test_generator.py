@@ -3,7 +3,6 @@ from unittest import mock
 
 import numpy as np
 import pytest
-from deepdiff import DeepDiff
 from monty.serialization import dumpfn, loadfn
 from pymatgen.electronic_structure.core import Spin
 
@@ -369,8 +368,14 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     )
 
     assert tas_class.tas_total.all() == tas_object.tas_total.all()
-    assert DeepDiff(tas_class.jdos_diff_if, tas_object.jdos_diff_if) == {}
-    assert DeepDiff(tas_class.jdos_light_if, tas_object.jdos_light_if) == {}
+    for if_tuple in tas_class.jdos_diff_if:
+        np.testing.assert_array_almost_equal(
+            tas_class.jdos_diff_if[if_tuple], tas_object.jdos_diff_if[if_tuple]
+        )
+        np.testing.assert_array_almost_equal(
+            tas_class.jdos_light_if[if_tuple],
+            tas_object.jdos_light_if[if_tuple],
+        )
     assert (
         tas_class.jdos_light_total.all() == tas_object.jdos_light_total.all()
     )
@@ -447,3 +452,132 @@ def test_from_mpid(mocker, datapath_gaas, generated_class, conditions):
     assert gaas2534.bg_centre == generated_class.bg_centre
     assert gaas2534.vb == generated_class.vb
     assert gaas2534.cb == generated_class.cb
+
+
+# Tests for DASGenerator class
+
+
+def test_DAS_from_vasprun(
+    tio2_das_conditions,
+    das_class_vr_only,
+    das_class_with_waveder,
+):
+    assert das_class_vr_only.das_total.size
+    with pytest.raises(
+        AssertionError,
+    ):
+        np.testing.assert_array_almost_equal(
+            das_class_vr_only.das_total,
+            das_class_with_waveder.das_total,
+            decimal=1,
+        )
+
+    assert das_class_vr_only.jdos_new_sys_total.size
+    np.testing.assert_allclose(
+        das_class_vr_only.jdos_new_sys_total.any(),
+        das_class_with_waveder.jdos_new_sys_total.any(),
+        rtol=1e-4,
+    )
+
+    assert das_class_vr_only.jdos_new_sys_if
+    for key, array in das_class_vr_only.jdos_new_sys_if.items():
+        np.testing.assert_allclose(
+            array, das_class_with_waveder.jdos_new_sys_if[key], rtol=1e-4
+        )
+
+    assert das_class_vr_only.jdos_ref_total.size
+    np.testing.assert_allclose(
+        das_class_vr_only.jdos_ref_total,
+        das_class_with_waveder.jdos_ref_total,
+        rtol=1e-4,
+    )
+
+    assert das_class_vr_only.jdos_ref_if
+    for key, array in das_class_vr_only.jdos_ref_if.items():
+        np.testing.assert_allclose(
+            array, das_class_with_waveder.jdos_ref_if[key], rtol=1e-4
+        )
+
+    assert das_class_vr_only.energy_mesh_ev.size
+    np.testing.assert_allclose(
+        das_class_vr_only.energy_mesh_ev,
+        das_class_with_waveder.energy_mesh_ev,
+        rtol=1e-4,
+    )
+    assert (
+        das_class_vr_only.bandgap_new_sys
+        == das_class_with_waveder.bandgap_new_sys
+    )
+    assert das_class_vr_only.bandgap_ref == das_class_with_waveder.bandgap_ref
+    assert das_class_vr_only.temp == tio2_das_conditions[2]
+    assert das_class_vr_only.temp == das_class_with_waveder.temp
+
+    assert das_class_vr_only.alpha_new_sys is None
+    assert das_class_vr_only.alpha_ref is None
+
+
+def test_generate_das(das_class_with_waveder, das_object, tio2_das_conditions):
+    assert das_class_with_waveder.das_total.size
+    np.testing.assert_allclose(
+        das_class_with_waveder.das_total, das_object.das_total, rtol=1e-3
+    )
+
+    assert das_class_with_waveder.jdos_new_sys_total.size
+    np.testing.assert_allclose(
+        das_class_with_waveder.jdos_new_sys_total,
+        das_object.jdos_new_sys_total,
+        rtol=1e-3,
+    )
+
+    assert das_class_with_waveder.jdos_new_sys_if
+    for key, array in das_class_with_waveder.jdos_new_sys_if.items():
+        np.testing.assert_allclose(
+            array, das_object.jdos_new_sys_if[key], rtol=1e-3
+        )
+
+    assert das_class_with_waveder.jdos_ref_total.size
+    np.testing.assert_allclose(
+        das_class_with_waveder.jdos_ref_total,
+        das_object.jdos_ref_total,
+        rtol=1e-3,
+    )
+
+    assert das_class_with_waveder.jdos_ref_if
+    for key, array in das_class_with_waveder.jdos_ref_if.items():
+        np.testing.assert_allclose(
+            array, das_object.jdos_ref_if[key], rtol=1e-3
+        )
+
+    assert das_class_with_waveder.energy_mesh_ev.size
+    np.testing.assert_allclose(
+        das_class_with_waveder.energy_mesh_ev,
+        das_object.energy_mesh_ev,
+        rtol=1e-3,
+    )
+
+    assert das_class_with_waveder.bandgap_new_sys == das_object.bandgap_new_sys
+    assert das_class_with_waveder.bandgap_ref == das_object.bandgap_ref
+    assert das_class_with_waveder.temp == tio2_das_conditions[2]
+    assert das_class_with_waveder.temp == das_object.temp
+
+    assert das_class_with_waveder.alpha_new_sys.size
+    np.testing.assert_allclose(
+        das_class_with_waveder.alpha_new_sys, das_object.alpha_new_sys, rtol=1e-3
+    )
+
+    assert das_class_with_waveder.alpha_ref.size
+    np.testing.assert_allclose(
+        das_class_with_waveder.alpha_ref, das_object.alpha_ref, rtol=1e-3
+    )
+
+    assert das_class_with_waveder.weighted_jdos_new_sys_if
+    for key, array in das_class_with_waveder.weighted_jdos_new_sys_if.items():
+        np.testing.assert_allclose(
+            array, das_object.weighted_jdos_new_sys_if[key], rtol=1e-3
+        )
+
+    assert das_class_with_waveder.weighted_jdos_ref_if
+    for key, array in das_class_with_waveder.weighted_jdos_ref_if.items():
+        np.testing.assert_allclose(
+            array, das_object.weighted_jdos_ref_if[key], rtol=1e-3
+        )

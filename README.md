@@ -11,12 +11,12 @@
 
 [Official Documentation](https://pytaser.readthedocs.io/en/latest/)
 
-PyTASER is a Python (3.9+) library for simulating differential absorption in general, and transient absorption spectroscopy (TAS) in particular, features from quantum chemical calculations of crystals. The goal of this library is to simulate spectra for comparison with and interpretation of experiments. The main features include:
+PyTASER is a Python library for simulating differential absorption spectra in compounds using quantum chemical calculations, including transient (TAS) and differential (DAS) absorption spectroscopies. The goal of this library is to simulate spectra for comparison with and interpretation of experiments. The main features include:
 
-* Spectra for insulating and semiconducting crystals
-* Components from individual band-to-band transitions
-* Spectra for different conditions: temperature and carrier concentrations
-* Consideration of non-magnetic and magnetic materials
+* Transient (TAS) and differential (DAS) absorption spectra for insulating and semiconducting crystals (using DFT or database calculations)
+* Plotting contributions from individual band-to-band transitions
+* TAS spectra for different conditions: temperature and carrier concentrations
+* Customisable plotting.
 * Capability to input calculated bandstructure and density of states inputs with support for the [Materials Project](https://materialsproject.org)
 
 # Installation
@@ -95,4 +95,4 @@ Future topics we plan to build on:
 
 # Acknowledgements
 
-The project has been developed by @savya10, @kavanase and @youngwonwoo under the supervision of @utf and @aronwalsh.
+The project has been developed by @savya10, @kavanase, @LucasGVerga and @youngwonwoo, under the supervision of @utf and @aronwalsh.

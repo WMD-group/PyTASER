@@ -1,5 +1,5 @@
 import warnings
-from multiprocessing import Pool, cpu_count, Array
+from multiprocessing import Array, Pool, cpu_count
 
 import numpy as np
 from pymatgen.electronic_structure.core import Spin
@@ -291,7 +291,9 @@ def occ_dependent_alpha(
         sigma = dfc.sigma
     if cshift is None:
         cshift = dfc.cshift
+
     egrid = np.linspace(0, dfc.nedos * dfc.deltae, dfc.nedos, endpoint=False)
+
     dielectric_dict = {
         key: np.zeros_like(egrid, dtype=np.complex128)
         for key in ["absorption", "emission", "both"]
@@ -668,8 +670,11 @@ class TASGenerator:
 
         if self.dfc is not None:
             egrid = np.linspace(
-                0, self.dfc.nedos * self.dfc.deltae, self.dfc.nedos,endpoint=False
-                                        )
+                0,
+                self.dfc.nedos * self.dfc.deltae,
+                self.dfc.nedos,
+                endpoint=False,
+            )
             alpha_dark = np.zeros_like(egrid, dtype=np.complex128)
             alpha_light_dict = {
                 key: np.zeros_like(egrid, dtype=np.complex128)
