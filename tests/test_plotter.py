@@ -46,6 +46,7 @@ def test_get_plot(plotter_gaas):
 # pytest --mpl-generate-path=data_gaas/remote_baseline_plots test_plotter.py
 
 @pytest.mark.mpl_image_compare(
+    style='default',   
     baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
     filename="TiO2_das_energy.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
@@ -62,6 +63,7 @@ def test_get_plot_das_ev(plotter_tio2_das):
 
 
 @pytest.mark.mpl_image_compare(
+    style='default',    
     baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
     filename="TiO2_das_nm.png",
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
