@@ -49,7 +49,7 @@ def test_get_plot(plotter_gaas):
     style='default',   
     baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
     filename="TiO2_das_energy.png",
-    savefig_kwargs={"transparent": True, "bbox_inches": "tight","dpi":100.000},
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight","dpi":100},
 )
 def test_get_plot_das_ev(plotter_tio2_das):
     """Test get_plot() DAS function for TiO2 with a electronvolts xaxis"""
@@ -66,7 +66,7 @@ def test_get_plot_das_ev(plotter_tio2_das):
     style='default',    
     baseline_dir=f"{_TIO2_DAS_DATA_DIR}/remote_baseline_plots",
     filename="TiO2_das_nm.png",
-    savefig_kwargs={"transparent": True, "bbox_inches": "tight","dpi":100.000},
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight","dpi":100},
 )
 def test_get_plot_das_nm(plotter_tio2_das):
     """Test get_plot() DAS function for TiO2 with a wavelength xaxis"""
