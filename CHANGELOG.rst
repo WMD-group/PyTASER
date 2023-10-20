@@ -3,7 +3,8 @@ Change log
 
 v2.2.0
 ~~~~~~
-- Initial version of differential absorption spectra (DAS) functionality.
+- Initial version of differential absorption spectra (DAS) functionality from @LucasGVerga.
+- Updates to GitHub Actions tests (now tests macos, ubuntu and windows).
 
 v2.1.4
 ~~~~~~
