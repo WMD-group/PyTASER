@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-Created on Thu Aug  25 16:47:12 2023
-
-@author: lucasverga
-"""
-
 import warnings
 
 import numpy as np
@@ -22,8 +15,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 class Internal_Abs:
-    """
-    Class to generate an absorption spectrum (decomposed and cumulative) 
+    """Class to generate an absorption spectrum (decomposed and cumulative)
     from a bandstructure and dos object.
 
     Args:
@@ -52,9 +44,7 @@ class Internal_Abs:
             self.bg_centre = bs.efermi
             print("Is metal")
         else:
-            self.bg_centre = (
-                bs.get_cbm()["energy"] + bs.get_vbm()["energy"]
-            ) / 2
+            self.bg_centre = (bs.get_cbm()["energy"] + bs.get_vbm()["energy"]) / 2
 
         self.vb = generator.get_cbm_vbm_index(self.bs)[0]
         self.cb = generator.get_cbm_vbm_index(self.bs)[1]
@@ -63,9 +53,7 @@ class Internal_Abs:
     def internal_from_vasp(cls, vasprun_file, waveder_file=None):
         """Create an Internal_Abs object from VASP output files."""
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
-        warnings.filterwarnings(
-            "ignore", message="No POTCAR file with matching TITEL fields"
-        )
+        warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
         vr = Vasprun(vasprun_file)
 
         if waveder_file:
@@ -81,9 +69,7 @@ class Internal_Abs:
                 if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)
                 raise ValueError(f"ISYM must be set to 0 and {lvel_error_message}")
-            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
-                vr, waveder
-            )
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(vr, waveder)
         else:
             dfc = None
 
@@ -96,8 +82,7 @@ class Internal_Abs:
 
     @classmethod
     def internal_from_mpid(cls, mpid, bg=None, api_key=None, mpr=None):
-        """
-        Create an Internal_Abs object from a Materials Project ID.
+        """Create an Internal_Abs object from a Materials Project ID.
 
         Args:
             mpid: The Materials Project ID of the desired material.
@@ -120,8 +105,7 @@ class Internal_Abs:
         return cls(mp_bs, kweights, mp_dos, None)
 
     def band_occupancies(self, temp):
-        """
-        Gives band occupancies.
+        """Gives band occupancies.
 
         Returns:
             A dictionary of {Spin: occ} for all bands across all k-points.
@@ -133,12 +117,8 @@ class Internal_Abs:
             # fully occupied hole mask, completely empty electron mask
             spin_occs = np.zeros_like(spin_bands)
             if self.bs.is_metal():
-                spin_occs[hole_mask] = f0(spin_bands, self.bg_centre, temp)[
-                    hole_mask
-                ]
-                spin_occs[elec_mask] = f0(spin_bands, self.bg_centre, temp)[
-                    elec_mask
-                ]
+                spin_occs[hole_mask] = f0(spin_bands, self.bg_centre, temp)[hole_mask]
+                spin_occs[elec_mask] = f0(spin_bands, self.bg_centre, temp)[elec_mask]
             else:
                 spin_occs[hole_mask] = 1
                 spin_occs[elec_mask] = 0
@@ -158,8 +138,7 @@ class Internal_Abs:
         occs=None,
         processes=None,
     ):
-        """
-        Generates absorption spectra based on inputted occupancies, and a specified energy mesh.
+        """Generates absorption spectra based on inputted occupancies, and a specified energy mesh.
 
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
@@ -216,9 +195,7 @@ class Internal_Abs:
                     processes=processes,
                     energy_max=energy_max,
                 )
-                alpha_dark += alpha_dark_dict[
-                    "both"
-                ]  # stimulated emission should be
+                alpha_dark += alpha_dark_dict["both"]  # stimulated emission should be
                 # zero in the dark
 
             for i in range(len(spin_bands)):
@@ -254,8 +231,7 @@ class Internal_Abs:
                                 i,
                                 occs[spin],
                                 energy_mesh_ev,
-                                np.array(self.kpoint_weights)
-                                * tdm_array[i, f, :],
+                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
                                 gaussian_width,
                                 spin=spin,
                             )

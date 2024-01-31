@@ -1,3 +1,7 @@
+"""
+Setup for pytest.
+"""
+
 from pathlib import Path
 
 import pytest
@@ -10,31 +14,31 @@ from pytaser.plotter import TASPlotter
 
 @pytest.fixture(scope="package")
 def datapath_gaas():
-    """Path to data_gaas folder"""
+    """Path to data_gaas folder."""
     return Path(__file__).parent / "data_gaas"
 
 
 @pytest.fixture(scope="package")
 def datapath_cdte():
-    """Path to data_cdte folder"""
+    """Path to data_cdte folder."""
     return Path(__file__).parent / "data_cdte"
 
 
 @pytest.fixture(scope="package")
 def examplepath_cdte():
-    """Path to CdTe examples folder"""
+    """Path to CdTe examples folder."""
     return Path(__file__).parent.parent / "examples/CdTe"
 
 
 @pytest.fixture(scope="package")
 def examplepath_gaas():
-    """Path to GaAs examples folder"""
+    """Path to GaAs examples folder."""
     return Path(__file__).parent.parent / "examples/GaAs"
 
 
 @pytest.fixture(scope="package")
 def examplepath_tio2_das():
-    """Path to TiO2_DAS examples folder"""
+    """Path to TiO2_DAS examples folder."""
     return Path(__file__).parent.parent / "examples/TiO2-DAS"
 
 
@@ -88,9 +92,7 @@ def cdte_vasp_bg_3_generated_class(examplepath_cdte):
 
 @pytest.fixture(scope="package")
 def cdte_vasp_generated_class_vr_only(examplepath_cdte):
-    return TASGenerator.from_vasp_outputs(
-        vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml"
-    )
+    return TASGenerator.from_vasp_outputs(vasprun_file=examplepath_cdte / "k666_Optics/vasprun.xml")
 
 
 @pytest.fixture(scope="package")
@@ -107,15 +109,11 @@ def tio2_das_vasp_generated_class(examplepath_tio2_das):
     waveder_new_sys = examplepath_tio2_das / "mp554278-monoclinic/WAVEDER"
     waveder_ref = examplepath_tio2_das / "mp2657-tetragonal/WAVEDER"
 
-    return DASGenerator.from_vasp_outputs(
-        vasprun_new_sys, vasprun_ref, waveder_new_sys, waveder_ref
-    )
+    return DASGenerator.from_vasp_outputs(vasprun_new_sys, vasprun_ref, waveder_new_sys, waveder_ref)
 
 
 @pytest.fixture(scope="package")
-def das_class_vr_only(
-    tio2_das_vasp_generated_class_vr_only, tio2_das_conditions
-):
+def das_class_vr_only(tio2_das_vasp_generated_class_vr_only, tio2_das_conditions):
     return tio2_das_vasp_generated_class_vr_only.generate_das(
         energy_min=tio2_das_conditions[0],
         energy_max=tio2_das_conditions[1],
@@ -143,23 +141,17 @@ def dark_occs_generated(generated_class, conditions):
 
 @pytest.fixture(name="cdte_dark", scope="module")
 def cdte_dark_occs_generated(cdte_generated_class, cdte_conditions):
-    return cdte_generated_class.band_occupancies(
-        cdte_conditions[0], cdte_conditions[1]
-    )
+    return cdte_generated_class.band_occupancies(cdte_conditions[0], cdte_conditions[1])
 
 
 @pytest.fixture(name="light", scope="module")
 def light_occs_generated(generated_class, conditions):
-    return generated_class.band_occupancies(
-        conditions[0], conditions[1], dark=False
-    )
+    return generated_class.band_occupancies(conditions[0], conditions[1], dark=False)
 
 
 @pytest.fixture(name="cdte_light", scope="module")
 def cdte_light_occs_generated(cdte_generated_class, cdte_conditions):
-    return cdte_generated_class.band_occupancies(
-        cdte_conditions[0], cdte_conditions[1], dark=False
-    )
+    return cdte_generated_class.band_occupancies(cdte_conditions[0], cdte_conditions[1], dark=False)
 
 
 @pytest.fixture(scope="package")
@@ -168,9 +160,7 @@ def tas_object(datapath_gaas):
 
 
 @pytest.fixture(scope="module")
-def cdte_tas_object(
-    cdte_generated_class, cdte_conditions, cdte_dark, cdte_light
-):
+def cdte_tas_object(cdte_generated_class, cdte_conditions, cdte_dark, cdte_light):
     return cdte_generated_class.generate_tas(
         cdte_conditions[0],
         cdte_conditions[1],
@@ -199,9 +189,7 @@ def cdte_vasp_tas_object(cdte_vasp_generated_class, cdte_conditions):
 
 
 @pytest.fixture(scope="module")
-def cdte_vasp_tas_object_vr_only(
-    cdte_vasp_generated_class_vr_only, cdte_conditions
-):
+def cdte_vasp_tas_object_vr_only(cdte_vasp_generated_class_vr_only, cdte_conditions):
     return cdte_vasp_generated_class_vr_only.generate_tas(
         cdte_conditions[0],
         cdte_conditions[1],
@@ -242,13 +230,16 @@ def plotter_cdte_vasp(cdte_vasp_tas_object, cdte_conditions):
         material_name="CdTe",
     )
 
+
 @pytest.fixture(scope="module")
 def plotter_tio2_das(das_object, tio2_das_conditions):
-    return TASPlotter(das_object, 
-                      material_name="TiO2",
-                      system_name="Monoclinic",
-                      reference_name="Tetragonal"
-                      ) 
+    return TASPlotter(
+        das_object,
+        material_name="TiO2",
+        system_name="Monoclinic",
+        reference_name="Tetragonal",
+    )
+
 
 @pytest.fixture(scope="module")
 def plotter_cdte_bg_3_vasp(cdte_vasp_tas_bg_3_object, cdte_conditions):
