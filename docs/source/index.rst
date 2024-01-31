@@ -67,12 +67,7 @@ To install directly from the git repository:
 
 	pip install git+https://github.com/WMD-group/PyTASER
 
-To do a manual build and installation:
-
-.. code::
-
-	python3 setup.py build
-	python3 setup.py install
+Alternatively ``python setup.py install`` can also be used.
 
 ===================================
 Developer’s installation (optional)

@@ -30,11 +30,7 @@ To install directly from the git repository:
 ```
 pip install git+https://github.com/WMD-group/PyTASER
 ```
-To do a manual build and installation:
-```
-python3 setup.py build
-python3 setup.py install
-```
+Alternatively `python setup.py install` can also be used.
 
 PyTASER is compatible with Python 3.9+ and relies on a number of open-source packages, specifically:
 
