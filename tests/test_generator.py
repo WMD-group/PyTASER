@@ -376,7 +376,7 @@ def test_from_mpid(mocker, datapath_gaas, generated_class, conditions):
     assert gaas2534.cb == generated_class.cb
 
 
-# Tests for DASGenerator class
+# Tests for DASGenerator class - included in this test file to avoid repeated code.
 
 
 def test_DAS_from_vasprun(

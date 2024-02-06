@@ -129,7 +129,7 @@ class DASGenerator:
             step: Interval between energy points in the energy mesh.
             new_sys_occs: Optional input parameter for occupancies of the new system, otherwise
                 automatically calculated based on input temperature (temp)
-            reference_occs: Optional input parameter for occupancies of the reference system, otherwise
+            ref_occs: Optional input parameter for occupancies of the reference system, otherwise
                 automatically calculated based on input temperature (temp)
             processes: Number of processes to use for multiprocessing. If not set, defaults to one
                 less than the number of CPUs available.

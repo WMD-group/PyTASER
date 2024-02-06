@@ -42,9 +42,13 @@ def test_get_plot(plotter_gaas):
     assert plotter_gaas.energy_mesh_lambda.all() == plotter.ev_to_lambda(plotter_gaas.energy_mesh_ev).all()
 
 
-# to run the following image comparison tests and see relative differences, use the CLI
+# to run the following image comparison tests and see relative differences, use this in CLI:
 # <pytest --mpl --mpl-generate-summary=html test_plotter.py>
-# pytest --mpl-generate-path=data_gaas/remote_baseline_plots test_plotter.py
+
+# to generate a new set of images for the remote baseline plots, use this in CLI:
+# <pytest --mpl-generate-path=data_gaas/remote_baseline_plots test_plotter.py>
+# <pytest --mpl-generate-path=data_cdte/remote_baseline_plots test_plotter.py>
+# <pytest --mpl-generate-path=data_tio2_das/remote_baseline_plots test_plotter.py>
 
 
 @pytest.mark.mpl_image_compare(

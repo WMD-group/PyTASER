@@ -11,13 +11,29 @@
 
 [Official Documentation](https://pytaser.readthedocs.io/en/latest/)
 
-PyTASER is a Python library for simulating differential absorption spectra in compounds using quantum chemical calculations, including transient (TAS) and differential (DAS) absorption spectroscopies. The goal of this library is to simulate spectra for comparison with and interpretation of experiments. The main features include:
+``PyTASER`` is a ``Python`` library for simulating differential absorption spectra in compounds using
+quantum chemical calculations, including transient (TAS) and differential (DAS) absorption spectroscopies.
+The goal of this library is to simulate spectra for comparison with and interpretation of experiments. The main features include:
 
-* Transient (TAS) and differential (DAS) absorption spectra for insulating and semiconducting crystals (using DFT or database calculations)
-* Plotting contributions from individual band-to-band transitions
-* TAS spectra for different conditions: temperature and carrier concentrations
-* Customisable plotting.
-* Capability to input calculated bandstructure and density of states inputs with support for the [Materials Project](https://materialsproject.org)
+* Transient (TAS) and differential (DAS) absorption spectra for insulating and semiconducting crystals
+  (using pre-calculated DFT, or database calculations)
+* Spectra for different temperature and carrier density conditions
+* Separation of spectral contributions from individual band-to-band transitions
+* Integration with the Materials Project database, allowing support for non-locally calculated materials
+* Ability to produce publication-ready figures, with flexibility in plotting.
+
+# Background
+
+TAS is a powerful pump-probe tool to characterise the excited states of materials, while DAS can be used to represent how changes in a system affects its ground-state optical absorption spectra. These techniques can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination.
+
+The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goal here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation of the excited state back to the ground state.
+
+PyTASER is designed for users with moderate experience in computational methods and optical techniques, enabled by the following features:
+
+* Use of Python as the programming language (due to its low entry barrier, flexibility and popularity in the materials modelling field)
+* Documentation and easy-to-follow workflows with complete unit-test coverage.
+* Interfaced with the popular materials analysis package `pymatgen <https://pymatgen.org/index.html>`__
+* Currently compatible with VASP, the most popular electronic structure calculation code. Other codes will be added soon.
 
 # Installation
 

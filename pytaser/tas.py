@@ -1,3 +1,6 @@
+"""This module generates container classes from the generator modules. These will be used to communicate with the
+plotter module. """
+
 import ast
 
 from monty.json import MontyDecoder
@@ -10,14 +13,13 @@ def convert_to_tuple(subdict):
 
 
 def decode_dict(subdict):
-    if isinstance(subdict, dict) and "@module" in subdict:
-        return MontyDecoder().process_decoded(subdict)
-
-    elif isinstance(subdict, dict) and "@module" not in subdict:
-        for k, v in subdict.items():
-            if isinstance(v, dict) and "@module" in v:
-                subdict[k] = MontyDecoder().process_decoded(v)
-
+    if isinstance(subdict, dict):
+        if "@module" in subdict:
+            return MontyDecoder().process_decoded(subdict)
+        else:
+            for k, v in subdict.items():
+                if isinstance(v, dict) and "@module" in v:
+                    subdict[k] = MontyDecoder().process_decoded(v)
     return subdict
 
 
