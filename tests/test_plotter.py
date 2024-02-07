@@ -91,7 +91,9 @@ def test_get_plot_das_nm(plotter_tio2_das):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_ev(plotter_gaas):
-    """Test get_plot() TAS function for GaAs with a 25% cutoff and a electronvolts xaxis."""
+    """
+    Test get_plot() TAS function for GaAs with a 25% cutoff and electronvolts xaxis.
+    """
     return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="energy",

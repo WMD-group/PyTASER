@@ -755,7 +755,7 @@ class TASPlotter:
                 # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
                 formatted_material_name = re.sub(r"(\d)", r"$_{\1}$", self.material_name)
             plt.title(
-                abs_label + " spectrum of " + formatted_material_name,
+                formatted_material_name,
                 fontsize=25,
             )
         else:
@@ -767,12 +767,7 @@ class TASPlotter:
 
                 # plot updated title
                 plt.title(
-                    abs_label
-                    + " spectrum of "
-                    + formatted_material_name
-                    + " at T = "
-                    + str(self.temp)
-                    + " K, n = "
+                    formatted_material_name + " at T = " + str(self.temp) + " K, n = "
                     # where n is the free (electron) carrier concentration
                     + f"{sci_conc[0]}" + f" x 10$^{{{int(sci_conc[1])}}}$" + " cm$^{-3}$",
                     fontsize=25,
