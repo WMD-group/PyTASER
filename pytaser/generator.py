@@ -226,7 +226,7 @@ def get_nonzero_band_transitions(
 
 
 def _init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
-    global _cder, _occs, _eigs_shifted, _norm_kweights  # pylint: disable=global-statement
+    global _cder, _occs, _eigs_shifted, _norm_kweights
     global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape
 
     _cder_shape = cder.shape
