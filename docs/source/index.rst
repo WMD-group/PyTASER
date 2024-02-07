@@ -54,8 +54,8 @@ PyTASER is designed for users with moderate experience in computational methods 
 
 * Use of Python as the programming language (due to its low entry barrier, flexibility and popularity in the materials modelling field)
 * Documentation and easy-to-follow workflows with complete unit-test coverage.
-* Interfaced with the popular materials analysis package `pymatgen <https://pymatgen.org/index.html>`__
-* Currently compatible with VASP, the most popular electronic structure calculation code. Other codes will be added soon.
+* Interfaced with the popular materials analysis package `pymatgen <https://pymatgen.org/index.html>`__.
+* Currently compatible with VASP, while support for other electronic structure codes is planned – if you have a specific request, please open an issue!
 
 ============
 Installation
@@ -115,12 +115,10 @@ Dependencies
 Visualisation
 =============
 
-The preferred method is to generate a ``Jupyter`` Notebook, as shown in the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/>`__ folder.
-Alternatively, you can setup a ``Python`` file to run it in the command line of the terminal:
-
-.. code::
-
-    python3 <filename.py>
+The recommended approach is to use ``PyTASER`` within an interactive python environment (such as a Jupyter
+Notebook), as shown in the `tutorials <https://pytaser.readthedocs.io/en/latest/dft_examples.html>`__ on
+the docs and the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/>`__ folder.
+Alternatively, you can use ``PyTASER`` through python scripts (e.g. with ``python <filename.py>``).
 
 If using your own, locally calculated data, please follow `this workflow <https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_DFT_Example.ipynb>`__. Otherwise, please use the MP-integrated workflow as shown `here <https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_MP_Example.ipynb>`__.
 
