@@ -60,12 +60,6 @@ class TASPlotter:
             material_name: Name of material being investigated (string) [optional, for labelling]
             system_name: Name of the new system used for DAS (string) [optional, for labelling]
             reference_name: Name of the reference system used for DAS (string) [optional, for labelling].
-
-        Args:
-            container:
-            material_name:
-            system_name:
-            reference_name:
         """
         self.energy_mesh_ev = container.energy_mesh_ev
         self.material_name = material_name

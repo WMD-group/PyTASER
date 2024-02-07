@@ -1,3 +1,8 @@
+"""
+This module contains the Internal_Abs class, which is used to generate an absorption spectrum
+(decomposed and cumulative) from a bandstructure and dos object.
+"""
+
 import warnings
 
 import numpy as np
@@ -15,26 +20,28 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 class Internal_Abs:
-    """Class to generate an absorption spectrum (decomposed and cumulative)
+    """
+    Class to generate an absorption spectrum (decomposed and cumulative)
     from a bandstructure and dos object.
-
-    Args:
-        bs: Pymatgen-based bandstructure object
-        kpoint_weights: kpoint weights either found by the function or inputted.
-        dos: Pymatgen-based dos object
-        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
-
-    Attributes:
-        bs: Pymatgen bandstructure object
-        kpoint_weights: k-point weights (degeneracies).
-        dos: Pymatgen-based dos object
-        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
-        bg_centre: Energy (eV) of the bandgap centre.
-        vb: Spin dict detailing the valence band maxima.
-        cb: Spin dict detailing the conduction band minima
     """
 
     def __init__(self, bs, kpoint_weights, dos, dfc=None):
+        """
+        Args:
+            bs: Pymatgen-based bandstructure object
+            kpoint_weights: kpoint weights either found by the function or inputted.
+            dos: Pymatgen-based dos object
+            dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths).
+
+        Attributes:
+            bs: Pymatgen bandstructure object
+            kpoint_weights: k-point weights (degeneracies).
+            dos: Pymatgen-based dos object
+            dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
+            bg_centre: Energy (eV) of the bandgap centre.
+            vb: Spin dict detailing the valence band maxima.
+            cb: Spin dict detailing the conduction band minima
+        """
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = FermiDos(dos)
@@ -54,17 +61,18 @@ class Internal_Abs:
         """Create an Internal_Abs object from VASP output files."""
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
         warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
-        vr = Vasprun(vasprun_file)
+        vr = Vasprun(vasprun_file, parse_potcar_file=False, parse_projected_eigen=False)
 
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
             # check if LVEL was set to True in vasprun file:
             if not vr.incar.get("LVEL", False):
                 lvel_error_message = (
-                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the full "
-                    "band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and compute oscillator "
-                    "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
-                    "previous calculation this should only require 1 or 2 electronic steps!"
+                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the "
+                    "full band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and "
+                    "compute oscillator strengths. Please rerun the VASP calculation with LVEL=True (if "
+                    "you use the WAVECAR from the previous calculation this should only require 1 or 2 "
+                    "electronic steps!"
                 )
                 if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)

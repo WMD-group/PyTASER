@@ -1,3 +1,7 @@
+"""
+This module contains the TASGenerator class, which is used to generate TAS spectra.
+"""
+
 import warnings
 from multiprocessing import Array, Pool, cpu_count
 
@@ -17,7 +21,9 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 def gaussian(x, width, center=0.0, height=None):
-    """Returns the values of gaussian(x) where x is array-like.
+    """
+    Returns Gaussian curve(s) centred at point(s)
+    x, where x is array-like.
 
     Args:
         x: Input array.
@@ -219,8 +225,8 @@ def get_nonzero_band_transitions(
     )
 
 
-def init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
-    global _cder, _occs, _eigs_shifted, _norm_kweights
+def _init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
+    global _cder, _occs, _eigs_shifted, _norm_kweights  # pylint: disable=global-statement
     global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape
 
     _cder_shape = cder.shape
@@ -327,7 +333,7 @@ def occ_dependent_alpha(
     ):  # quicker without multiprocessing below this arg length
         with Pool(
             processes,
-            initializer=init_shared_memory,
+            initializer=_init_shared_memory,
             initargs=shared_memory_args,
         ) as pool:
             results = pool.map(
@@ -391,26 +397,28 @@ def get_cbm_vbm_index(bs):
 
 
 class TASGenerator:
-    """Class to generate a TAS spectrum (decomposed and cumulative) from a bandstructure and
-    dos object.
-
-    Args:
-        bs: Pymatgen-based bandstructure object
-        kpoint_weights: kpoint weights either found by the function or inputted.
-        dos: Pymatgen-based dos object
-        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
-
-    Attributes:
-        bs: Pymatgen bandstructure object
-        kpoint_weights: k-point weights (degeneracies).
-        dos: Pymatgen-based dos object
-        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
-        bg_centre: Energy (eV) of the bandgap centre.
-        vb: Spin dict detailing the valence band maxima.
-        cb: Spin dict detailing the conduction band minima
+    """
+    Class to generate a TAS spectrum (decomposed and cumulative) from
+    a bandstructure and dos object.
     """
 
     def __init__(self, bs, kpoint_weights, dos, dfc=None):
+        """
+        Args:
+            bs: Pymatgen-based bandstructure object
+            kpoint_weights: kpoint weights either found by the function or inputted.
+            dos: Pymatgen-based dos object
+            dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths).
+
+        Attributes:
+            bs: Pymatgen bandstructure object
+            kpoint_weights: k-point weights (degeneracies).
+            dos: Pymatgen-based dos object
+            dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
+            bg_centre: Energy (eV) of the bandgap centre.
+            vb: Spin dict detailing the valence band maxima.
+            cb: Spin dict detailing the conduction band minima
+        """
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = FermiDos(dos)
@@ -439,16 +447,17 @@ class TASGenerator:
         """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
         warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
-        vr = Vasprun(vasprun_file)
+        vr = Vasprun(vasprun_file, parse_potcar_file=False, parse_projected_eigen=False)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
             # check if LVEL was set to True in vasprun file:
             if not vr.incar.get("LVEL", False):
                 lvel_error_message = (
-                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the full "
-                    "band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and compute oscillator "
-                    "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
-                    "previous calculation this should only require 1 or 2 electronic steps!"
+                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the "
+                    "full band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and "
+                    "compute oscillator strengths. Please rerun the VASP calculation with LVEL=True (if "
+                    "you use the WAVECAR from the previous calculation this should only require 1 or 2 "
+                    "electronic steps!"
                 )
                 if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)
@@ -660,7 +669,7 @@ class TASGenerator:
                 tdm_array_light[tdm_array_dark.nonzero()] = 0  # zero out duplicate TDM array values
                 tdm_array = tdm_array_dark + tdm_array_light
 
-                for key, array in alpha_light_dict.items():
+                for key in alpha_light_dict:
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
 
             for i in range(len(spin_bands)):
