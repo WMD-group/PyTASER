@@ -42,6 +42,13 @@ The goal of this library is to simulate spectra for comparison with and interpre
 * Integration with the Materials Project database, allowing support for non-locally calculated materials
 * Ability to produce publication-ready figures, with flexibility in plotting.
 
+PyTASER is designed for users with moderate experience in computational methods and optical techniques, enabled by the following features:
+
+* Use of Python as the programming language (due to its low entry barrier, flexibility and popularity in the materials modelling field)
+* Documentation and easy-to-follow workflows with complete unit-test coverage.
+* Interfaced with the popular materials analysis package `pymatgen <https://pymatgen.org/index.html>`__.
+* Currently compatible with VASP, while support for other electronic structure codes is planned – if you have a specific request, please open an issue!
+
 ==========
 Background
 ==========
@@ -50,12 +57,14 @@ TAS is a powerful pump-probe tool to characterise the excited states of material
 
 The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goal here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation of the excited state back to the ground state.
 
-PyTASER is designed for users with moderate experience in computational methods and optical techniques, enabled by the following features:
+To achieve this, PyTASER identifies the allowed vertical optical transitions between electronic bands of the material to determine possible excitations that can occur from the ground 'dark' and excited 'light' electronic states.
+This is done by calculating the effective absorption in each state - this is a product of the joint density of states (JDOS) and the transition probability for each band transition, both of which are based on post-processing ground state DFT calculations. Once calculated, PyTASER compares changes in electronic transitions between the dark and light states, as demonstrated in the figure below.
 
-* Use of Python as the programming language (due to its low entry barrier, flexibility and popularity in the materials modelling field)
-* Documentation and easy-to-follow workflows with complete unit-test coverage.
-* Interfaced with the popular materials analysis package `pymatgen <https://pymatgen.org/index.html>`__.
-* Currently compatible with VASP, while support for other electronic structure codes is planned – if you have a specific request, please open an issue!
+.. figure:: _static/jdos-tas-schematic.png
+   :scale: 15 %
+   :align: center
+
+   Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited 'light' state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots.
 
 ============
 Installation
