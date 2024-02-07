@@ -17,7 +17,6 @@ pymatgen
 matplotlib
 numpy>=1.21
 scipy
-setuptools
 monty
 pytest-mpl
 pytest

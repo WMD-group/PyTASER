@@ -3,12 +3,11 @@ name: Tests
 on:
   pull_request:
     branches:
-       - main
-       - develop
+      - '*'  # all branches
   push:
     branches:
-      - main
-      - develop
+      - '*'  # all branches
+
   workflow_dispatch:
 
 jobs:

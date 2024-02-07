@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Created on Thu Aug  3 16:42:36 2023
+"""Created on Thu Aug  3 16:42:36 2023.
 
 @author: lucasverga
 """
@@ -17,8 +16,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 class DASGenerator:
-    """
-    Class to generate a DAS spectrum (decomposed and cumulative) from a bandstructure and
+    """Class to generate a DAS spectrum (decomposed and cumulative) from a bandstructure and
     dos object.
 
     Args:
@@ -45,8 +43,7 @@ class DASGenerator:
         waveder_file_new_system=None,
         waveder_file_ref=None,
     ):
-        """
-        Create a DASGenerator object from VASP output files.
+        """Create a DASGenerator object from VASP output files.
 
         The user should provide the vasprun files for the new system and the reference system,
         followed by the waveder files for the new system and the reference system.
@@ -56,20 +53,15 @@ class DASGenerator:
             vasprun_file_ref: The vasprun.xml file for the reference system.
             waveder_file_new_system: The WAVEDER file for the new system.
             waveder_file_ref: The WAVEDER file for the reference system.
+
         Returns:
             A DASGenerator object containing the Internal_Abs object for the new system and reference system.
         """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
-        warnings.filterwarnings(
-            "ignore", message="No POTCAR file with matching TITEL fields"
-        )
+        warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
 
-        new_system = Internal_Abs.internal_from_vasp(
-            vasprun_file_new_system, waveder_file_new_system
-        )
-        reference_system = Internal_Abs.internal_from_vasp(
-            vasprun_file_ref, waveder_file_ref
-        )
+        new_system = Internal_Abs.internal_from_vasp(vasprun_file_new_system, waveder_file_new_system)
+        reference_system = Internal_Abs.internal_from_vasp(vasprun_file_ref, waveder_file_ref)
 
         return cls(new_system, reference_system)
 
@@ -84,8 +76,7 @@ class DASGenerator:
         mpr=None,
         mpr_ref=None,
     ):
-        """
-        Import the desired bandstructure and dos objects from the legacy Materials Project
+        """Import the desired bandstructure and dos objects from the legacy Materials Project
         database.
 
         Args:
@@ -102,12 +93,8 @@ class DASGenerator:
         Returns:
             A DASGenerator object containing the Internal_Abs object for the new system and reference system.
         """
-        new_system = Internal_Abs.internal_from_mpid(
-            mpid, bg=None, api_key=None, mpr=None
-        )
-        reference_system = Internal_Abs.internal_from_mpid(
-            mpid_ref, bg_ref, api_key=None, mpr_ref=None
-        )
+        new_system = Internal_Abs.internal_from_mpid(mpid, bg=None, api_key=None, mpr=None)
+        reference_system = Internal_Abs.internal_from_mpid(mpid_ref, bg_ref, api_key=None, mpr_ref=None)
 
         return cls(new_system, reference_system)
 
@@ -123,8 +110,7 @@ class DASGenerator:
         ref_occs=None,
         processes=None,
     ):
-        """
-        Generates DAS spectra (new system - reference system) based on inputted occupancies,
+        """Generates DAS spectra (new system - reference system) based on inputted occupancies,
         and a specified energy mesh. If the DASGenerator has not been generated from VASP
         outputs (and thus does not have a dfc attribute), then the output DAS is generated
         using the change in joint density of states (JDOS) from both systems, with no consideration
@@ -143,7 +129,7 @@ class DASGenerator:
             step: Interval between energy points in the energy mesh.
             new_sys_occs: Optional input parameter for occupancies of the new system, otherwise
                 automatically calculated based on input temperature (temp)
-            reference_occs: Optional input parameter for occupancies of the reference system, otherwise
+            ref_occs: Optional input parameter for occupancies of the reference system, otherwise
                 automatically calculated based on input temperature (temp)
             processes: Number of processes to use for multiprocessing. If not set, defaults to one
                 less than the number of CPUs available.
@@ -171,9 +157,7 @@ class DASGenerator:
                     transition i (initial) -> f (final), weighted by the oscillator strength of
                     the transition [dict]
         """
-        bandgap_ref = round(
-            self.reference_system.bs.get_band_gap()["energy"], 2
-        )
+        bandgap_ref = round(self.reference_system.bs.get_band_gap()["energy"], 2)
         bandgap_new_sys = round(self.new_system.bs.get_band_gap()["energy"], 2)
 
         energy_mesh_ev = np.arange(energy_min, energy_max, step)
@@ -229,10 +213,6 @@ class DASGenerator:
             temp,
             alpha_new_sys if self.new_system.dfc is not None else None,
             alpha_ref if self.reference_system.dfc is not None else None,
-            weighted_jdos_new_sys_if
-            if self.new_system.dfc is not None
-            else None,
-            weighted_jdos_ref_if
-            if self.reference_system.dfc is not None
-            else None,
+            weighted_jdos_new_sys_if if self.new_system.dfc is not None else None,
+            weighted_jdos_ref_if if self.reference_system.dfc is not None else None,
         )

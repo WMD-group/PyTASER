@@ -33,15 +33,21 @@ Introduction
 
 ``PyTASER`` is a ``Python`` library for simulating differential absorption spectra in compounds using
 quantum chemical calculations, including transient (TAS) and differential (DAS) absorption spectroscopies.
-The goal of this library is to simulate spectra for comparison with and interpretation of experiments.
-The main features include:
+The goal of this library is to simulate spectra for comparison with and interpretation of experiments. The main features include:
 
 * Transient (TAS) and differential (DAS) absorption spectra for insulating and semiconducting crystals
-  (using DFT or database calculations)
-* Plotting contributions from individual band-to-band transitions
-* TAS spectra for different conditions: temperature and carrier concentrations
-* Customisable plotting.
-* Capability to input calculated bandstructures and density of states inputs with support for https://materialsproject.org.
+  (using pre-calculated DFT, or database calculations)
+* Spectra for different temperature and carrier density conditions
+* Separation of spectral contributions from individual band-to-band transitions
+* Integration with the Materials Project database, allowing support for non-locally calculated materials
+* Ability to produce publication-ready figures, with flexibility in plotting.
+
+PyTASER is designed for users with moderate experience in computational methods and optical techniques, enabled by the following features:
+
+* Use of Python as the programming language (due to its low entry barrier, flexibility and popularity in the materials modelling field)
+* Documentation and easy-to-follow workflows with complete unit-test coverage.
+* Interfaced with the popular materials analysis package `pymatgen <https://pymatgen.org/index.html>`__.
+* Currently compatible with VASP, while support for other electronic structure codes is planned – if you have a specific request, please open an issue!
 
 ==========
 Background
@@ -50,6 +56,15 @@ Background
 TAS is a powerful pump-probe tool to characterise the excited states of materials, while DAS can be used to represent how changes in a system affects its ground-state optical absorption spectra. These techniques can be used to understand microscopic processes in photochemical and electrochemical transformations, including phenomena such as electron trapping and carrier recombination.
 
 The drawback is that TAS spectra are difficult to interpret, especially for crystals where the specific valence and conduction band structure can give rise to complex features. Our goal here is to predict TAS features from first-principles starting from the most simple models of static excitations through to the kinetics of relaxation of the excited state back to the ground state.
+
+To achieve this, PyTASER identifies the allowed vertical optical transitions between electronic bands of the material to determine possible excitations that can occur from the ground 'dark' and excited 'light' electronic states.
+This is done by calculating the effective absorption in each state - this is a product of the joint density of states (JDOS) and the transition probability for each band transition, both of which are based on post-processing ground state DFT calculations. Once calculated, PyTASER compares changes in electronic transitions between the dark and light states, as demonstrated in the figure below.
+
+.. figure:: _static/jdos-tas-schematic.png
+   :scale: 15 %
+   :align: center
+
+   Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited 'light' state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots.
 
 ============
 Installation
@@ -67,12 +82,7 @@ To install directly from the git repository:
 
 	pip install git+https://github.com/WMD-group/PyTASER
 
-To do a manual build and installation:
-
-.. code::
-
-	python3 setup.py build
-	python3 setup.py install
+Alternatively ``python setup.py install`` can also be used.
 
 ===================================
 Developer’s installation (optional)
@@ -114,12 +124,10 @@ Dependencies
 Visualisation
 =============
 
-The preferred method is to generate a ``Jupyter`` Notebook, as shown in the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/>`__ folder.
-Alternatively, you can setup a ``Python`` file to run it in the command line of the terminal:
-
-.. code::
-
-    python3 <filename.py>
+The recommended approach is to use ``PyTASER`` within an interactive python environment (such as a Jupyter
+Notebook), as shown in the `tutorials <https://pytaser.readthedocs.io/en/latest/dft_examples.html>`__ on
+the docs and the `examples <https://github.com/WMD-group/PyTASER/blob/main/examples/>`__ folder.
+Alternatively, you can use ``PyTASER`` through python scripts (e.g. with ``python <filename.py>``).
 
 If using your own, locally calculated data, please follow `this workflow <https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_DFT_Example.ipynb>`__. Otherwise, please use the MP-integrated workflow as shown `here <https://github.com/WMD-group/PyTASER/blob/main/examples/PyTASER_MP_Example.ipynb>`__.
 
