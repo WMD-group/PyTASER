@@ -1,3 +1,6 @@
+"""This module generates container classes from the generator modules. These will be used to communicate with the
+plotter module. """
+
 import ast
 
 from monty.json import MontyDecoder
@@ -5,28 +8,23 @@ from monty.json import MontyDecoder
 
 def convert_to_tuple(subdict):
     if isinstance(subdict, dict) and "@module" not in subdict:
-        return {
-            ast.literal_eval(k) if "(" in k and ")" in k else k: v
-            for k, v in subdict.items()
-        }
+        return {ast.literal_eval(k) if "(" in k and ")" in k else k: v for k, v in subdict.items()}
     return subdict
 
 
 def decode_dict(subdict):
-    if isinstance(subdict, dict) and "@module" in subdict:
-        return MontyDecoder().process_decoded(subdict)
-
-    elif isinstance(subdict, dict) and "@module" not in subdict:
-        for k, v in subdict.items():
-            if isinstance(v, dict) and "@module" in v:
-                subdict[k] = MontyDecoder().process_decoded(v)
-
+    if isinstance(subdict, dict):
+        if "@module" in subdict:
+            return MontyDecoder().process_decoded(subdict)
+        else:
+            for k, v in subdict.items():
+                if isinstance(v, dict) and "@module" in v:
+                    subdict[k] = MontyDecoder().process_decoded(v)
     return subdict
 
 
 class Tas:
-    """
-    A container class for the data from TASgenerator.
+    """A container class for the data from TASgenerator.
 
     Args:
         tas_total: overall TAS spectrum for a material under the specified conditions
@@ -92,9 +90,7 @@ class Tas:
         self.weighted_jdos_diff_if = weighted_jdos_diff_if
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of Tas
-        """
+        """JSON-serializable dict representation of Tas."""
         json_dict = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -123,8 +119,7 @@ class Tas:
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Reconstructs Tas object from a dict representation of Tas created using
+        """Reconstructs Tas object from a dict representation of Tas created using
         Tas.as_dict().
 
         Args:
@@ -133,20 +128,18 @@ class Tas:
         Returns:
             Tas object
         """
-
         d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
         d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
 
         for monty_key in ["@module", "@class"]:
-            if monty_key in d_decoded.keys():
+            if monty_key in d_decoded:
                 d_decoded.pop(monty_key)
 
         return cls(**d_decoded)
 
 
 class Das:
-    """
-    A container class for the data from DASGenerator.
+    """A container class for the data from DASGenerator.
 
     Args:
         das_total: overall DAS spectrum between new_system and reference system.
@@ -206,9 +199,7 @@ class Das:
         self.weighted_jdos_ref_if = weighted_jdos_ref_if
 
     def as_dict(self):
-        """
-        JSON-serializable dict representation of Das
-        """
+        """JSON-serializable dict representation of Das."""
         json_dict = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -235,8 +226,7 @@ class Das:
 
     @classmethod
     def from_dict(cls, d):
-        """
-        Reconstructs Das object from a dict representation of Das created using
+        """Reconstructs Das object from a dict representation of Das created using
         Das.as_dict().
 
         Args:
@@ -245,7 +235,6 @@ class Das:
         Returns:
             Das object
         """
-
         d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
         d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
 

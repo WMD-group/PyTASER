@@ -1,3 +1,7 @@
+"""
+This module contains the TASGenerator class, which is used to generate TAS spectra.
+"""
+
 import warnings
 from multiprocessing import Array, Pool, cpu_count
 
@@ -18,7 +22,8 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def gaussian(x, width, center=0.0, height=None):
     """
-    Returns the values of gaussian(x) where x is array-like.
+    Returns Gaussian curve(s) centred at point(s)
+    x, where x is array-like.
 
     Args:
         x: Input array.
@@ -34,8 +39,7 @@ def gaussian(x, width, center=0.0, height=None):
 
 
 def set_bandgap(bandstructure, dos, bandgap):
-    """
-    Shifts all bands of a material to correct the DFT-underestimated bandgap according to
+    """Shifts all bands of a material to correct the DFT-underestimated bandgap according to
     the input experimental bandgap.
 
     Args:
@@ -50,17 +54,13 @@ def set_bandgap(bandstructure, dos, bandgap):
     from copy import deepcopy
 
     if abs(dos.efermi - bandstructure.efermi) > 0.001:
-        raise ValueError(
-            "DOS and band structure are not from the same calculation"
-        )
+        raise ValueError("DOS and band structure are not from the same calculation")
 
     if bandstructure.is_metal():
         raise ValueError("System is a metal, cannot change bandgap")
 
     scissor = bandgap - bandstructure.get_band_gap()["energy"]
-    midgap = (
-        bandstructure.get_cbm()["energy"] + bandstructure.get_vbm()["energy"]
-    ) / 2
+    midgap = (bandstructure.get_cbm()["energy"] + bandstructure.get_vbm()["energy"]) / 2
 
     new_bandstructure = deepcopy(bandstructure)
     for spin, spin_energies in bandstructure.bands.items():
@@ -72,15 +72,13 @@ def set_bandgap(bandstructure, dos, bandgap):
     de = np.diff(dos.energies).mean()
     shift = int(scissor / 2 // de)
     new_dos = deepcopy(dos)
-    for spin in dos.densities.keys():
+    for spin in dos.densities:
         dens = np.zeros_like(dos.energies)
         if shift > 0:
             dens[: fermi_idx - shift] = dos.densities[spin][shift:fermi_idx]
             dens[fermi_idx + shift :] = dos.densities[spin][fermi_idx:-shift]
         else:
-            dens[abs(shift) : fermi_idx] = dos.densities[spin][
-                : fermi_idx + shift
-            ]
+            dens[abs(shift) : fermi_idx] = dos.densities[spin][: fermi_idx + shift]
             dens[fermi_idx:+shift] = dos.densities[spin][fermi_idx - shift :]
         new_dos.densities[spin] = dens
 
@@ -91,8 +89,7 @@ def set_bandgap(bandstructure, dos, bandgap):
 
 
 def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
-    """
-    Args:
+    """Args:
         bs: bandstructure object
         f: final band
         i: initial band
@@ -106,7 +103,6 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         Cumulative JDOS value for a specific i->f transition, with consideration of
         partial occupancy and spin polarisation.
     """
-
     jdos = np.zeros(len(energies))
     for k in range(len(bs.bands[spin][i])):
         final_occ = occs[f][k]
@@ -116,26 +112,20 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
         k_weight = kweights[k]
         factor = k_weight * (init_occ - final_occ)
 
-        jdos += factor * gaussian(
-            energies, gaussian_width, center=final_energy - init_energy
-        )
+        jdos += factor * gaussian(energies, gaussian_width, center=final_energy - init_energy)
     return jdos
 
 
 def _calculate_oscillator_strength(args):
-    """Calculates the oscillator strength of a single band-band transition"""
+    """Calculates the oscillator strength of a single band-band transition."""
     if len(args) == 9:  # shared memory arrays
         ib, jb, ik, rspin, spin, sigma, nedos, deltae, ismear = args
 
         # Convert shared arrays back to numpy arrays
         cder = np.frombuffer(_cder.get_obj()).reshape(_cder_shape)
         occs = np.frombuffer(_occs.get_obj()).reshape(_occs_shape)
-        eigs_shifted = np.frombuffer(_eigs_shifted.get_obj()).reshape(
-            _eigs_shifted_shape
-        )
-        norm_kweights = np.frombuffer(_norm_kweights.get_obj()).reshape(
-            _norm_kweights_shape
-        )
+        eigs_shifted = np.frombuffer(_eigs_shifted.get_obj()).reshape(_eigs_shifted_shape)
+        norm_kweights = np.frombuffer(_norm_kweights.get_obj()).reshape(_norm_kweights_shape)
 
     else:  # normal function call
         (
@@ -159,9 +149,7 @@ def _calculate_oscillator_strength(args):
     A = np.sum(np.abs(cder[ib, jb, ik, ispin, :3] ** 2)) / 3
     decel = eigs_shifted[jb, ik, ispin] - eigs_shifted[ib, ik, ispin]
     matrix_el_wout_occ_factor = np.abs(A) * norm_kweights[ik] * rspin
-    tdm = (
-        np.abs(A) * rspin * decel
-    )  # kweight and occ factor already accounted for with JDOS
+    tdm = np.abs(A) * rspin * decel  # kweight and occ factor already accounted for with JDOS
 
     init_occ = occs[ib][ik]
     final_occ = occs[jb][ik]
@@ -201,7 +189,7 @@ def get_nonzero_band_transitions(
     max_band,
     nk,
 ):
-    """Helper function to filter band transitions before (multi)processing"""
+    """Helper function to filter band transitions before (multi)processing."""
     ispin_idx = 0 if spin == Spin.up else 1
 
     ib_vals, jb_vals, ik_vals = np.meshgrid(
@@ -219,8 +207,7 @@ def get_nonzero_band_transitions(
     condition = (
         final_energy_vals > init_energy_vals
     ) & (  # one-way transitions (emission is accounted for by occupancy factor)
-        np.abs(init_occ_vals - final_occ_vals)
-        > 0.01  # non-negligible occupancy factor
+        np.abs(init_occ_vals - final_occ_vals) > 0.01  # non-negligible occupancy factor
     )
 
     return list(
@@ -238,7 +225,7 @@ def get_nonzero_band_transitions(
     )
 
 
-def init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
+def _init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
     global _cder, _occs, _eigs_shifted, _norm_kweights
     global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape
 
@@ -261,8 +248,7 @@ def occ_dependent_alpha(
     processes=None,
     energy_max=6,
 ):
-    """
-    Calculate the expected optical absorption given the groundstate orbital derivatives and
+    """Calculate the expected optical absorption given the groundstate orbital derivatives and
     eigenvalues (via dfc) and specified band occupancies.
     Templated from pymatgen.io.vasp.optics.epsilon_imag().
 
@@ -295,17 +281,14 @@ def occ_dependent_alpha(
     egrid = np.linspace(0, dfc.nedos * dfc.deltae, dfc.nedos, endpoint=False)
 
     dielectric_dict = {
-        key: np.zeros_like(egrid, dtype=np.complex128)
-        for key in ["absorption", "emission", "both"]
+        key: np.zeros_like(egrid, dtype=np.complex128) for key in ["absorption", "emission", "both"]
     }
     # array of shape equal to cder but without the last two dimensions (ispin, idir)
     tdm_array = np.zeros_like(dfc.cder[:, :, :, 0, 0])  # ib, jb, ik
 
     norm_kweights = np.array(dfc.kweights) / np.sum(dfc.kweights)
     eigs_shifted = dfc.eigs - dfc.efermi
-    rspin = (
-        3 - dfc.cder.shape[3]
-    )  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
+    rspin = 3 - dfc.cder.shape[3]  # 2 for ISPIN = 1, 1 for ISPIN = 2 (spin-polarised)
 
     # set band range to consider, based on energy_max:
     # use -6 eV to +6 eV as minimum range, extended to -energy_max/+energy_max if energy_max > 6 eV
@@ -317,11 +300,7 @@ def occ_dependent_alpha(
     spin_string = "up" if spin == Spin.up else "down"
     light_dark_string = (
         "under illumination"
-        if any(
-            occs[b][k] not in [0, 1]
-            for b in range(min_band, max_band + 1)
-            for k in range(nk)
-        )
+        if any(occs[b][k] not in [0, 1] for b in range(min_band, max_band + 1) for k in range(nk))
         else "dark"
     )
 
@@ -347,16 +326,14 @@ def occ_dependent_alpha(
         len(nonzero_transition_args) <= 2.5e6
     ) or processes < 2:  # don't use multiprocessing for small arrays
         # append shared memory arguments to the list of arguments for each process
-        nonzero_transition_args = [
-            (*arg, *shared_memory_args) for arg in nonzero_transition_args
-        ]
+        nonzero_transition_args = [(*arg, *shared_memory_args) for arg in nonzero_transition_args]
 
     if (
         processes > 1 and len(nonzero_transition_args) > 2.5e6
     ):  # quicker without multiprocessing below this arg length
         with Pool(
             processes,
-            initializer=init_shared_memory,
+            initializer=_init_shared_memory,
             initargs=shared_memory_args,
         ) as pool:
             results = pool.map(
@@ -375,9 +352,7 @@ def occ_dependent_alpha(
             )
         ]
 
-    results_array = np.array(
-        results, dtype=object
-    )  # dtype=object ensures that data is preserved
+    results_array = np.array(results, dtype=object)  # dtype=object ensures that data is preserved
 
     # Accumulate the results
     dielectric_dict["absorption"] += results_array[:, 0].sum()
@@ -394,26 +369,21 @@ def occ_dependent_alpha(
     alpha_dict = {}
     for key, dielectric in dielectric_dict.items():
         eps_in = dielectric * optics.edeps * np.pi / dfc.volume
-        eps = optics.kramers_kronig(
-            eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift
-        )
+        eps = optics.kramers_kronig(eps_in, nedos=dfc.nedos, deltae=dfc.deltae, cshift=cshift)
         eps += 1.0 + 0.0j
         dielectric_dict[key] = eps  # complex dielectric function
 
         # convert to alpha:
         n = np.sqrt(eps)  # complex refractive index
-        alpha = (
-            n.imag * egrid * 4 * np.pi / 1.23984212e-4
-        )  # absorption coefficient in cm^-1
+        alpha = n.imag * egrid * 4 * np.pi / 1.23984212e-4  # absorption coefficient in cm^-1
         alpha_dict[key] = alpha
 
     return alpha_dict, tdm_array
 
 
 def get_cbm_vbm_index(bs):
-    """
-    Args:
-        bs: bandstructure object
+    """Args:
+        bs: bandstructure object.
 
     Returns:
         Valence and Conduction band as an index number for different spins.
@@ -421,35 +391,34 @@ def get_cbm_vbm_index(bs):
     vbm_index = {}
     cbm_index = {}
     for spin, spin_bands in bs.bands.items():
-        vbm_index[spin] = np.where(np.all(spin_bands <= bs.efermi, axis=1))[
-            0
-        ].max()
+        vbm_index[spin] = np.where(np.all(spin_bands <= bs.efermi, axis=1))[0].max()
         cbm_index[spin] = vbm_index[spin] + 1
     return vbm_index, cbm_index
 
 
 class TASGenerator:
     """
-    Class to generate a TAS spectrum (decomposed and cumulative) from a bandstructure and
-    dos object.
-
-    Args:
-        bs: Pymatgen-based bandstructure object
-        kpoint_weights: kpoint weights either found by the function or inputted.
-        dos: Pymatgen-based dos object
-        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
-
-    Attributes:
-        bs: Pymatgen bandstructure object
-        kpoint_weights: k-point weights (degeneracies).
-        dos: Pymatgen-based dos object
-        dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
-        bg_centre: Energy (eV) of the bandgap centre.
-        vb: Spin dict detailing the valence band maxima.
-        cb: Spin dict detailing the conduction band minima
+    Class to generate a TAS spectrum (decomposed and cumulative) from
+    a bandstructure and dos object.
     """
 
     def __init__(self, bs, kpoint_weights, dos, dfc=None):
+        """
+        Args:
+            bs: Pymatgen-based bandstructure object
+            kpoint_weights: kpoint weights either found by the function or inputted.
+            dos: Pymatgen-based dos object
+            dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths).
+
+        Attributes:
+            bs: Pymatgen bandstructure object
+            kpoint_weights: k-point weights (degeneracies).
+            dos: Pymatgen-based dos object
+            dfc: Pymatgen-based DielectricFunctionCalculator object (for computing oscillator strengths)
+            bg_centre: Energy (eV) of the bandgap centre.
+            vb: Spin dict detailing the valence band maxima.
+            cb: Spin dict detailing the conduction band minima
+        """
         self.bs = bs
         self.kpoint_weights = kpoint_weights
         self.dos = FermiDos(dos)
@@ -464,8 +433,7 @@ class TASGenerator:
 
     @classmethod
     def from_vasp_outputs(cls, vasprun_file, waveder_file=None, bg=None):
-        """
-        Create a TASGenerator object from VASP output files.
+        """Create a TASGenerator object from VASP output files.
 
         Args:
             vasprun_file: Path to vasprun.xml file (to generate bandstructure object).
@@ -478,29 +446,24 @@ class TASGenerator:
             A TASGenerator object.
         """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
-        warnings.filterwarnings(
-            "ignore", message="No POTCAR file with matching TITEL fields"
-        )
-        vr = Vasprun(vasprun_file)
+        warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
+        vr = Vasprun(vasprun_file, parse_potcar_file=False, parse_projected_eigen=False)
         if waveder_file:
             waveder = Waveder.from_binary(waveder_file)
             # check if LVEL was set to True in vasprun file:
             if not vr.incar.get("LVEL", False):
                 lvel_error_message = (
-                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the full "
-                    "band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and compute oscillator "
-                    "strengths. Please rerun the VASP calculation with LVEL=True (if you use the WAVECAR from the "
-                    "previous calculation this should only require 1 or 2 electronic steps!"
+                    "LVEL must be set to True in the INCAR for the VASP optics calculation to output the "
+                    "full band-band orbital derivatives and thus allow PyTASer to parse the WAVEDER and "
+                    "compute oscillator strengths. Please rerun the VASP calculation with LVEL=True (if "
+                    "you use the WAVECAR from the previous calculation this should only require 1 or 2 "
+                    "electronic steps!"
                 )
                 if vr.incar.get("ISYM", 2) in [-1, 0]:
                     raise ValueError(lvel_error_message)
-                raise ValueError(
-                    f"ISYM must be set to 0 and {lvel_error_message}"
-                )
+                raise ValueError(f"ISYM must be set to 0 and {lvel_error_message}")
 
-            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(
-                vr, waveder
-            )
+            dfc = optics.DielectricFunctionCalculator.from_vasp_objects(vr, waveder)
         else:
             dfc = None
 
@@ -524,8 +487,7 @@ class TASGenerator:
         )
 
     def band_occupancies(self, temp, conc, dark=True):
-        """
-        Gives band occupancies.
+        """Gives band occupancies.
 
         Args:
             temp: Temperature of material we wish to investigate (affects the FD
@@ -538,9 +500,7 @@ class TASGenerator:
             A dictionary of {Spin: occs} for all bands across all k-points.
         """
         # Calculate the quasi-Fermi levels
-        q_fermi_e = self.dos.get_fermi(
-            -conc, temp
-        )  # quasi-electron fermi level
+        q_fermi_e = self.dos.get_fermi(-conc, temp)  # quasi-electron fermi level
         q_fermi_h = self.dos.get_fermi(conc, temp)  # quasi-hole fermi level
 
         occs = {}
@@ -586,8 +546,7 @@ class TASGenerator:
         dark_occs=None,
         processes=None,
     ):
-        """
-        Generates TAS spectra based on inputted occupancies, and a specified energy mesh. If the
+        """Generates TAS spectra based on inputted occupancies, and a specified energy mesh. If the
         TASGenerator has not been generated from VASP outputs (and thus does not have a dfc
         attribute), then the output TAS is generated using the change in joint density of states
         (JDOS) under illumination, with no consideration of oscillator strengths.
@@ -695,9 +654,7 @@ class TASGenerator:
                     processes=processes,
                     energy_max=energy_max,
                 )
-                alpha_dark += alpha_dark_dict[
-                    "both"
-                ]  # stimulated emission should be zero in the dark
+                alpha_dark += alpha_dark_dict["both"]  # stimulated emission should be zero in the dark
                 (
                     calculated_alpha_light_dict,
                     tdm_array_light,
@@ -709,12 +666,10 @@ class TASGenerator:
                     processes=processes,
                     energy_max=energy_max,
                 )
-                tdm_array_light[
-                    tdm_array_dark.nonzero()
-                ] = 0  # zero out duplicate TDM array values
+                tdm_array_light[tdm_array_dark.nonzero()] = 0  # zero out duplicate TDM array values
                 tdm_array = tdm_array_dark + tdm_array_light
 
-                for key, array in alpha_light_dict.items():
+                for key in alpha_light_dict:
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
 
             for i in range(len(spin_bands)):
@@ -765,8 +720,7 @@ class TASGenerator:
                                 i,
                                 occs_light[spin],
                                 energy_mesh_ev,
-                                np.array(self.kpoint_weights)
-                                * tdm_array[i, f, :],
+                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
                                 gaussian_width,
                                 spin=spin,
                             )
@@ -776,14 +730,11 @@ class TASGenerator:
                                 i,
                                 occs_dark[spin],
                                 energy_mesh_ev,
-                                np.array(self.kpoint_weights)
-                                * tdm_array[i, f, :],
+                                np.array(self.kpoint_weights) * tdm_array[i, f, :],
                                 gaussian_width,
                                 spin=spin,
                             )
-                            weighted_jdos_diff = (
-                                weighted_jd_light - weighted_jd_dark
-                            )
+                            weighted_jdos_diff = weighted_jd_light - weighted_jd_dark
 
                             weighted_jdos_light_if[key] = weighted_jd_light
                             weighted_jdos_dark_if[key] = weighted_jd_dark
@@ -795,11 +746,7 @@ class TASGenerator:
             for key, array in alpha_light_dict.items():
                 alpha_light_dict[key] = np.interp(energy_mesh_ev, egrid, array)
 
-            tas_total = (
-                alpha_light_dict["absorption"]
-                - alpha_light_dict["emission"]
-                - alpha_dark
-            )
+            tas_total = alpha_light_dict["absorption"] - alpha_light_dict["emission"] - alpha_dark
 
         return Tas(
             tas_total,
@@ -821,8 +768,7 @@ class TASGenerator:
 
     @classmethod
     def from_mpid(cls, mpid, bg=None, api_key=None, mpr=None):
-        """
-        Import the desired bandstructure and dos objects from the legacy Materials Project
+        """Import the desired bandstructure and dos objects from the legacy Materials Project
         database.
 
         Args:

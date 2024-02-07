@@ -1,5 +1,5 @@
 """"
-PyTASER: transient absorption prediction tool
+PyTASER: transient absorption prediction tool.
 """
 
 
@@ -39,9 +39,10 @@ setup(
         "scipy",
         "matplotlib>=3.7.1",
         "pymatgen>=2023.05.31",
-        "setuptools",
         "mp-api!=0.34.0,!=0.34.1,!=0.34.2",
-        # bug: boto3 added as an unnecessary requirement (https://github.com/materialsproject/pymatgen/issues/3241, https://github.com/materialsproject/api/pull/836)
+        # bug: boto3 added as an unnecessary requirement
+        # (https://github.com/materialsproject/pymatgen/issues/3241,
+        # https://github.com/materialsproject/api/pull/836)
     ],
     extras_require={
         "tests": [

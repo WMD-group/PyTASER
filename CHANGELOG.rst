@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2.3.0
+~~~~~~
+- Updates to plotting (cleaner plots and titles to include scientific notation)
+- Updated documentation and tutorial workflows (according to JOSS review `suggestions <https://github.com/openjournals/joss-reviews/issues/5999>`_ ).
+- Add GH Actions linting workflow
+- Update installation and setup instructions (remove redundant setup.py issues).
+
 v2.2.0
 ~~~~~~
 - Initial version of differential absorption spectra (DAS) functionality from @LucasGVerga.

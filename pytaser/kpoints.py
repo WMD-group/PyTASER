@@ -4,14 +4,14 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 
 def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
-    """
-    Function to calculate the kpoint_weights for non-magnetic materials (non-metals).
+    """Function to calculate the kpoint_weights for non-magnetic materials (non-metals).
 
     Args:
         bandstructure: PMG bandstructure object
         time_reversal:
         symprec: Symmetry precision in Angstrom.(Lower value is more precise, but
             computationally more expensive)
+
     Returns:
         k-point_weights
     """
@@ -55,10 +55,7 @@ def expand_kpoints(
     # due to limited input precision of the k-points, the mesh is returned as a float
     mesh, is_shifted = get_mesh_from_kpoint_diff(kpoints)
 
-    if is_shifted:
-        shift = np.array([1, 1, 1])
-    else:
-        shift = np.array([0, 0, 0])
+    shift = np.array([1, 1, 1]) if is_shifted else np.array([0, 0, 0])
 
     # to avoid issues to limited input precision, recalculate the input k-points
     # so that the mesh is integer and the k-points are not truncated
@@ -85,9 +82,7 @@ def expand_kpoints(
     all_rotated_kpoints[all_rotated_kpoints == -0.5] = 0.5
 
     # Find unique points
-    unique_rotated_kpoints, unique_idxs = np.unique(
-        all_rotated_kpoints, return_index=True, axis=0
-    )
+    unique_rotated_kpoints, unique_idxs = np.unique(all_rotated_kpoints, return_index=True, axis=0)
 
     # find integer addresses
     unique_addresses = (unique_rotated_kpoints + shift / (mesh * 2)) * mesh
@@ -157,9 +152,7 @@ def get_reciprocal_point_group_operations(
     sga = SpacegroupAnalyzer(structure, symprec=symprec)
     if sga.get_symmetry_dataset() is None:
         # sometimes default angle tolerance doesn't work as expected
-        sga = SpacegroupAnalyzer(
-            structure, symprec=symprec, angle_tolerance=-1
-        )
+        sga = SpacegroupAnalyzer(structure, symprec=symprec, angle_tolerance=-1)
 
     rotations = sga.get_symmetry_dataset()["rotations"].transpose((0, 2, 1))
     translations = sga.get_symmetry_dataset()["translations"]
@@ -175,8 +168,6 @@ def get_reciprocal_point_group_operations(
         is_tr = is_tr[unique_ops]
 
     # put identity first and time-reversal last
-    sort_idx = np.argsort(
-        np.abs(rotations - np.eye(3)).sum(axis=(1, 2)) + is_tr * 10
-    )
+    sort_idx = np.argsort(np.abs(rotations - np.eye(3)).sum(axis=(1, 2)) + is_tr * 10)
 
     return rotations[sort_idx], translations[sort_idx], is_tr[sort_idx]

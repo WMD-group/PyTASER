@@ -3,10 +3,11 @@ name: Linting
 on:
   pull_request:
     branches:
-       - develop
+      - '*'  # all branches
   push:
     branches:
-      - develop
+      - '*'  # all branches
+
   workflow_dispatch:
 
 jobs:
@@ -50,10 +51,10 @@ jobs:
       - name: black
         run:  |
           black --version
-          black  --line-length 88 --color pytaser
-          black  --line-length 88 --check --diff --color pytaser
+          black  --line-length 107 --color pytaser
+          black  --line-length 107 --check --diff --color pytaser
 
       - name: flake8
         run:  |
           flake8 --version
-          flake8 --max-line-length 107 --color always
+          flake8 --max-line-length 107 --color always --ignore=E121,E123,E126,E203,E226,E24,E704,W503,W504,F401,E203 pytaser
