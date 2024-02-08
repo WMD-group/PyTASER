@@ -13,6 +13,8 @@
 import os
 import sys
 
+from recommonmark.transform import AutoStructify
+
 sys.path.insert(0, os.path.abspath("../../"))
 # from pytaser import __version__
 
@@ -24,7 +26,7 @@ copyright = "2022, Savyasanchi Aggarwal"
 author = "Savyasanchi Aggarwal"
 
 # The full version, including alpha/beta/rc tags
-release = "2.0.0"
+release = "2.3.0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -40,8 +42,16 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_toggleprompt",
-    "nbsphinx",
-    "nbsphinx_link",
+    "myst_nb",  # for jupyter notebooks
+]
+
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+}
+
+myst_enable_extensions = [
+    "html_admonition",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -93,7 +103,7 @@ html_static_path = ["_static"]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.6", None),
+    "python": ("https://docs.python.org/3.10", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "pymatgen": ("http://pymatgen.org/", None),
     "matplotlib": ("http://matplotlib.org", None),
@@ -101,3 +111,21 @@ intersphinx_mapping = {
 
 # -- Options for autodoc -----------------------------------------------------
 autoclass_content = "both"
+
+# -- Options for nb extension -----------------------------------------------
+nb_execution_mode = "off"
+myst_heading_anchors = 2
+github_doc_root = "https://github.com/executablebooks/MyST-Parser/tree/master/docs/"
+
+
+def setup(app):
+    """Add configuration for MyST parser."""
+    app.add_config_value(
+        "myst_parser_config",
+        {
+            "url_resolver": lambda url: github_doc_root + url,
+            "auto_toc_tree_section": "Contents",
+        },
+        True,
+    )
+    app.add_transform(AutoStructify)

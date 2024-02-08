@@ -173,8 +173,8 @@ Liam Harnett-Caulfield.
    :caption: Usage Guide
    :hidden:
 
-   dft_examples
-   mp_example
+   PyTASER_DFT_Example
+   PyTASER_MP_Example
 
 
 .. toctree::
