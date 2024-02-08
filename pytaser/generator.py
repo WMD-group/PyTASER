@@ -768,8 +768,9 @@ class TASGenerator:
 
     @classmethod
     def from_mpid(cls, mpid, bg=None, api_key=None, mpr=None):
-        """Import the desired bandstructure and dos objects from the legacy Materials Project
-        database.
+        """
+        Import the desired bandstructure and dos objects from the
+        legacy Materials Project database.
 
         Args:
             mpid: The Materials Project ID of the desired material.
