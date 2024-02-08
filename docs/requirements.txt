@@ -1,6 +1,7 @@
 # File: docs/requirements.txt
 
 sphinx>=5
+recommonmark
 myst-nb
 sphinx_rtd_theme
 readthedocs-sphinx-search
