@@ -1,9 +1,8 @@
 # File: docs/requirements.txt
 
-# Defining the exact version will make sure things don't break
-sphinx==4.2.0
-sphinx_rtd_theme==1.0.0
-readthedocs-sphinx-search==0.1.1
+sphinx>=5
+sphinx_rtd_theme
+readthedocs-sphinx-search
 nbsphinx
 nbsphinx_link
 sphinx-book-theme
