@@ -1,10 +1,9 @@
 # File: docs/requirements.txt
 
 sphinx>=5
+myst-nb
 sphinx_rtd_theme
 readthedocs-sphinx-search
-nbsphinx
-nbsphinx_link
 sphinx-book-theme
 sphinx_copybutton
 sphinx_toggleprompt
