@@ -133,6 +133,6 @@ Furthermore,`PyTASER` is interfaced with the [Materials Project](https://next-ge
 
 # Acknowledgements
 
-The authors are grateful for feature suggestions and testing from Anahita Manchala, feedback from Liam Harnett-Caulfield, and advice from Artem Bakulin and James Durrant. This work receieved support from the Royal Society and the Leverhulme Trust. S.R.K. acknowledges the EPSRC Centre for Doctoral Training in the Advanced Characterisation of Materials (CDT-ACM) (EP/S023259/1) for funding a Ph.D. studentship. Via membership of the UK’s HEC Materials Chemistry Consortium, which is funded by the EPSRC (EP/L000202, EP/R029431, and EP/T022213), this work used the ARCHER2 UK National Supercomputing Service (www.archer2.ac.uk) and the UK Materials and Molecular Modelling (MMM) Hub (Young EP/T022213).
+The authors are grateful for feature suggestions and testing from Anahita Manchala, feedback from Liam Harnett-Caulfield, and advice from Artem Bakulin and James Durrant. This work received support from the Royal Society and the Leverhulme Trust. S.R.K. acknowledges the EPSRC Centre for Doctoral Training in the Advanced Characterisation of Materials (CDT-ACM) (EP/S023259/1) for funding a Ph.D. studentship. Via membership of the UK’s HEC Materials Chemistry Consortium, which is funded by the EPSRC (EP/L000202, EP/R029431, and EP/T022213), this work used the ARCHER2 UK National Supercomputing Service (www.archer2.ac.uk) and the UK Materials and Molecular Modelling (MMM) Hub (Young EP/T022213).
 
 # References
