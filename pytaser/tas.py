@@ -1,5 +1,6 @@
-"""This module generates container classes from the generator modules. These will be used to communicate with the
-plotter module. """
+"""This module generates container classes from the generator modules. These will be used to communicate
+with the plotter module.
+"""
 
 import ast
 
@@ -7,19 +8,34 @@ from monty.json import MontyDecoder
 
 
 def convert_to_tuple(subdict):
+    """Converts subdict representation to tuple.
+
+    Args:
+        subdict: dict,
+
+    Returns:
+        subdict: tuple
+    """
     if isinstance(subdict, dict) and "@module" not in subdict:
         return {ast.literal_eval(k) if "(" in k and ")" in k else k: v for k, v in subdict.items()}
     return subdict
 
 
 def decode_dict(subdict):
+    """Decode subdict from a dict representation using MontyDecoder.
+
+    Args:
+        subdict: dict
+
+    Returns:
+        subdict: decoded dict
+    """
     if isinstance(subdict, dict):
         if "@module" in subdict:
             return MontyDecoder().process_decoded(subdict)
-        else:
-            for k, v in subdict.items():
-                if isinstance(v, dict) and "@module" in v:
-                    subdict[k] = MontyDecoder().process_decoded(v)
+        for k, v in subdict.items():
+            if isinstance(v, dict) and "@module" in v:
+                subdict[k] = MontyDecoder().process_decoded(v)
     return subdict
 
 
@@ -73,6 +89,35 @@ class Tas:
         weighted_jdos_dark_if=None,
         weighted_jdos_diff_if=None,
     ):
+        """
+        Args:
+            tas_total: overall TAS spectrum for a material under the specified conditions
+            jdos_diff_if: JDOS difference (from dark to light) across the energy mesh for a
+                specific band transition i (initial) -> f (final) [dict]
+            jdos_light_total: overall JDOS (pump-on) for a material under the specified
+                conditions
+            jdos_light_if: JDOS (pump-on) across the energy mesh for a specific band
+                transition i (initial) -> f (final) [dict]
+            jdos_dark_total: overall JDOS (pump-off) for a material under the specified
+                conditions
+            jdos_dark_if: JDOS (pump-off) across the energy mesh for a specific band
+                transition i (initial) -> f (final) [dict]
+            energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
+            bandgap: Bandgap of the system in electronvolts (eV).
+            temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
+            conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
+                Inversely proportional to pump-probe time delay.
+            alpha_dark: Absorption coefficient of the material in the dark, in cm^-1.
+            alpha_light_dict: Dictionary of band-to-band absorption, stimulated emission and summed
+                contributions to the total overall absorption coefficient under illumination, in cm^-1.
+            weighted_jdos_light_if: JDOS weighted by the transition dipole matrix (TDM) (pump-on)
+                across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
+            weighted_jdos_dark_if: JDOS weighted by the transition dipole matrix (TDM) (pump-off)
+                across the energy mesh for a specific band transition i (initial) -> f (final) [dict]
+            weighted_jdos_diff_if: Difference in JDOS weighted by the transition dipole matrix
+                (TDM) from dark to illumination across the energy mesh for a specific band transition
+                i (initial) -> f (final) [dict].
+        """
         self.tas_total = tas_total
         self.jdos_diff_if = jdos_diff_if
         self.jdos_light_total = jdos_light_total
@@ -184,6 +229,35 @@ class Das:
         weighted_jdos_new_sys_if=None,
         weighted_jdos_ref_if=None,
     ):
+        """
+        Args:
+            das_total: overall DAS spectrum between new_system and reference system.
+            jdos_diff_if: JDOS difference (from reference to newsystem) across the energy mesh for a
+                specific band transition i (initial) -> f (final) [dict]
+            jdos_new_sys_total: overall JDOS for the new system under the specified
+                conditions
+            jdos_new_sys_if: JDOS for the new system across the energy mesh for a specific band
+                transition i (initial) -> f (final) [dict]
+            jdos_ref_total: overall JDOS for the reference system under the specified
+                conditions
+            jdos_ref_if: JDOS for the reference system across the energy mesh for a specific band
+                transition i (initial) -> f (final) [dict]
+            energy_mesh_ev: Energy mesh of spectra in eV, with an interval of 'step'.
+            bandgap_new_sys: Bandgap of the new system in electronvolts (eV).
+            bandgap_ref: Bandgap of the reference system in electronvolts (eV).
+            temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
+            alpha_new_sys: Absorption coefficient of the new system in the dark, in cm^-1.
+            alpha_ref: Absorption coefficient of the reference system in the dark, in cm^-1.
+            weighted_jdos_new_sys_if: JDOS weighted by the transition dipole matrix (TDM) for the new
+                system across the energy mesh for a specific band transition i (initial) -> f (final)
+                [dict]
+            weighted_jdos_ref_if: JDOS weighted by the transition dipole matrix (TDM) for the reference
+                system across the energy mesh for a specific band transition i (initial) -> f (final)
+                [dict]
+            weighted_jdos_diff_if: Difference in JDOS weighted by the transition dipole matrix
+                (TDM) from reference to new system across the energy mesh for a specific band transition
+                i (initial) -> f (final) [dict].
+        """
         self.das_total = das_total
         self.jdos_new_sys_total = jdos_new_sys_total
         self.jdos_new_sys_if = jdos_new_sys_if

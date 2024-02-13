@@ -3,6 +3,7 @@ This module contains the TASGenerator class, which is used to generate TAS spect
 """
 
 import warnings
+from itertools import zip_longest
 from multiprocessing import Array, Pool, cpu_count
 
 import numpy as np
@@ -211,7 +212,7 @@ def get_nonzero_band_transitions(
     )
 
     return list(
-        zip(
+        zip_longest(
             ib_vals[condition].ravel(),
             jb_vals[condition].ravel(),
             ik_vals[condition].ravel(),
@@ -221,13 +222,14 @@ def get_nonzero_band_transitions(
             [nedos] * np.sum(condition),
             [deltae] * np.sum(condition),
             [ismear] * np.sum(condition),
+            fillvalue=None,
         )
     )
 
 
 def _init_shared_memory(cder, occs, eigs_shifted, norm_kweights):
-    global _cder, _occs, _eigs_shifted, _norm_kweights
-    global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape
+    global _cder, _occs, _eigs_shifted, _norm_kweights  # noqa: PLW0603
+    global _cder_shape, _occs_shape, _eigs_shifted_shape, _norm_kweights_shape  # noqa: PLW0603
 
     _cder_shape = cder.shape
     _cder = Array("d", cder.ravel())

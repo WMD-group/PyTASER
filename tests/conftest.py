@@ -1,6 +1,4 @@
-"""
-Setup for pytest.
-"""
+"""Setup for pytest."""
 
 from pathlib import Path
 

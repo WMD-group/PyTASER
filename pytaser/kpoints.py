@@ -1,3 +1,8 @@
+"""
+This module generates kpoint-weights for uniform-mesh non-magnetic materials. This is vital when using
+the Materials Project database to generate spectra in PyTASER.
+"""
+
 import numpy as np
 from pymatgen.core import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
@@ -8,7 +13,7 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
 
     Args:
         bandstructure: PMG bandstructure object
-        time_reversal:
+        time_reversal: Time reversal operator, bool (True for +1, False for -1)
         symprec: Symmetry precision in Angstrom.(Lower value is more precise, but
             computationally more expensive)
 
@@ -35,6 +40,15 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
 
 
 def get_kpoints_from_bandstructure(bandstructure, cartesian=False):
+    """Function to pull the kpoint from the bandstructure.
+
+    Args:
+        bandstructure: PMG bandstructure object
+        cartesian: bool, indicate if cartesian or fractional coordinates used.
+
+    Returns:
+        k-points
+    """
     if cartesian:
         kpoints = np.array([k.cart_coords for k in bandstructure.kpoints])
     else:
@@ -50,6 +64,19 @@ def expand_kpoints(
     return_mapping=False,
     time_reversal=True,
 ):
+    """Function to expand the kpoints.
+
+    Args:
+        structure: PMG structure object
+        kpoints: uniform mesh kpoints array.
+        symprec: Symmetry precision in Angstrom.(Lower value is more precise, but
+            computationally more expensive)
+        return_mapping: bool
+        time_reversal: Time reversal operator, bool (True for +1, False for -1)
+
+    Returns:
+        full_kpoints, rotations, translations, is_tr, op_mapping, kp_mapping
+    """
     kpoints = np.array(kpoints).round(8)
 
     # due to limited input precision of the k-points, the mesh is returned as a float
@@ -90,7 +117,7 @@ def expand_kpoints(
     in_uniform_mesh = (np.abs(unique_addresses) < 1e-5).all(axis=1)
 
     n_mapped = int(np.sum(in_uniform_mesh))
-    n_expected = int(np.product(mesh))
+    n_expected = int(np.prod(mesh))
     if n_mapped != n_expected:
         raise ValueError(f"Expected {n_expected} points but found {n_mapped}")
 
@@ -107,6 +134,15 @@ def expand_kpoints(
 
 
 def get_mesh_from_kpoint_diff(kpoints, ktol=1e-5):
+    """Function to get the uniform mesh from kpoint differences.
+
+    Args:
+        kpoints: uniform mesh kpoints array.
+        ktol: threshold for filtering changes in kpoint-mesh points.
+
+    Returns:
+        np.array([na, nb, nc]), is_shifted
+    """
     kpoints = np.array(kpoints)
 
     # whether the k-point mesh is shifted or Gamma centered mesh
@@ -147,6 +183,17 @@ def get_reciprocal_point_group_operations(
     symprec: float = 0.01,
     time_reversal: bool = True,
 ):
+    """Function to get the reciprocal point group operations.
+
+    Args:
+        structure: PMG structure object
+        symprec: Symmetry precision in Angstrom.(Lower value is more precise, but
+            computationally more expensive)
+        time_reversal: Time reversal operator, bool (True for +1, False for -1)
+
+    Returns:
+        rotations[sort_idx], translations[sort_idx], is_tr[sort_idx]
+    """
     from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
     sga = SpacegroupAnalyzer(structure, symprec=symprec)
