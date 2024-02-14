@@ -47,7 +47,7 @@ jobs:
       - name: check docstrings
         run:  |
           pydocstyle --version
-          pydocstyle -e --count --convention=google
+          pydocstyle -e --count --convention=google --add-ignore=D400,D415,D200,D212,D205,D417,D107
       - name: black
         run:  |
           black --version

@@ -119,7 +119,9 @@ github_doc_root = "https://github.com/executablebooks/MyST-Parser/tree/master/do
 
 
 def setup(app):
-    """Add configuration for MyST parser."""
+    """
+    Add configuration for MyST parser.
+    """
     app.add_config_value(
         "myst_parser_config",
         {

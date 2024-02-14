@@ -1,6 +1,7 @@
 """
-This module contains the Internal_Abs class, which is used to generate an absorption spectrum
-(decomposed and cumulative) from a bandstructure and dos object.
+This module contains the Internal_Abs class, which is used to generate an
+absorption spectrum (decomposed and cumulative) from a bandstructure and dos
+object.
 """
 
 import warnings
@@ -21,8 +22,8 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 class Internal_Abs:
     """
-    Class to generate an absorption spectrum (decomposed and cumulative)
-    from a bandstructure and dos object.
+    Class to generate an absorption spectrum (decomposed and cumulative) from a
+    bandstructure and dos object.
     """
 
     def __init__(self, bs, kpoint_weights, dos, dfc=None):
@@ -58,7 +59,9 @@ class Internal_Abs:
 
     @classmethod
     def internal_from_vasp(cls, vasprun_file, waveder_file=None):
-        """Create an Internal_Abs object from VASP output files."""
+        """
+        Create an Internal_Abs object from VASP output files.
+        """
         warnings.filterwarnings("ignore", category=UnknownPotcarWarning)
         warnings.filterwarnings("ignore", message="No POTCAR file with matching TITEL fields")
         vr = Vasprun(vasprun_file, parse_potcar_file=False, parse_projected_eigen=False)
@@ -90,7 +93,8 @@ class Internal_Abs:
 
     @classmethod
     def internal_from_mpid(cls, mpid, bg=None, api_key=None, mpr=None):
-        """Create an Internal_Abs object from a Materials Project ID.
+        """
+        Create an Internal_Abs object from a Materials Project ID.
 
         Args:
             mpid: The Materials Project ID of the desired material.
@@ -113,7 +117,8 @@ class Internal_Abs:
         return cls(mp_bs, kweights, mp_dos, None)
 
     def band_occupancies(self, temp):
-        """Gives band occupancies.
+        """
+        Gives band occupancies.
 
         Returns:
             A dictionary of {Spin: occ} for all bands across all k-points.
@@ -146,7 +151,9 @@ class Internal_Abs:
         occs=None,
         processes=None,
     ):
-        """Generates absorption spectra based on inputted occupancies, and a specified energy mesh.
+        """
+        Generates absorption spectra based on inputted occupancies, and a
+        specified energy mesh.
 
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)

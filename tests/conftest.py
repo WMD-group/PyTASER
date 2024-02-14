@@ -1,4 +1,6 @@
-"""Setup for pytest."""
+"""
+Setup for pytest.
+"""
 
 from pathlib import Path
 
@@ -12,31 +14,41 @@ from pytaser.plotter import TASPlotter
 
 @pytest.fixture(scope="package")
 def datapath_gaas():
-    """Path to data_gaas folder."""
+    """
+    Path to data_gaas folder.
+    """
     return Path(__file__).parent / "data_gaas"
 
 
 @pytest.fixture(scope="package")
 def datapath_cdte():
-    """Path to data_cdte folder."""
+    """
+    Path to data_cdte folder.
+    """
     return Path(__file__).parent / "data_cdte"
 
 
 @pytest.fixture(scope="package")
 def examplepath_cdte():
-    """Path to CdTe examples folder."""
+    """
+    Path to CdTe examples folder.
+    """
     return Path(__file__).parent.parent / "examples/CdTe"
 
 
 @pytest.fixture(scope="package")
 def examplepath_gaas():
-    """Path to GaAs examples folder."""
+    """
+    Path to GaAs examples folder.
+    """
     return Path(__file__).parent.parent / "examples/GaAs"
 
 
 @pytest.fixture(scope="package")
 def examplepath_tio2_das():
-    """Path to TiO2_DAS examples folder."""
+    """
+    Path to TiO2_DAS examples folder.
+    """
     return Path(__file__).parent.parent / "examples/TiO2-DAS"
 
 

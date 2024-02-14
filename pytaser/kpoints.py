@@ -1,6 +1,8 @@
 """
-This module generates kpoint-weights for uniform-mesh non-magnetic materials. This is vital when using
-the Materials Project database to generate spectra in PyTASER.
+This module generates kpoint-weights for uniform-mesh non-magnetic materials.
+
+This is vital when using the Materials Project database to generate spectra in
+PyTASER.
 """
 
 import numpy as np
@@ -9,7 +11,9 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 
 
 def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
-    """Function to calculate the kpoint_weights for non-magnetic materials (non-metals).
+    """
+    Function to calculate the kpoint_weights for non-magnetic materials (non-
+    metals).
 
     Args:
         bandstructure: PMG bandstructure object
@@ -40,7 +44,8 @@ def get_kpoint_weights(bandstructure, time_reversal=True, symprec=0.1):
 
 
 def get_kpoints_from_bandstructure(bandstructure, cartesian=False):
-    """Function to pull the kpoint from the bandstructure.
+    """
+    Function to pull the kpoint from the bandstructure.
 
     Args:
         bandstructure: PMG bandstructure object
@@ -64,7 +69,8 @@ def expand_kpoints(
     return_mapping=False,
     time_reversal=True,
 ):
-    """Function to expand the kpoints.
+    """
+    Function to expand the kpoints.
 
     Args:
         structure: PMG structure object
@@ -134,7 +140,8 @@ def expand_kpoints(
 
 
 def get_mesh_from_kpoint_diff(kpoints, ktol=1e-5):
-    """Function to get the uniform mesh from kpoint differences.
+    """
+    Function to get the uniform mesh from kpoint differences.
 
     Args:
         kpoints: uniform mesh kpoints array.
@@ -183,7 +190,8 @@ def get_reciprocal_point_group_operations(
     symprec: float = 0.01,
     time_reversal: bool = True,
 ):
-    """Function to get the reciprocal point group operations.
+    """
+    Function to get the reciprocal point group operations.
 
     Args:
         structure: PMG structure object

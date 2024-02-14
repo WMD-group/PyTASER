@@ -1,5 +1,6 @@
 """
-This module contains the TASGenerator class, which is used to generate TAS spectra.
+This module contains the TASGenerator class, which is used to generate TAS
+spectra.
 """
 
 import warnings
@@ -23,8 +24,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def gaussian(x, width, center=0.0, height=None):
     """
-    Returns Gaussian curve(s) centred at point(s)
-    x, where x is array-like.
+    Returns Gaussian curve(s) centred at point(s) x, where x is array-like.
 
     Args:
         x: Input array.
@@ -40,8 +40,9 @@ def gaussian(x, width, center=0.0, height=None):
 
 
 def set_bandgap(bandstructure, dos, bandgap):
-    """Shifts all bands of a material to correct the DFT-underestimated bandgap according to
-    the input experimental bandgap.
+    """
+    Shifts all bands of a material to correct the DFT-underestimated bandgap
+    according to the input experimental bandgap.
 
     Args:
         bandstructure: PMG bandstructure object
@@ -90,7 +91,11 @@ def set_bandgap(bandstructure, dos, bandgap):
 
 
 def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
-    """Args:
+    """
+    Obtains the cumulative JDOS value for a specific i->f transition, with
+    consideration of partial occupancy and spin polarisation.
+
+    Args:
         bs: bandstructure object
         f: final band
         i: initial band
@@ -118,7 +123,9 @@ def jdos(bs, f, i, occs, energies, kweights, gaussian_width, spin=Spin.up):
 
 
 def _calculate_oscillator_strength(args):
-    """Calculates the oscillator strength of a single band-band transition."""
+    """
+    Calculates the oscillator strength of a single band-band transition.
+    """
     if len(args) == 9:  # shared memory arrays
         ib, jb, ik, rspin, spin, sigma, nedos, deltae, ismear = args
 
@@ -190,7 +197,9 @@ def get_nonzero_band_transitions(
     max_band,
     nk,
 ):
-    """Helper function to filter band transitions before (multi)processing."""
+    """
+    Helper function to filter band transitions before (multi)processing.
+    """
     ispin_idx = 0 if spin == Spin.up else 1
 
     ib_vals, jb_vals, ik_vals = np.meshgrid(
@@ -250,8 +259,9 @@ def occ_dependent_alpha(
     processes=None,
     energy_max=6,
 ):
-    """Calculate the expected optical absorption given the groundstate orbital derivatives and
-    eigenvalues (via dfc) and specified band occupancies.
+    """
+    Calculate the expected optical absorption given the groundstate orbital
+    derivatives and eigenvalues (via dfc) and specified band occupancies.
     Templated from pymatgen.io.vasp.optics.epsilon_imag().
 
     Args:
@@ -384,7 +394,8 @@ def occ_dependent_alpha(
 
 
 def get_cbm_vbm_index(bs):
-    """Args:
+    """
+    Args:
         bs: bandstructure object.
 
     Returns:
@@ -400,8 +411,8 @@ def get_cbm_vbm_index(bs):
 
 class TASGenerator:
     """
-    Class to generate a TAS spectrum (decomposed and cumulative) from
-    a bandstructure and dos object.
+    Class to generate a TAS spectrum (decomposed and cumulative) from a
+    bandstructure and dos object.
     """
 
     def __init__(self, bs, kpoint_weights, dos, dfc=None):
@@ -435,7 +446,8 @@ class TASGenerator:
 
     @classmethod
     def from_vasp_outputs(cls, vasprun_file, waveder_file=None, bg=None):
-        """Create a TASGenerator object from VASP output files.
+        """
+        Create a TASGenerator object from VASP output files.
 
         Args:
             vasprun_file: Path to vasprun.xml file (to generate bandstructure object).
@@ -489,7 +501,8 @@ class TASGenerator:
         )
 
     def band_occupancies(self, temp, conc, dark=True):
-        """Gives band occupancies.
+        """
+        Gives band occupancies.
 
         Args:
             temp: Temperature of material we wish to investigate (affects the FD
@@ -548,12 +561,14 @@ class TASGenerator:
         dark_occs=None,
         processes=None,
     ):
-        """Generates TAS spectra based on inputted occupancies, and a specified energy mesh. If the
-        TASGenerator has not been generated from VASP outputs (and thus does not have a dfc
-        attribute), then the output TAS is generated using the change in joint density of states
-        (JDOS) under illumination, with no consideration of oscillator strengths.
-        Otherwise, the output TAS is generated considering all contributions to the predicted TAS
-        spectrum.
+        """
+        Generates TAS spectra based on inputted occupancies, and a specified
+        energy mesh. If the TASGenerator has not been generated from VASP
+        outputs (and thus does not have a dfc attribute), then the output TAS
+        is generated using the change in joint density of states (JDOS) under
+        illumination, with no consideration of oscillator strengths. Otherwise,
+        the output TAS is generated considering all contributions to the
+        predicted TAS spectrum.
 
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
@@ -771,13 +786,13 @@ class TASGenerator:
     @classmethod
     def from_mpid(cls, mpid, bg=None, api_key=None, mpr=None):
         """
-        Import the desired bandstructure and dos objects from the
-        legacy Materials Project database.
+        Import the desired bandstructure and dos objects from the legacy
+        Materials Project database.
 
         Args:
             mpid: The Materials Project ID of the desired material.
-            bg: The experimental bandgap (eV) of the material. If None, the band gap
-                of the MP calculation will be used.
+            bg: The experimental bandgap (eV) of the material. If None,
+                the band gap of the MP calculation will be used.
             api_key: The user's Materials Project API key.
             mpr: An MPRester object if already generated by user.
 

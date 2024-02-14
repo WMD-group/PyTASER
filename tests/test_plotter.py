@@ -58,7 +58,9 @@ def test_get_plot(plotter_gaas):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight", "dpi": 100},
 )
 def test_get_plot_das_ev(plotter_tio2_das):
-    """Test get_plot() DAS function for TiO2 with a electronvolts xaxis."""
+    """
+    Test get_plot() DAS function for TiO2 with a electronvolts xaxis.
+    """
     return plotter_tio2_das.get_plot(
         xaxis="energy",
         transition_cutoff=0.01,
@@ -75,7 +77,9 @@ def test_get_plot_das_ev(plotter_tio2_das):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight", "dpi": 100},
 )
 def test_get_plot_das_nm(plotter_tio2_das):
-    """Test get_plot() DAS function for TiO2 with a wavelength xaxis."""
+    """
+    Test get_plot() DAS function for TiO2 with a wavelength xaxis.
+    """
     return plotter_tio2_das.get_plot(
         xaxis="wavelength",
         transition_cutoff=0.01,
@@ -92,7 +96,8 @@ def test_get_plot_das_nm(plotter_tio2_das):
 )
 def test_get_plot_tas_ev(plotter_gaas):
     """
-    Test get_plot() TAS function for GaAs with a 25% cutoff and electronvolts xaxis.
+    Test get_plot() TAS function for GaAs with a 25% cutoff and electronvolts
+    xaxis.
     """
     return plotter_gaas.get_plot(
         relevant_transitions="auto",
@@ -112,7 +117,10 @@ def test_get_plot_tas_ev(plotter_gaas):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_lambda(plotter_gaas):
-    """Test get_plot() TAS function for GaAs with a 25% cutoff and a wavelength xaxis."""
+    """
+    Test get_plot() TAS function for GaAs with a 25% cutoff and a wavelength
+    xaxis.
+    """
     return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
@@ -131,7 +139,10 @@ def test_get_plot_tas_lambda(plotter_gaas):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_ev(plotter_gaas):
-    """Test get_plot() JDOS function for GaAs with a 25% cutoff and a electronvolts xaxis."""
+    """
+    Test get_plot() JDOS function for GaAs with a 25% cutoff and a
+    electronvolts xaxis.
+    """
     return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -150,7 +161,10 @@ def test_get_plot_jdos_ev(plotter_gaas):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_lambda(plotter_gaas):
-    """Test get_plot() JDOS function for GaAs with a 25% cutoff and a wavelength xaxis."""
+    """
+    Test get_plot() JDOS function for GaAs with a 25% cutoff and a wavelength
+    xaxis.
+    """
     return plotter_gaas.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
@@ -175,7 +189,10 @@ def test_get_plot_cdte(plotter_cdte):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_ev_cdte(plotter_cdte):
-    """Test get_plot() TAS function for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() TAS function for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -191,7 +208,10 @@ def test_get_plot_tas_ev_cdte(plotter_cdte):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_lambda_cdte(plotter_cdte):
-    """Test get_plot() TAS function for CdTe with the default cutoff and wavelength xaxis."""
+    """
+    Test get_plot() TAS function for CdTe with the default cutoff and
+    wavelength xaxis.
+    """
     return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
@@ -207,7 +227,10 @@ def test_get_plot_tas_lambda_cdte(plotter_cdte):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_ev_cdte(plotter_cdte):
-    """Test get_plot() JDOS function for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() JDOS function for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -223,7 +246,10 @@ def test_get_plot_jdos_ev_cdte(plotter_cdte):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_lambda_cdte(plotter_cdte):
-    """Test get_plot() JDOS function for CdTe with the default cutoff and wavelength xaxis."""
+    """
+    Test get_plot() JDOS function for CdTe with the default cutoff and
+    wavelength xaxis.
+    """
     return plotter_cdte.get_plot(
         relevant_transitions="auto",
         xaxis="wavelength",
@@ -234,8 +260,9 @@ def test_get_plot_jdos_lambda_cdte(plotter_cdte):
 
 
 def test_line_color_consistency(plotter_cdte):
-    """Test that the same transition has the same color in all plots, when transition_cutoff is
-    changed.
+    """
+    Test that the same transition has the same color in all plots, when
+    transition_cutoff is changed.
     """
     fig = plotter_cdte.get_plot()  # with default transition_cutoff of 0.03
     line = [_line for _line in fig.gca().lines if "(-2, 0)" in _line.get_label()][0]
@@ -256,7 +283,10 @@ def test_line_color_consistency(plotter_cdte):
 
 
 def test_get_plot_alpha_cdte_no_waveder(plotter_cdte):
-    """Test informative error for get_plot() yaxis="alpha" when no WAVEDER was parsed."""
+    """
+    Test informative error for get_plot() yaxis="alpha" when no WAVEDER was
+    parsed.
+    """
     with pytest.raises(
         ValueError,
         match="The `alpha` option for yaxis can only be chosen if the "
@@ -272,7 +302,10 @@ def test_get_plot_alpha_cdte_no_waveder(plotter_cdte):
 
 
 def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
-    """Test informative error for get_plot() yaxis="tas_absorption_only" when no WAVEDER was parsed."""
+    """
+    Test informative error for get_plot() yaxis="tas_absorption_only" when no
+    WAVEDER was parsed.
+    """
     with pytest.raises(
         ValueError,
         match="The `tas_absorption_only` option for yaxis can only be chosen if the "
@@ -293,7 +326,10 @@ def test_get_plot_tas_absorption_only_cdte_no_waveder(plotter_cdte):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_cdte(plotter_cdte_vasp):
-    """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() yaxis="tas" for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -310,7 +346,8 @@ def test_get_plot_tas_cdte(plotter_cdte_vasp):
 )
 def test_get_plot_jdos_diff_cdte_vasp(plotter_cdte_vasp):
     """
-    Test get_plot() yaxis="jdos_diff" function for CdTe with the default cutoff and electronvolts xaxis.
+    Test get_plot() yaxis="jdos_diff" function for CdTe with the default cutoff
+    and electronvolts xaxis.
     """
     return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
@@ -329,7 +366,10 @@ def test_get_plot_jdos_diff_cdte_vasp(plotter_cdte_vasp):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_diff_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
-    """Test get_plot() yaxis="jdos_diff" for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() yaxis="jdos_diff" for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte_vasp_vr_only.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -347,7 +387,10 @@ def test_get_plot_jdos_diff_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
-    """Test get_plot() yaxis="tas" for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() yaxis="tas" for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte_vasp_vr_only.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -363,7 +406,10 @@ def test_get_plot_jdos_diff_cdte(plotter_cdte_vasp_vr_only):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_alpha_cdte(plotter_cdte_vasp):
-    """Test get_plot() yaxis="alpha" for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() yaxis="alpha" for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -380,8 +426,8 @@ def test_get_plot_alpha_cdte(plotter_cdte_vasp):
 )
 def test_get_plot_tas_absorption_only_cdte_vasp(plotter_cdte_vasp):
     """
-    Test get_plot() yaxis="tas_absorption_only" function for CdTe
-    with the default cutoff and electronvolts xaxis.
+    Test get_plot() yaxis="tas_absorption_only" function for CdTe with the
+    default cutoff and electronvolts xaxis.
     """
     return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
@@ -398,7 +444,10 @@ def test_get_plot_tas_absorption_only_cdte_vasp(plotter_cdte_vasp):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_cdte(plotter_cdte_vasp):
-    """Test get_plot() yaxis="jdos" function for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() yaxis="jdos" function for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -415,7 +464,10 @@ def test_get_plot_jdos_cdte(plotter_cdte_vasp):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_jdos_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
-    """Test get_plot() yaxis="jdos" for CdTe with the default cutoff and electronvolts xaxis."""
+    """
+    Test get_plot() yaxis="jdos" for CdTe with the default cutoff and
+    electronvolts xaxis.
+    """
     return plotter_cdte_vasp_vr_only.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -431,7 +483,9 @@ def test_get_plot_jdos_cdte_vasp_vr_only(plotter_cdte_vasp_vr_only):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
-    """Test get_plot() yaxis="tas" for CdTe with kwargs for plt.legend()."""
+    """
+    Test get_plot() yaxis="tas" for CdTe with kwargs for plt.legend().
+    """
     return plotter_cdte_vasp.get_plot(
         relevant_transitions="auto",
         xaxis="energy",
@@ -455,5 +509,7 @@ def test_get_plot_tas_cdte_custom_legend(plotter_cdte_vasp):
     savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
 )
 def test_get_plot_tas_cdte_bandgap_scissor(plotter_cdte_bg_3_vasp):
-    """Test get_plot() for CdTe with scissored bandgap to 3 eV."""
+    """
+    Test get_plot() for CdTe with scissored bandgap to 3 eV.
+    """
     return plotter_cdte_bg_3_vasp.get_plot(xaxis="energy")

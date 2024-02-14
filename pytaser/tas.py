@@ -1,5 +1,7 @@
-"""This module generates container classes from the generator modules. These will be used to communicate
-with the plotter module.
+"""
+This module generates container classes from the generator modules.
+
+These will be used to communicate with the plotter module.
 """
 
 import ast
@@ -8,7 +10,8 @@ from monty.json import MontyDecoder
 
 
 def convert_to_tuple(subdict):
-    """Converts subdict representation to tuple.
+    """
+    Converts subdict representation to tuple.
 
     Args:
         subdict: dict,
@@ -22,7 +25,8 @@ def convert_to_tuple(subdict):
 
 
 def decode_dict(subdict):
-    """Decode subdict from a dict representation using MontyDecoder.
+    """
+    Decode subdict from a dict representation using MontyDecoder.
 
     Args:
         subdict: dict
@@ -40,7 +44,8 @@ def decode_dict(subdict):
 
 
 class Tas:
-    """A container class for the data from TASgenerator.
+    """
+    A container class for the data from TASgenerator.
 
     Args:
         tas_total: overall TAS spectrum for a material under the specified conditions
@@ -135,7 +140,9 @@ class Tas:
         self.weighted_jdos_diff_if = weighted_jdos_diff_if
 
     def as_dict(self):
-        """JSON-serializable dict representation of Tas."""
+        """
+        JSON-serializable dict representation of Tas.
+        """
         json_dict = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -164,7 +171,8 @@ class Tas:
 
     @classmethod
     def from_dict(cls, d):
-        """Reconstructs Tas object from a dict representation of Tas created using
+        """
+        Reconstructs Tas object from a dict representation of Tas created using
         Tas.as_dict().
 
         Args:
@@ -184,7 +192,8 @@ class Tas:
 
 
 class Das:
-    """A container class for the data from DASGenerator.
+    """
+    A container class for the data from DASGenerator.
 
     Args:
         das_total: overall DAS spectrum between new_system and reference system.
@@ -273,7 +282,9 @@ class Das:
         self.weighted_jdos_ref_if = weighted_jdos_ref_if
 
     def as_dict(self):
-        """JSON-serializable dict representation of Das."""
+        """
+        JSON-serializable dict representation of Das.
+        """
         json_dict = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -300,7 +311,8 @@ class Das:
 
     @classmethod
     def from_dict(cls, d):
-        """Reconstructs Das object from a dict representation of Das created using
+        """
+        Reconstructs Das object from a dict representation of Das created using
         Das.as_dict().
 
         Args:

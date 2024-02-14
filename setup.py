@@ -1,4 +1,6 @@
-"""PyTASER: transient absorption prediction tool."""
+"""
+PyTASER: transient absorption prediction tool.
+"""
 
 
 import pathlib

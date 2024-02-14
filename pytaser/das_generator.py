@@ -1,4 +1,5 @@
-"""Created on Thu Aug  3 16:42:36 2023.
+"""
+Created on Thu Aug  3 16:42:36 2023.
 
 @author: lucasverga
 """
@@ -15,8 +16,9 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 class DASGenerator:
-    """Class to generate a DAS spectrum (decomposed and cumulative) from a bandstructure and
-    dos object.
+    """
+    Class to generate a DAS spectrum (decomposed and cumulative) from a
+    bandstructure and dos object.
 
     Args:
         new_system: Internal_Abs object from internal_abs_generator for the new system
@@ -48,7 +50,8 @@ class DASGenerator:
         waveder_file_new_system=None,
         waveder_file_ref=None,
     ):
-        """Create a DASGenerator object from VASP output files.
+        """
+        Create a DASGenerator object from VASP output files.
 
         The user should provide the vasprun files for the new system and the reference system,
         followed by the waveder files for the new system and the reference system.
@@ -82,8 +85,9 @@ class DASGenerator:
         mpr=None,
         mpr_ref=None,
     ):
-        """Import the desired bandstructure and dos objects from the legacy Materials Project
-        database.
+        """
+        Import the desired bandstructure and dos objects from the legacy
+        Materials Project database.
 
         Args:
             mpid: The Materials Project ID of the new system.

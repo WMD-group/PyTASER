@@ -1,6 +1,6 @@
 """
-Tests for the parsing/generation functionality of PyTASer (i.e. the generator.py, das_generator.py and
-internal_abs_generator.py modules).
+Tests for the parsing/generation functionality of PyTASer (i.e. the
+generator.py, das_generator.py and internal_abs_generator.py modules).
 """
 
 import os
@@ -148,7 +148,9 @@ def test_occ_dependent_alpha(
 
 
 def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
-    """Test that from_vasp_outputs raises informative errors when ISYM not 0/-1."""
+    """
+    Test that from_vasp_outputs raises informative errors when ISYM not 0/-1.
+    """
     with pytest.raises(
         ValueError,
         match="ISYM must be set to 0 and ",  # isym error, then followed by LVEL error
@@ -160,7 +162,9 @@ def test_symmetry_error(cdte_vasp_generated_class, datapath_cdte):
 
 
 def test_LVEL_false_error(cdte_vasp_generated_class, datapath_cdte):
-    """Test that from_vasp_outputs raises informative errors when LVEL not True."""
+    """
+    Test that from_vasp_outputs raises informative errors when LVEL not True.
+    """
     with pytest.raises(
         ValueError,
         match="LVEL must be set to True in the INCAR for the VASP optics calculation",
