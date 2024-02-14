@@ -2,6 +2,8 @@ name: Release and publish
 
 on:
   push:
+    paths:
+      - 'setup.py'  # only release when setup.py has been updated
     branches:
       - main
     tags:
