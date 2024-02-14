@@ -1,0 +1,60 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Aggarwal
+  given-names: Savyasanchi
+  orcid: "https://orcid.org/0009-0007-7128-3465"
+- family-names: Kavanagh
+  given-names: Seán R.
+  orcid: "https://orcid.org/0000-0003-4577-9647"
+- family-names: Woo
+  given-names: Young Won
+- family-names: Verga
+  given-names: Lucas G.
+  orcid: "https://orcid.org/0000-0002-7453-238X"
+- family-names: Ganose
+  given-names: Alex M.
+  orcid: "https://orcid.org/0000-0002-4486-3321"
+- family-names: Walsh
+  given-names: Aron
+  orcid: "https://orcid.org/0000-0001-5460-7033"
+contact:
+- family-names: Walsh
+  given-names: Aron
+  orcid: "https://orcid.org/0000-0001-5460-7033"
+doi: 10.5281/zenodo.10634762
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Aggarwal
+    given-names: Savyasanchi
+    orcid: "https://orcid.org/0009-0007-7128-3465"
+  - family-names: Kavanagh
+    given-names: Seán R.
+    orcid: "https://orcid.org/0000-0003-4577-9647"
+  - family-names: Woo
+    given-names: Young Won
+  - family-names: Verga
+    given-names: Lucas G.
+    orcid: "https://orcid.org/0000-0002-7453-238X"
+  - family-names: Ganose
+    given-names: Alex M.
+    orcid: "https://orcid.org/0000-0002-4486-3321"
+  - family-names: Walsh
+    given-names: Aron
+    orcid: "https://orcid.org/0000-0001-5460-7033"
+  date-published: 2024-02-14
+  doi: 10.21105/joss.05999
+  issn: 2475-9066
+  issue: 94
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5999
+  title: "PyTASER: Simulating transient absorption spectroscopy (TAS)
+    for crystals from first principles"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05999"
+  volume: 9
+title: "PyTASER: Simulating transient absorption spectroscopy (TAS) for
+  crystals from first principles"

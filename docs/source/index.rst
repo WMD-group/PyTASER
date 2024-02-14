@@ -8,14 +8,17 @@
 Welcome to PyTASER's documentation!
 ===================================
 
+.. image:: https://joss.theoj.org/papers/10.21105/joss.05999/status.svg
+ :target: https://doi.org/10.21105/joss.05999
+
+.. image:: https://img.shields.io/pypi/v/pytaser
+ :target: https://pypi.org/project/pytaser
+
 .. image:: https://github.com/WMD-Group/PyTASER/actions/workflows/build_and_test.yml/badge.svg
  :target: https://github.com/WMD-Group/PyTASER/actions
 
 .. image:: https://readthedocs.org/projects/pytaser/badge/?version=latest&style=flat
  :target: https://pytaser.readthedocs.io/en/latest/
-
-.. image:: https://img.shields.io/pypi/v/pytaser
- :target: https://pypi.org/project/pytaser
 
 .. image:: https://img.shields.io/badge/Made%20with-Python-1f425f.svg
  :target: https://www.python.org/
@@ -65,6 +68,9 @@ This is done by calculating the effective absorption in each state - this is a p
    :align: center
 
    Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited 'light' state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots.
+
+More details on the theory behind TAS can be found in the
+`JOSS paper <https://joss.theoj.org/papers/10.21105/joss.05999>`__.
 
 ============
 Installation

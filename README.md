@@ -1,8 +1,9 @@
+[![JOSS](https://joss.theoj.org/papers/10.21105/joss.05999/status.svg)](https://doi.org/10.21105/joss.04817)
+[![pypi](https://img.shields.io/pypi/v/pytaser)](https://pypi.org/project/pytaser)
+[![tests](https://github.com/WMD-Group/PyTASER/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/WMD-Group/PyTASER/actions)
 [![Documentation Status](https://readthedocs.org/projects/pytaser/badge/?version=latest)](https://pytaser.readthedocs.io/en/latest/?badge=latest)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![tests](https://github.com/WMD-Group/PyTASER/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/WMD-Group/PyTASER/actions)
-[![pypi](https://img.shields.io/pypi/v/pytaser)](https://pypi.org/project/pytaser)
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 # PyTASER
@@ -46,7 +47,7 @@ This is done by calculating the effective absorption in each state - this is a p
   <em>Schematics of the ground and excited state electronic structures and optical profiles. The ground 'dark' state is at the top, showing full occupancy and unoccupancy (blue, orange) for the conduction and valence bands respectively. The excited 'light' state shows partial occupancy in a similar plot at the bottom. The overall DA plot is displayed to the right, the difference between the dark and light effective absorption plots.</em>
 </p>
 
-## JDOS method
+More details on the theory behind TAS can be found in the [JOSS paper](https://joss.theoj.org/papers/10.21105/joss.05999).
 
 # Installation
 
