@@ -1,4 +1,4 @@
-[![JOSS](https://joss.theoj.org/papers/10.21105/joss.05999/status.svg)](https://doi.org/10.21105/joss.04817)
+[![JOSS](https://joss.theoj.org/papers/10.21105/joss.05999/status.svg)](https://doi.org/10.21105/joss.05999)
 [![pypi](https://img.shields.io/pypi/v/pytaser)](https://pypi.org/project/pytaser)
 [![tests](https://github.com/WMD-Group/PyTASER/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/WMD-Group/PyTASER/actions)
 [![Documentation Status](https://readthedocs.org/projects/pytaser/badge/?version=latest)](https://pytaser.readthedocs.io/en/latest/?badge=latest)
