@@ -47,7 +47,7 @@ setup(
     extras_require={
         "tests": [
             "pytest>=7.1.3",
-            "pytest-mpl==0.15.1",
+            "pytest-mpl>=0.16.",
             "monty",
             "pathlib",
         ],
