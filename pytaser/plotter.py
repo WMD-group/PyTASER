@@ -348,14 +348,14 @@ class TASPlotter:
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
                         normalised_tas[xmin_ind:xmax_ind],
-                        label="Total TAS (Δα)",
+                        label=r"Total TAS ($\Delta\alpha$)",
                         color="black",
                         lw=3.5,
                         alpha=0.75,  # make semi-transparent to show if overlapping lines
                     )
 
                 else:  # yaxis = "alpha"
-                    abs_label = "a (a.u.)"
+                    abs_label = r"$\alpha$ (a.u.)"
                     transition_dict = {}  # control transition plotting here rather than later on:
                     alpha_normalisation_factor = np.max(  # normalise to max alpha in dark
                         np.abs(self.alpha_dark)[xmin_ind:xmax_ind]
@@ -367,7 +367,7 @@ class TASPlotter:
                             - self.alpha_light_dict["emission"][xmin_ind:xmax_ind]
                         )
                         / alpha_normalisation_factor,
-                        label="a (light)",
+                        label=r"$\alpha$ (light)",
                         color="black",
                         lw=2.5,
                         alpha=0.75,  # make semi-transparent to show if overlapping lines
@@ -375,7 +375,7 @@ class TASPlotter:
                     plt.plot(
                         energy_mesh[xmin_ind:xmax_ind],
                         self.alpha_dark[xmin_ind:xmax_ind] / alpha_normalisation_factor,
-                        label="a (dark)",
+                        label=r"$\alpha$ (dark)",
                         color="blue",
                         lw=2.5,
                         alpha=0.75,  # make semi-transparent to show if overlapping lines
@@ -470,7 +470,7 @@ class TASPlotter:
                 plt.plot(
                     energy_mesh[xmin_ind:xmax_ind],
                     jdos_diff[xmin_ind:xmax_ind],
-                    label="Total TAS (ΔJDOS only)",
+                    label="Total TAS ($\\Delta$JDOS only)",
                     color="black",
                     lw=3.5,
                     alpha=0.75,  # make semi-transparent to show if overlapping lines
