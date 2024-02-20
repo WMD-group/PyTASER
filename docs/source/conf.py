@@ -81,7 +81,6 @@ html_theme_options = {
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
         "colab_url": "https://colab.research.google.com",
-	"thebe": true,
     },    
 }
 
