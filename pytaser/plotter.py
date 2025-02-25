@@ -244,7 +244,7 @@ class TASPlotter:
                 xmax_ind = np.abs(energy_mesh - xmin).argmin()
             if xmax is not None:
                 xmin_ind = np.abs(energy_mesh - xmax).argmin()
-            if yaxis.lower() == "das" or yaxis.lower() == "jdos_das":
+            if yaxis.lower() in ["das", "jdos_das"]:
                 bg = self.bandgap_ref_lambda
                 bg_ref = self.bandgap_ref_lambda
                 bg_new_sys = self.bandgap_new_sys_lambda
@@ -258,7 +258,7 @@ class TASPlotter:
                 xmin_ind = np.abs(energy_mesh - xmin).argmin()
             if xmax is not None:
                 xmax_ind = np.abs(energy_mesh - xmax).argmin()
-            if yaxis.lower() == "das" or yaxis.lower() == "jdos_das":
+            if yaxis.lower() in ["das", "jdos_das"]:
                 bg = self.bandgap_ref
                 bg_ref = self.bandgap_ref
                 bg_new_sys = self.bandgap_new_sys
@@ -693,7 +693,7 @@ class TASPlotter:
         if ymin is None:
             ymin = y_axis_min
 
-        if yaxis.lower() == "das" or yaxis.lower() == "jdos_das":
+        if yaxis.lower() in ["das", "jdos_das"]:
             if bg_ref is not None and bg_new_sys is not None:
                 y_bg = np.linspace(ymin, ymax)
                 x_bg_ref = np.empty(len(y_bg), dtype=float)
@@ -703,14 +703,14 @@ class TASPlotter:
                 plt.plot(
                     x_bg_new_sys,
                     y_bg,
-                    label=label_name + " Bandgap",
+                    label=f"{label_name} Bandgap",
                     color="red",
                     ls="--",
                 )
                 plt.plot(
                     x_bg_ref,
                     y_bg,
-                    label=labe_name_ref + " Bandgap",
+                    label=f"{labe_name_ref} Bandgap",
                     color="blue",
                     ls="--",
                 )
@@ -757,10 +757,14 @@ class TASPlotter:
                 # Set x limit to 95% of min x-value
                 xmin = min_x_for_y_gt_0 * 0.95
 
+            xmin = max(xmin, 0)
+            xmax = min(xmax, max(energy_mesh))
+            xmax = min(xmax, 5000)  # limit xmax to 5000 nm (5 µm) to avoid plotting issues
+
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
 
-        if yaxis.lower() == "das" or yaxis.lower() == "jdos_das":
+        if yaxis.lower() in ["das", "jdos_das"]:
             if self.material_name is not None:
                 # add $_X$ around each digit X in self.material_name, to give formatted chemical formula
                 formatted_material_name = re.sub(r"(\d)", r"$_{\1}$", self.material_name)
