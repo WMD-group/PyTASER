@@ -174,7 +174,9 @@ def _calculate_oscillator_strength(args):
         sigma=sigma,
         nx=nedos,
         dx=deltae,
-        ismear=ismear,
+        # use Gaussian smearing if ISMEAR = -5 calculation input (as this function only supports ISMEAR
+        # >= -1, but results essentially equivalent):
+        ismear=ismear if ismear >= -1 else 0,
     )
 
     absorption = smeared_wout_matrix_el * abs_matrix_el
