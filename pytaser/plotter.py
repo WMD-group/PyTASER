@@ -291,6 +291,8 @@ class TASPlotter:
                 )
 
         def _rescale_overlapping_curves(list_of_curves):
+            if not [curve for curve in list_of_curves if curve is not None]:
+                return list_of_curves
             local_extrema_coords = []
             output_list_of_curves = []
             # get max value of all curves to use as relative scaling factor:
@@ -404,7 +406,7 @@ class TASPlotter:
                                 plt.plot(
                                     energy_mesh[xmin_ind:xmax_ind],
                                     list_of_curves[i] / weighted_jdos_normalisation_factor,
-                                    label=str(transition) + " (light)",
+                                    label=f"{transition!s} (light)",
                                     color=f"C{2 * i}",
                                     lw=2.5,
                                 )
@@ -439,7 +441,7 @@ class TASPlotter:
                                 plt.plot(
                                     energy_mesh[xmin_ind:xmax_ind],
                                     list_of_curves[i] / weighted_jdos_normalisation_factor,
-                                    label=str(transition) + " (light)",
+                                    label=f"{transition!s} (light)",
                                     lw=2.5,
                                     color=f"C{2 * i}",
                                 )
@@ -566,7 +568,7 @@ class TASPlotter:
                         plt.plot(
                             energy_mesh[xmin_ind:xmax_ind],
                             list_of_curves[i],
-                            label=str(transition) + " (light)",
+                            label=f"{transition!s} (light)",
                             color=f"C{2 * i}",
                             lw=2.5,
                         )
@@ -598,7 +600,7 @@ class TASPlotter:
                         plt.plot(
                             energy_mesh[xmin_ind:xmax_ind],
                             list_of_curves[i],
-                            label=str(transition) + " (light)",
+                            label=f"{transition!s} (light)",
                             lw=2.5,
                             color=f"C{2 * i}",
                         )
@@ -757,9 +759,11 @@ class TASPlotter:
                 # Set x limit to 95% of min x-value
                 xmin = min_x_for_y_gt_0 * 0.95
 
-            xmin = max(xmin, 0)
-            xmax = min(xmax, max(energy_mesh))
-            xmax = min(xmax, 5000)  # limit xmax to 5000 nm (5 µm) to avoid plotting issues
+            if xmin is not None:
+                xmin = max(xmin, 0)
+            if xmax is not None:
+                xmax = min(xmax, max(energy_mesh))
+                xmax = min(xmax, 5000)  # limit xmax to 5000 nm (5 µm) to avoid plotting issues
 
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
