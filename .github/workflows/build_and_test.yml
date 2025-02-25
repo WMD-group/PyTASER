@@ -59,7 +59,7 @@ jobs:
       # Upload test plots
       - name: Archive test plots
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: output-plots
           path: tests/remote_baseline_plots
