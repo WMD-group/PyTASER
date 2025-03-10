@@ -1,6 +1,13 @@
 Change log
 ==========
 
+v2.3.1
+~~~~~~
+- Update ``ISMEAR`` handling (allows ``ISMEAR = -5`` results to be parsed and plotted)
+- Plotting updates (`transition_cutoff`, x-max handling)
+- Cleanup of GitHub Actions (update to supported workflow versions).
+- Some code cleanup
+
 v2.3.0
 ~~~~~~
 - Updates to plotting (cleaner plots and titles to include scientific notation)

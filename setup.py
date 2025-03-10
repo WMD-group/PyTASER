@@ -10,7 +10,7 @@ from setuptools import find_packages, setup
 long_description = pathlib.Path("README.md").read_text()
 setup(
     name="pytaser",
-    version="2.3.0",
+    version="2.3.1",
     description="TAS prediction tool",
     url="https://pytaser.readthedocs.io/en/latest/",
     author="Savyasanchi Aggarwal",
