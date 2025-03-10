@@ -25,6 +25,8 @@ def decode_dict(subdict):
 
         for k in list(subdict.keys()):
             v = subdict.pop(k)
+            if k.startswith("(") and k.endswith(")"):
+                print(k, v)  # debugging
             key = ast.literal_eval(k) if k.startswith("(") and k.endswith(")") else k
 
             if isinstance(v, dict) and "@module" in v:
