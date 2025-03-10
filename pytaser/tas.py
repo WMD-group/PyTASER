@@ -9,21 +9,6 @@ import ast
 from monty.json import MontyDecoder
 
 
-def convert_to_tuple(subdict):
-    """
-    Converts subdict representation to tuple.
-
-    Args:
-        subdict: dict,
-
-    Returns:
-        subdict: tuple
-    """
-    if isinstance(subdict, dict) and "@module" not in subdict:
-        return {ast.literal_eval(k) if "(" in k and ")" in k else k: v for k, v in subdict.items()}
-    return subdict
-
-
 def decode_dict(subdict):
     """
     Decode subdict from a dict representation using MontyDecoder.
@@ -37,9 +22,16 @@ def decode_dict(subdict):
     if isinstance(subdict, dict):
         if "@module" in subdict:
             return MontyDecoder().process_decoded(subdict)
-        for k, v in subdict.items():
+
+        for k in list(subdict.keys()):
+            v = subdict.pop(k)
+            key = ast.literal_eval(k) if k.startswith("(") and k.endswith(")") else k
+
             if isinstance(v, dict) and "@module" in v:
-                subdict[k] = MontyDecoder().process_decoded(v)
+                v = MontyDecoder().process_decoded(v)
+
+            subdict[key] = v
+
     return subdict
 
 
@@ -181,8 +173,7 @@ class Tas:
         Returns:
             Tas object
         """
-        d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
-        d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
+        d_decoded = {k: decode_dict(v) for k, v in d.items()}
 
         for monty_key in ["@module", "@class"]:
             if monty_key in d_decoded:
@@ -321,7 +312,6 @@ class Das:
         Returns:
             Das object
         """
-        d_dec = {k: convert_to_tuple(v) for k, v in d.items()}
-        d_decoded = {k: decode_dict(v) for k, v in d_dec.items()}
+        d_decoded = {k: decode_dict(v) for k, v in d.items()}
 
         return cls(**d_decoded)

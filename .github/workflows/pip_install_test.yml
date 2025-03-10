@@ -8,7 +8,7 @@ on:
       - completed  # only test when new release has been deployed to PyPI
 
 jobs:
-  build:
+  install_and_test:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     strategy:
