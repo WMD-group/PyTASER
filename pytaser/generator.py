@@ -724,9 +724,9 @@ class TASGenerator:
 
                         if self.bs.is_spin_polarized:
                             spin_str = "up" if spin == Spin.up else "down"
-                            key = (new_i, new_f, spin_str)
+                            key = (int(new_i), int(new_f), spin_str)
                         else:
-                            key = (new_i, new_f)
+                            key = (int(new_i), int(new_f))
 
                         jdos_dark_if[key] = jd_dark
                         jdos_light_if[key] = jd_light

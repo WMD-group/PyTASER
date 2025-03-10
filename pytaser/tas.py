@@ -25,8 +25,6 @@ def decode_dict(subdict):
 
         for k in list(subdict.keys()):
             v = subdict.pop(k)
-            if k.startswith("(") and k.endswith(")"):
-                print(k, v)  # debugging  TODO: Remove
             key = ast.literal_eval(k) if k.startswith("(") and k.endswith(")") else k
 
             # Note that future code updates could avoid the use of tuples as keys, to avoid the
