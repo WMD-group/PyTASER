@@ -38,7 +38,7 @@ setup(
         "numpy",
         "scipy",
         "matplotlib>=3.7.1",
-        "pymatgen>=2024.1.27",
+        "pymatgen>=2023.05.31",
         "mp-api>=0.35",  # https://github.com/materialsproject/pymatgen/issues/3241
     ],
     extras_require={
