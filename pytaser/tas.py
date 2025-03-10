@@ -26,8 +26,11 @@ def decode_dict(subdict):
         for k in list(subdict.keys()):
             v = subdict.pop(k)
             if k.startswith("(") and k.endswith(")"):
-                print(k, v)  # debugging
+                print(k, v)  # debugging  TODO: Remove
             key = ast.literal_eval(k) if k.startswith("(") and k.endswith(")") else k
+
+            # Note that future code updates could avoid the use of tuples as keys, to avoid the
+            # additional handling / conversion steps here
 
             if isinstance(v, dict) and "@module" in v:
                 v = MontyDecoder().process_decoded(v)
@@ -157,10 +160,10 @@ class Tas:
             "weighted_jdos_diff_if": self.weighted_jdos_diff_if,
         }
         for key, value in json_dict.items():
-            if isinstance(value, dict):
+            if isinstance(value, dict):  # likely transitions dictionary, convert tuples to strings
                 json_dict[key] = {
-                    str(k): v for k, v in value.items()
-                }  # decomp dicts, can't have tuples as keys
+                    str((int(k[0]), int(k[1]))) if isinstance(k, tuple) else k: v for k, v in value.items()
+                }  # decomp dicts, can't have tuples as keys, so convert to str of tuple of integers
         return json_dict
 
     @classmethod
@@ -296,10 +299,10 @@ class Das:
             "weighted_jdos_ref_if": self.weighted_jdos_ref_if,
         }
         for key, value in json_dict.items():
-            if isinstance(value, dict):
+            if isinstance(value, dict):  # likely transitions dictionary, convert tuples to strings
                 json_dict[key] = {
-                    str(k): v for k, v in value.items()
-                }  # decomp dicts, can't have tuples as keys
+                    str((int(k[0]), int(k[1]))) if isinstance(k, tuple) else k: v for k, v in value.items()
+                }  # decomp dicts, can't have tuples as keys, so convert to str of tuple of integers
         return json_dict
 
     @classmethod
