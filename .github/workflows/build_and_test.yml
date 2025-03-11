@@ -50,9 +50,9 @@ jobs:
           # pytest --mpl --mpl-generate-summary=html tests/test_plotter.py
 
       - name: Generate GH Actions test plots
-        if: always()  # always generate the plots, even if the tests fail
+        if: failure() && steps.plotting_tests.outcome == 'failure'  # Run only if plotting tests fail
         run: |
-          # Generate the test plots in case there were any failures:
+          # Generate the test plots if there were any failures:
           pytest --mpl-generate-path=tests/remote_baseline_plots tests/test_plotter.py
 
       # Upload test plots
