@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_test:
     strategy:
       fail-fast: false
 
@@ -32,13 +32,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install setuptools setuptools_scm wheel
-          pip install numpy
           pip install -e .
           pip install -e .[tests]
 
       - name: Check package versions
         run: |
-          pip show -V pymatgen
+          pip show -V pymatgen monty
           pip show -V pytest
 
       - name: Test
@@ -51,15 +50,15 @@ jobs:
           # pytest --mpl --mpl-generate-summary=html tests/test_plotter.py
 
       - name: Generate GH Actions test plots
-        if: always()  # always generate the plots, even if the tests fail
+        if: failure() && steps.plotting_tests.outcome == 'failure'  # Run only if plotting tests fail
         run: |
-          # Generate the test plots in case there were any failures:
+          # Generate the test plots if there were any failures:
           pytest --mpl-generate-path=tests/remote_baseline_plots tests/test_plotter.py
 
       # Upload test plots
       - name: Archive test plots
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: output-plots
           path: tests/remote_baseline_plots

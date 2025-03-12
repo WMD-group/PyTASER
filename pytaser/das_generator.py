@@ -54,7 +54,19 @@ class DASGenerator:
         Create a DASGenerator object from VASP output files.
 
         The user should provide the vasprun files for the new system and the reference system,
-        followed by the waveder files for the new system and the reference system.
+        followed by the WAVEDER files for the new system and the reference system.
+
+        Note that by default, the `ISMEAR` smearing method from the `VASP` calculations
+        are used by `PyTASER` when generating the DAS spectra. If `ISMEAR` < -1 (e.g.
+        tetrahedron smearing), then this is set to `ISMEAR` = 0 (Gaussian smearing) as
+        tetrahedron smearing is not supported by the `pymatgen` optics module used in
+        these functions.
+
+        The smearing width (equivalent to `SIGMA` in VASP) is controlled by the
+        ``gaussian_width`` parameter in the `DASGenerator.generate_das()` function,
+        which is 0.1 eV by default, regardless of the value used in the underlying
+        `VASP` calculations. ``cshift`` and ``gaussian_width`` are the dominant factors
+        in determining the broadening of the output spectra.
 
         Args:
             vasprun_file_new_system: The vasprun.xml file for the new system.
@@ -128,11 +140,14 @@ class DASGenerator:
         of oscillator strengths. Otherwise, the output DAS is generated considering all contributions
         to the predicted DAS spectrum.
 
+        ``cshift`` and ``gaussian_width`` are the dominant factors in determining
+        the broadening of the output spectra.
+
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
             energy_min: Minimum band transition energy to consider for energy mesh (eV)
             energy_max: Maximum band transition energy to consider for energy mesh (eV)
-            gaussian_width: Width of gaussian curve
+            gaussian_width: Gaussian smearing width. Default is 0.1 eV.
             cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function
                 (see https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of
                 CSHIFT from the underlying VASP WAVEDER calculation. (only relevant if the

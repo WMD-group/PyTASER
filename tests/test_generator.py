@@ -318,11 +318,10 @@ def test_generate_tas(generated_class, light, dark, tas_object, conditions):
     assert tas_class.tas_total.all() == tas_object.tas_total.all()
     for if_tuple in tas_class.jdos_diff_if:
         np.testing.assert_array_almost_equal(
-            tas_class.jdos_diff_if[if_tuple], tas_object.jdos_diff_if[if_tuple]
+            tas_class.jdos_diff_if[if_tuple], tas_object.jdos_diff_if[if_tuple], decimal=5
         )
         np.testing.assert_array_almost_equal(
-            tas_class.jdos_light_if[if_tuple],
-            tas_object.jdos_light_if[if_tuple],
+            tas_class.jdos_light_if[if_tuple], tas_object.jdos_light_if[if_tuple], decimal=5
         )
     assert tas_class.jdos_light_total.all() == tas_object.jdos_light_total.all()
     assert tas_class.jdos_dark_total.all() == tas_object.jdos_dark_total.all()

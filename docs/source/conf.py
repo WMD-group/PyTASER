@@ -26,7 +26,7 @@ copyright = "2022, Savyasanchi Aggarwal"
 author = "Savyasanchi Aggarwal"
 
 # The full version, including alpha/beta/rc tags
-release = "2.3.0"
+release = "2.3.1"
 
 # -- General configuration ---------------------------------------------------
 
@@ -81,7 +81,7 @@ html_theme_options = {
     "launch_buttons": {
         "binderhub_url": "https://mybinder.org",
         "colab_url": "https://colab.research.google.com",
-    },    
+    },
 }
 
 html_logo = "_static/PyTASER.png"

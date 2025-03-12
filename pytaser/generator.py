@@ -174,7 +174,9 @@ def _calculate_oscillator_strength(args):
         sigma=sigma,
         nx=nedos,
         dx=deltae,
-        ismear=ismear,
+        # use Gaussian smearing if ISMEAR = -5 calculation input (as this function only supports ISMEAR
+        # >= -1, but results essentially equivalent):
+        ismear=ismear if ismear >= -1 else 0,
     )
 
     absorption = smeared_wout_matrix_el * abs_matrix_el
@@ -270,7 +272,8 @@ def occ_dependent_alpha(
         spin: Which spin channel to include.
         sigma: Smearing width (in eV) for broadening of the dielectric function (see
             https://www.vasp.at/wiki/index.php/SIGMA). If not set, uses the value of SIGMA from the
-            underlying VASP WAVEDER calculation.
+            underlying VASP WAVEDER calculation. Note that the default in ``TASGenerator.generate_tas()``
+            is to use a Gaussian width of 0.1 eV, regardless of SIGMA in the VASP calculation.
         cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function (see
             https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of CSHIFT from
             the underlying VASP WAVEDER calculation.
@@ -449,6 +452,18 @@ class TASGenerator:
         """
         Create a TASGenerator object from VASP output files.
 
+        Note that by default, the `ISMEAR` smearing method from the `VASP` calculation
+        is used by `PyTASER` when generating the TAS spectra. If `ISMEAR` < -1 (e.g.
+        tetrahedron smearing), then this is set to `ISMEAR` = 0 (Gaussian smearing) as
+        tetrahedron smearing is not supported by the `pymatgen` optics module used in
+        these functions.
+
+        The smearing width (equivalent to `SIGMA` in VASP) is controlled by the
+        ``gaussian_width`` parameter in the `TASGenerator.generate_tas()` function,
+        which is 0.1 eV by default, regardless of the value used in the underlying
+        `VASP` calculation. ``cshift`` and ``gaussian_width`` are the dominant factors
+        in determining the broadening of the output TAS spectra.
+
         Args:
             vasprun_file: Path to vasprun.xml file (to generate bandstructure object).
             waveder_file: Path to WAVEDER file (to generate dielectric function calculator object,
@@ -570,13 +585,16 @@ class TASGenerator:
         the output TAS is generated considering all contributions to the
         predicted TAS spectrum.
 
+        ``cshift`` and ``gaussian_width`` are the dominant factors in determining
+        the broadening of the output TAS spectra.
+
         Args:
             temp: Temperature (K) of material we wish to investigate (affects the FD distribution)
             conc: Carrier concentration (cm^-3) of holes and electrons (both are equivalent).
                 Inversely proportional to pump-probe time delay.
             energy_min: Minimum band transition energy to consider for energy mesh (eV)
             energy_max: Maximum band transition energy to consider for energy mesh (eV)
-            gaussian_width: Width of gaussian curve
+            gaussian_width: Gaussian smearing width. Default is 0.1 eV.
             cshift: Complex shift in the Kramers-Kronig transformation of the dielectric function
                 (see https://www.vasp.at/wiki/index.php/CSHIFT). If not set, uses the value of
                 CSHIFT from the underlying VASP WAVEDER calculation. (only relevant if the
@@ -722,9 +740,9 @@ class TASGenerator:
 
                         if self.bs.is_spin_polarized:
                             spin_str = "up" if spin == Spin.up else "down"
-                            key = (new_i, new_f, spin_str)
+                            key = (int(new_i), int(new_f), spin_str)
                         else:
-                            key = (new_i, new_f)
+                            key = (int(new_i), int(new_f))
 
                         jdos_dark_if[key] = jd_dark
                         jdos_light_if[key] = jd_light

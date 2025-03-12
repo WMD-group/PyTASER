@@ -133,6 +133,23 @@ def test_get_plot_tas_lambda(plotter_gaas):
     )
 
 
+def test_get_plot_tas_transition_cutoff_greater_than_1(plotter_gaas):
+    """
+    Test get_plot() TAS function for GaAs with a 110% cutoff (i.e. only total
+    shown) and a wavelength xaxis.
+    """
+    return plotter_gaas.get_plot(
+        relevant_transitions="auto",
+        xaxis="wavelength",
+        transition_cutoff=1.1,
+        xmin=None,
+        xmax=1200,
+        ymin=None,
+        ymax=None,
+        yaxis="tas",
+    )
+
+
 @pytest.mark.mpl_image_compare(
     baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
     filename="jdos_ev_gaas.png",

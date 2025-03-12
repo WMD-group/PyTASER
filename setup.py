@@ -10,7 +10,7 @@ from setuptools import find_packages, setup
 long_description = pathlib.Path("README.md").read_text()
 setup(
     name="pytaser",
-    version="2.3.0",
+    version="2.3.1",
     description="TAS prediction tool",
     url="https://pytaser.readthedocs.io/en/latest/",
     author="Savyasanchi Aggarwal",
@@ -39,10 +39,7 @@ setup(
         "scipy",
         "matplotlib>=3.7.1",
         "pymatgen>=2023.05.31",
-        "mp-api!=0.34.0,!=0.34.1,!=0.34.2",
-        # bug: boto3 added as an unnecessary requirement
-        # (https://github.com/materialsproject/pymatgen/issues/3241,
-        # https://github.com/materialsproject/api/pull/836)
+        "mp-api>=0.35",  # https://github.com/materialsproject/pymatgen/issues/3241
     ],
     extras_require={
         "tests": [
