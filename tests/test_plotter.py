@@ -133,6 +133,11 @@ def test_get_plot_tas_lambda(plotter_gaas):
     )
 
 
+@pytest.mark.mpl_image_compare(
+    baseline_dir=f"{_DATA_DIR}/remote_baseline_plots",
+    filename="tas_lambda_gaas_transition_cutoff_greater_than_1.png",
+    savefig_kwargs={"transparent": True, "bbox_inches": "tight"},
+)
 def test_get_plot_tas_transition_cutoff_greater_than_1(plotter_gaas):
     """
     Test get_plot() TAS function for GaAs with a 110% cutoff (i.e. only total
