@@ -707,7 +707,11 @@ class TASGenerator:
                 for key in alpha_light_dict:
                     alpha_light_dict[key] += calculated_alpha_light_dict[key]
 
-            for i in range(len(spin_bands)):
+            for i in tqdm(
+                range(len(spin_bands)),
+                desc="Calculating band-resolved JDOS and TAS",
+                total=len(spin_bands),
+            ):
                 for f in range(len(spin_bands)):
                     if f > i:
                         jd_light = jdos(

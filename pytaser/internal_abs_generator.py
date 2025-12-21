@@ -13,6 +13,7 @@ from pymatgen.ext.matproj import MPRester
 from pymatgen.io.vasp import optics
 from pymatgen.io.vasp.inputs import UnknownPotcarWarning
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
+from tqdm import tqdm
 
 from pytaser import generator
 from pytaser.kpoints import get_kpoint_weights
@@ -213,7 +214,11 @@ class Internal_Abs:
                 alpha_dark += alpha_dark_dict["both"]  # stimulated emission should be
                 # zero in the dark
 
-            for i in range(len(spin_bands)):
+            for i in tqdm(
+                range(len(spin_bands)),
+                desc="Calculating band-resolved JDOS and absorption",
+                total=len(spin_bands),
+            ):
                 for f in range(len(spin_bands)):
                     if f > i:
                         jd_dark = generator.jdos(
